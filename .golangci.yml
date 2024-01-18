@@ -1,0 +1,23 @@
+run:
+  timeout: 2m
+  tests: false
+linters:
+  enable-all: true
+  disable:
+    - exhaustruct
+    - depguard
+    - varnamelen
+    - lll
+    - exhaustivestruct # deprecated
+    - deadcode # deprecated
+    - varcheck # deprecated
+    - structcheck # deprecated
+    - wastedassign # deprecated
+    - nosnakecase # deprecated
+    - interfacer # deprecated
+    - scopelint # deprecated
+    - golint # deprecated
+    - maligned # deprecated
+    - ifshort # deprecated
+  fast: false
+
