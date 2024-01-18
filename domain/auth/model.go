@@ -18,14 +18,25 @@ const (
 	KeyOwnerTypeDaemon
 )
 
+// All enums. Used for testing purposes to validate that all enum values are
+// covered.
+//
+//nolint:gochecknoglobals
+var (
+	AllProviderTypes = []ProviderType{ProviderTypeGoogle}
+	AllSystemRoles   = []SystemRole{SystemRoleUser, SystemRoleAdmin, SystemRoleSysadmin}
+	AllKeyOwnerTypes = []KeyOwnerType{KeyOwnerTypeUser, KeyOwnerTypeDaemon}
+)
+
 // Application represents an application that can be used to authenticate
 // users. It is used to group providers and users.
 // It is the top level entity in the auth domain.
 type Application struct {
-	ID      ID
-	Code    string
-	Name    string
-	Enabled bool
+	ID          ID
+	Code        string
+	Name        string
+	Description string
+	Enabled     bool
 }
 
 // ProviderType represents the type of authentication provider.
@@ -38,6 +49,7 @@ type Provider struct {
 	Type          ProviderType
 	Code          string
 	Name          string
+	Description   string
 	Enabled       bool
 	ClientID      string
 	ClientSecret  string
@@ -53,6 +65,7 @@ type User struct {
 	ID            ID
 	ApplicationID ID
 	Username      string
+	Description   string
 	Enabled       bool
 	Role          SystemRole
 }
@@ -71,8 +84,8 @@ type Daemon struct {
 	ApplicationID ID
 	Code          string
 	Name          string
-	Enabled       bool
 	Description   string
+	Enabled       bool
 }
 
 // APIKey represents an API key that can be used to authenticate a daemon.
@@ -81,9 +94,10 @@ type APIKey struct {
 	ID          ID
 	OwnerID     ID
 	OwnerType   KeyOwnerType
-	Key         string
-	Enabled     bool
+	Name        string
 	Description string
+	Enabled     bool
+	Key         string
 	ExpiresAt   time.Time
 }
 

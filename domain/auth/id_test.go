@@ -21,3 +21,11 @@ func TestID_IsEmpty(t *testing.T) {
 		require.False(t, id.IsEmpty())
 	})
 }
+
+func TestID_String(t *testing.T) {
+	t.Parallel()
+
+	id := ID("1")
+
+	require.Equal(t, "1", id.String())
+}

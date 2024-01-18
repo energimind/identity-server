@@ -1,0 +1,241 @@
+package repository
+
+import (
+	"testing"
+
+	"github.com/energimind/identity-service/domain/auth"
+	"github.com/energimind/identity-service/test/utils"
+	"github.com/stretchr/testify/require"
+)
+
+func Test_allEnumValuesAreMapped(t *testing.T) {
+	utils.CheckAllEnumValuesAreMapped(t, auth.AllProviderTypes, allProviderTypes, toProviderType)
+	utils.CheckAllEnumValuesAreMapped(t, auth.AllSystemRoles, allSystemRoles, toSystemRole)
+	utils.CheckAllEnumValuesAreMapped(t, auth.AllKeyOwnerTypes, allKeyOwnerTypes, toKeyOwnerType)
+
+	utils.CheckAllEnumValuesAreMapped(t, allProviderTypes, auth.AllProviderTypes, fromProviderType)
+	utils.CheckAllEnumValuesAreMapped(t, allSystemRoles, auth.AllSystemRoles, fromSystemRole)
+	utils.CheckAllEnumValuesAreMapped(t, allKeyOwnerTypes, auth.AllKeyOwnerTypes, fromKeyOwnerType)
+}
+
+func Test_toProviderType(t *testing.T) {
+	t.Parallel()
+
+	tests := map[string]struct {
+		pt     auth.ProviderType
+		exp    dbProviderType
+		panics bool
+	}{
+		"google": {
+			pt:  auth.ProviderTypeGoogle,
+			exp: dbProviderTypeGoogle,
+		},
+		"unknown": {
+			pt:     auth.ProviderType("unknown"),
+			panics: true,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			if tc.panics {
+				require.Panics(t, func() {
+					toProviderType(tc.pt)
+				})
+
+				return
+			}
+
+			require.Equal(t, tc.exp, toProviderType(tc.pt))
+		})
+	}
+}
+
+func Test_fromProviderType(t *testing.T) {
+	t.Parallel()
+
+	tests := map[string]struct {
+		pt     dbProviderType
+		exp    auth.ProviderType
+		panics bool
+	}{
+		"google": {
+			pt:  dbProviderTypeGoogle,
+			exp: auth.ProviderTypeGoogle,
+		},
+		"unknown": {
+			pt:     dbProviderType(-1),
+			panics: true,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			if tc.panics {
+				require.Panics(t, func() {
+					fromProviderType(tc.pt)
+				})
+
+				return
+			}
+
+			require.Equal(t, tc.exp, fromProviderType(tc.pt))
+		})
+	}
+}
+
+func Test_toSystemRole(t *testing.T) {
+	t.Parallel()
+
+	tests := map[string]struct {
+		r      auth.SystemRole
+		exp    dbSystemRole
+		panics bool
+	}{
+		"user": {
+			r:   auth.SystemRoleUser,
+			exp: dbSystemRoleUser,
+		},
+		"admin": {
+			r:   auth.SystemRoleAdmin,
+			exp: dbSystemRoleAdmin,
+		},
+		"sysadmin": {
+			r:   auth.SystemRoleSysadmin,
+			exp: dbSystemRoleSysadmin,
+		},
+		"unknown": {
+			r:      auth.SystemRole("unknown"),
+			panics: true,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			if tc.panics {
+				require.Panics(t, func() {
+					toSystemRole(tc.r)
+				})
+
+				return
+			}
+
+			require.Equal(t, tc.exp, toSystemRole(tc.r))
+		})
+	}
+}
+
+func Test_fromSystemRole(t *testing.T) {
+	t.Parallel()
+
+	tests := map[string]struct {
+		r      dbSystemRole
+		exp    auth.SystemRole
+		panics bool
+	}{
+		"user": {
+			r:   dbSystemRoleUser,
+			exp: auth.SystemRoleUser,
+		},
+		"admin": {
+			r:   dbSystemRoleAdmin,
+			exp: auth.SystemRoleAdmin,
+		},
+		"sysadmin": {
+			r:   dbSystemRoleSysadmin,
+			exp: auth.SystemRoleSysadmin,
+		},
+		"unknown": {
+			r:      dbSystemRole(-1),
+			panics: true,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			if tc.panics {
+				require.Panics(t, func() {
+					fromSystemRole(tc.r)
+				})
+
+				return
+			}
+
+			require.Equal(t, tc.exp, fromSystemRole(tc.r))
+		})
+	}
+}
+
+func Test_toKeyOwnerType(t *testing.T) {
+	t.Parallel()
+
+	tests := map[string]struct {
+		t      auth.KeyOwnerType
+		exp    dbKeyOwnerType
+		panics bool
+	}{
+		"user": {
+			t:   auth.KeyOwnerTypeUser,
+			exp: dbKeyOwnerTypeUser,
+		},
+		"daemon": {
+			t:   auth.KeyOwnerTypeDaemon,
+			exp: dbKeyOwnerTypeDaemon,
+		},
+		"unknown": {
+			t:      auth.KeyOwnerType(-1),
+			panics: true,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			if tc.panics {
+				require.Panics(t, func() {
+					toKeyOwnerType(tc.t)
+				})
+
+				return
+			}
+
+			require.Equal(t, tc.exp, toKeyOwnerType(tc.t))
+		})
+	}
+}
+
+func Test_fromKeyOwnerType(t *testing.T) {
+	t.Parallel()
+
+	tests := map[string]struct {
+		t      dbKeyOwnerType
+		exp    auth.KeyOwnerType
+		panics bool
+	}{
+		"user": {
+			t:   dbKeyOwnerTypeUser,
+			exp: auth.KeyOwnerTypeUser,
+		},
+		"daemon": {
+			t:   dbKeyOwnerTypeDaemon,
+			exp: auth.KeyOwnerTypeDaemon,
+		},
+		"unknown": {
+			t:      dbKeyOwnerType(-1),
+			panics: true,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			if tc.panics {
+				require.Panics(t, func() {
+					fromKeyOwnerType(tc.t)
+				})
+
+				return
+			}
+
+			require.Equal(t, tc.exp, fromKeyOwnerType(tc.t))
+		})
+	}
+}

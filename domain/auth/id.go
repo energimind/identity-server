@@ -8,3 +8,8 @@ type ID string
 func (i ID) IsEmpty() bool {
 	return i == ""
 }
+
+// String returns the string representation of the ID.
+func (i ID) String() string {
+	return string(i)
+}
