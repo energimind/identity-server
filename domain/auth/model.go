@@ -28,7 +28,7 @@ type Application struct {
 	Enabled bool
 }
 
-// ProviderType represents the type of an authentication provider.
+// ProviderType represents the type of authentication provider.
 type ProviderType string
 
 // Provider represents an authentication provider.
