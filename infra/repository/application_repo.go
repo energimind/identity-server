@@ -24,11 +24,11 @@ func NewApplicationRepository(db *mongo.Database) *ApplicationRepository {
 var _ auth.ApplicationRepository = (*ApplicationRepository)(nil)
 
 // GetApplications implements the auth.ApplicationRepository interface.
-func (a *ApplicationRepository) GetApplications(
+func (r *ApplicationRepository) GetApplications(
 	ctx context.Context,
 	principal auth.Principal,
 ) ([]auth.Application, error) {
-	coll := a.db.Collection("applications")
+	coll := r.db.Collection("applications")
 	qFilter := newFilter().scope("id", principal.ApplicationID)
 
 	qCursor, err := coll.Find(ctx, qFilter)
@@ -36,7 +36,7 @@ func (a *ApplicationRepository) GetApplications(
 		return nil, domain.NewStoreError("failed to find applications: %v", err)
 	}
 
-	applications, err := drainCursor[dbApplication](ctx, qCursor, fromApplications)
+	applications, err := drainCursor[dbApplication](ctx, qCursor, fromApplication)
 	if err != nil {
 		return nil, domain.NewStoreError("failed to get applications: %v", err)
 	}
@@ -45,12 +45,12 @@ func (a *ApplicationRepository) GetApplications(
 }
 
 // GetApplication implements the auth.ApplicationRepository interface.
-func (a *ApplicationRepository) GetApplication(
+func (r *ApplicationRepository) GetApplication(
 	ctx context.Context,
 	principal auth.Principal,
 	id auth.ID,
 ) (auth.Application, error) {
-	coll := a.db.Collection("applications")
+	coll := r.db.Collection("applications")
 	qFilter := newFilter().matchID(id, principal.ApplicationID)
 	application := dbApplication{}
 
@@ -66,12 +66,12 @@ func (a *ApplicationRepository) GetApplication(
 }
 
 // CreateApplication implements the auth.ApplicationRepository interface.
-func (a *ApplicationRepository) CreateApplication(
+func (r *ApplicationRepository) CreateApplication(
 	ctx context.Context,
 	_ auth.Principal,
 	app auth.Application,
 ) error {
-	coll := a.db.Collection("applications")
+	coll := r.db.Collection("applications")
 
 	if _, err := coll.InsertOne(ctx, toApplication(app)); err != nil {
 		return domain.NewStoreError("failed to create application: %v", err)
@@ -81,12 +81,12 @@ func (a *ApplicationRepository) CreateApplication(
 }
 
 // UpdateApplication implements the auth.ApplicationRepository interface.
-func (a *ApplicationRepository) UpdateApplication(
+func (r *ApplicationRepository) UpdateApplication(
 	ctx context.Context,
 	principal auth.Principal,
 	app auth.Application,
 ) error {
-	coll := a.db.Collection("applications")
+	coll := r.db.Collection("applications")
 	qFilter := newFilter().matchID(app.ID, principal.ApplicationID)
 	qUpdate := bson.M{"$set": toApplication(app)}
 
@@ -103,12 +103,12 @@ func (a *ApplicationRepository) UpdateApplication(
 }
 
 // DeleteApplication implements the auth.ApplicationRepository interface.
-func (a *ApplicationRepository) DeleteApplication(
+func (r *ApplicationRepository) DeleteApplication(
 	ctx context.Context,
 	principal auth.Principal,
 	id auth.ID,
 ) error {
-	coll := a.db.Collection("applications")
+	coll := r.db.Collection("applications")
 	qFilter := newFilter().matchID(id, principal.ApplicationID)
 
 	result, err := coll.DeleteOne(ctx, qFilter)

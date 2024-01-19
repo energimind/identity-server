@@ -13,11 +13,11 @@ type ApplicationRepository interface {
 
 // ProviderRepository defines the provider repository interface.
 type ProviderRepository interface {
-	GetProviders(ctx context.Context, principal Principal, appID string) ([]Provider, error)
-	GetProvider(ctx context.Context, principal Principal, appID, id ID) (Provider, error)
-	CreateProvider(ctx context.Context, principal Principal, appID string, provider Provider) error
-	UpdateProvider(ctx context.Context, principal Principal, appID string, provider Provider) error
-	DeleteProvider(ctx context.Context, principal Principal, appID, id ID) error
+	GetProviders(ctx context.Context, principal Principal) ([]Provider, error)
+	GetProvider(ctx context.Context, principal Principal, id ID) (Provider, error)
+	CreateProvider(ctx context.Context, principal Principal, provider Provider) error
+	UpdateProvider(ctx context.Context, principal Principal, provider Provider) error
+	DeleteProvider(ctx context.Context, principal Principal, id ID) error
 }
 
 // UserRepository defines the user repository interface.
@@ -31,10 +31,10 @@ type UserRepository interface {
 
 // AccountRepository defines the account repository interface.
 type AccountRepository interface {
-	GetAccounts(ctx context.Context, principal Principal, userID string) ([]Account, error)
+	GetAccounts(ctx context.Context, principal Principal, userID ID) ([]Account, error)
 	GetAccount(ctx context.Context, principal Principal, userID, id ID) (Account, error)
-	CreateAccount(ctx context.Context, principal Principal, userID string, account Account) error
-	UpdateAccount(ctx context.Context, principal Principal, userID string, account Account) error
+	CreateAccount(ctx context.Context, principal Principal, userID ID, account Account) error
+	UpdateAccount(ctx context.Context, principal Principal, userID ID, account Account) error
 	DeleteAccount(ctx context.Context, principal Principal, userID, id ID) error
 }
 
@@ -49,9 +49,9 @@ type DaemonRepository interface {
 
 // APIKeyRepository defines the API key repository interface.
 type APIKeyRepository interface {
-	GetAPIKeys(ctx context.Context, principal Principal, ownerType KeyOwnerType, ownerID string) ([]APIKey, error)
+	GetAPIKeys(ctx context.Context, principal Principal, ownerType KeyOwnerType, ownerID ID) ([]APIKey, error)
 	GetAPIKey(ctx context.Context, principal Principal, ownerType KeyOwnerType, ownerID, id ID) (APIKey, error)
-	CreateAPIKey(ctx context.Context, principal Principal, ownerType KeyOwnerType, ownerID string, key APIKey) error
-	UpdateAPIKey(ctx context.Context, principal Principal, ownerType KeyOwnerType, ownerID string, key APIKey) error
+	CreateAPIKey(ctx context.Context, principal Principal, ownerType KeyOwnerType, ownerID ID, key APIKey) error
+	UpdateAPIKey(ctx context.Context, principal Principal, ownerType KeyOwnerType, ownerID ID, key APIKey) error
 	DeleteAPIKey(ctx context.Context, principal Principal, ownerType KeyOwnerType, ownerID, id ID) error
 }

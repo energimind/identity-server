@@ -30,16 +30,6 @@ func fromApplication(app dbApplication) auth.Application {
 	}
 }
 
-func fromApplications(apps []dbApplication) []auth.Application {
-	converted := make([]auth.Application, len(apps))
-
-	for i, app := range apps {
-		converted[i] = fromApplication(app)
-	}
-
-	return converted
-}
-
 func toProvider(provider auth.Provider) dbProvider {
 	return dbProvider{
 		ID:            toID(provider.ID),
@@ -68,6 +58,16 @@ func fromProvider(provider dbProvider) auth.Provider {
 		ClientSecret:  provider.ClientSecret,
 		RedirectURL:   provider.RedirectURL,
 	}
+}
+
+func fromProviders(providers []dbProvider) []auth.Provider {
+	converted := make([]auth.Provider, len(providers))
+
+	for i, provider := range providers {
+		converted[i] = fromProvider(provider)
+	}
+
+	return converted
 }
 
 func toUser(user auth.User) dbUser {

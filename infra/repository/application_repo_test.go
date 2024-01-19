@@ -10,7 +10,7 @@ import (
 	"github.com/energimind/identity-service/test/utils"
 )
 
-func TestApplicationRepository_GetApplications(t *testing.T) {
+func TestApplicationRepository_CRUD(t *testing.T) {
 	t.Parallel()
 
 	db, closer := mongoEnv.NewInstance()

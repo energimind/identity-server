@@ -55,7 +55,7 @@ type cursor interface {
 // drainCursor drains the cursor into a slice of T and then maps it to a slice of M.
 //
 //nolint:wrapcheck
-func drainCursor[T, M any](ctx context.Context, cursor cursor, mapper func([]T) []M) ([]M, error) {
+func drainCursor[T, M any](ctx context.Context, cursor cursor, mapper func(T) M) ([]M, error) {
 	const preallocate = 4
 
 	results := make([]T, 0, preallocate)
@@ -68,5 +68,11 @@ func drainCursor[T, M any](ctx context.Context, cursor cursor, mapper func([]T) 
 		return nil, err
 	}
 
-	return mapper(results), nil
+	mapped := make([]M, len(results))
+
+	for i, result := range results {
+		mapped[i] = mapper(result)
+	}
+
+	return mapped, nil
 }
