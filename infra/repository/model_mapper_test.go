@@ -51,6 +51,14 @@ func Test_mapApplication(t *testing.T) {
 	require.Equal(t, from, back)
 }
 
+func Test_fromApplications(t *testing.T) {
+	t.Parallel()
+
+	from := []dbApplication{{ID: "app1"}}
+
+	require.Equal(t, 1, len(fromApplications(from)))
+}
+
 func Test_mapProvider(t *testing.T) {
 	t.Parallel()
 

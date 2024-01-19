@@ -30,6 +30,16 @@ func fromApplication(app dbApplication) auth.Application {
 	}
 }
 
+func fromApplications(apps []dbApplication) []auth.Application {
+	converted := make([]auth.Application, len(apps))
+
+	for i, app := range apps {
+		converted[i] = fromApplication(app)
+	}
+
+	return converted
+}
+
 func toProvider(provider auth.Provider) dbProvider {
 	return dbProvider{
 		ID:            toID(provider.ID),
