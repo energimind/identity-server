@@ -95,12 +95,12 @@ func Test_toSystemRole(t *testing.T) {
 			exp: dbSystemRoleUser,
 		},
 		"admin": {
-			r:   auth.SystemRoleAdmin,
-			exp: dbSystemRoleAdmin,
+			r:   auth.SystemRoleManager,
+			exp: dbSystemRoleManager,
 		},
 		"sysadmin": {
-			r:   auth.SystemRoleSysadmin,
-			exp: dbSystemRoleSysadmin,
+			r:   auth.SystemRoleAdmin,
+			exp: dbSystemRoleAdmin,
 		},
 		"unknown": {
 			r:      auth.SystemRole("unknown"),
@@ -136,12 +136,12 @@ func Test_fromSystemRole(t *testing.T) {
 			exp: auth.SystemRoleUser,
 		},
 		"admin": {
-			r:   dbSystemRoleAdmin,
-			exp: auth.SystemRoleAdmin,
+			r:   dbSystemRoleManager,
+			exp: auth.SystemRoleManager,
 		},
 		"sysadmin": {
-			r:   dbSystemRoleSysadmin,
-			exp: auth.SystemRoleSysadmin,
+			r:   dbSystemRoleAdmin,
+			exp: auth.SystemRoleAdmin,
 		},
 		"unknown": {
 			r:      dbSystemRole(-1),

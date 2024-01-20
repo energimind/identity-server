@@ -28,10 +28,10 @@ func toSystemRole(r auth.SystemRole) dbSystemRole {
 	switch r {
 	case auth.SystemRoleUser:
 		return dbSystemRoleUser
+	case auth.SystemRoleManager:
+		return dbSystemRoleManager
 	case auth.SystemRoleAdmin:
 		return dbSystemRoleAdmin
-	case auth.SystemRoleSysadmin:
-		return dbSystemRoleSysadmin
 	default:
 		panic(fmt.Sprintf("unknown system role: %v", r))
 	}
@@ -41,10 +41,10 @@ func fromSystemRole(r dbSystemRole) auth.SystemRole {
 	switch r {
 	case dbSystemRoleUser:
 		return auth.SystemRoleUser
+	case dbSystemRoleManager:
+		return auth.SystemRoleManager
 	case dbSystemRoleAdmin:
 		return auth.SystemRoleAdmin
-	case dbSystemRoleSysadmin:
-		return auth.SystemRoleSysadmin
 	default:
 		panic(fmt.Sprintf("unknown system role: %v", r))
 	}

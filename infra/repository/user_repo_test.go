@@ -42,7 +42,7 @@ func TestUserRepository_CRUD(t *testing.T) {
 				Username:      "user1",
 				Description:   "description",
 				Enabled:       true,
-				Role:          auth.SystemRoleSysadmin,
+				Role:          auth.SystemRoleAdmin,
 				Accounts:      []auth.Account{{}},
 				APIKeys:       []auth.APIKey{{}},
 			}
@@ -55,7 +55,7 @@ func TestUserRepository_CRUD(t *testing.T) {
 		UnboundEntity: func() auth.User {
 			return auth.User{
 				ID:   "",
-				Role: auth.SystemRoleSysadmin,
+				Role: auth.SystemRoleAdmin,
 			}
 		},
 		ExtractKey: func(user auth.User) auth.ID {

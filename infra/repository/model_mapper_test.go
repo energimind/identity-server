@@ -96,7 +96,7 @@ func Test_mapUser(t *testing.T) {
 		Username:      "user1",
 		Description:   "User 1",
 		Enabled:       true,
-		Role:          auth.SystemRoleAdmin,
+		Role:          auth.SystemRoleManager,
 		Accounts:      []auth.Account{{}},
 		APIKeys:       []auth.APIKey{{}},
 	}
@@ -107,7 +107,7 @@ func Test_mapUser(t *testing.T) {
 		Username:      "user1",
 		Description:   "User 1",
 		Enabled:       true,
-		Role:          dbSystemRoleAdmin,
+		Role:          dbSystemRoleManager,
 		Accounts:      []dbAccount{{}},
 		APIKeys:       []dbAPIKey{{}},
 	}

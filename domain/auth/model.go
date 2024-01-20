@@ -7,9 +7,9 @@ const ProviderTypeGoogle ProviderType = "google"
 
 // SystemRole represents the role of a user in the system.
 const (
-	SystemRoleUser     SystemRole = "user"     // user only access
-	SystemRoleAdmin    SystemRole = "admin"    // application management access
-	SystemRoleSysadmin SystemRole = "sysadmin" // system-wide access
+	SystemRoleUser    SystemRole = "user"     // user only access
+	SystemRoleManager SystemRole = "admin"    // application management access
+	SystemRoleAdmin   SystemRole = "sysadmin" // system-wide access
 )
 
 // All enums. Used for testing purposes to validate that all enum values are
@@ -18,7 +18,7 @@ const (
 //nolint:gochecknoglobals
 var (
 	AllProviderTypes = []ProviderType{ProviderTypeGoogle}
-	AllSystemRoles   = []SystemRole{SystemRoleUser, SystemRoleAdmin, SystemRoleSysadmin}
+	AllSystemRoles   = []SystemRole{SystemRoleUser, SystemRoleManager, SystemRoleAdmin}
 )
 
 // Application represents an application that can be used to authenticate

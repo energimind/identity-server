@@ -9,12 +9,12 @@ import (
 func TestNewActor(t *testing.T) {
 	t.Parallel()
 
-	actor := NewActor("user1", "app1", SystemRoleAdmin)
+	actor := NewActor("user1", "app1", SystemRoleManager)
 
 	require.Equal(t, Actor{
 		UserID:        "user1",
 		ApplicationID: "app1",
-		Role:          SystemRoleAdmin,
+		Role:          SystemRoleManager,
 	}, actor)
 }
 
@@ -39,21 +39,21 @@ func TestActor_IsValid(t *testing.T) {
 		"invalid-userId": {
 			actor: Actor{
 				ApplicationID: "app1",
-				Role:          SystemRoleAdmin,
+				Role:          SystemRoleManager,
 			},
 			valid: false,
 		},
 		"invalid-applicationId": {
 			actor: Actor{
 				UserID: "user1",
-				Role:   SystemRoleAdmin,
+				Role:   SystemRoleManager,
 			},
 		},
 		"valid": {
 			actor: Actor{
 				UserID:        "user1",
 				ApplicationID: "app1",
-				Role:          SystemRoleAdmin,
+				Role:          SystemRoleManager,
 			},
 			valid: true,
 		},
@@ -69,7 +69,7 @@ func TestActor_IsValid(t *testing.T) {
 func TestActor_String(t *testing.T) {
 	t.Parallel()
 
-	act := NewActor("user1", "app1", SystemRoleAdmin)
+	act := NewActor("user1", "app1", SystemRoleManager)
 
 	require.Equal(t, "user1@app1[admin]", act.String())
 }
