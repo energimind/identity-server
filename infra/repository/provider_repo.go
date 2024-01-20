@@ -20,7 +20,7 @@ func NewProviderRepository(db *mongo.Database) *ProviderRepository {
 	return &ProviderRepository{db: db}
 }
 
-// Ensure Repository implements the auth.ProviderRepository interface.
+// Ensure repository implements the auth.ProviderRepository interface.
 var _ auth.ProviderRepository = (*ProviderRepository)(nil)
 
 // GetProviders implements the auth.ProviderRepository interface.

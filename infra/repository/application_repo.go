@@ -20,7 +20,7 @@ func NewApplicationRepository(db *mongo.Database) *ApplicationRepository {
 	return &ApplicationRepository{db: db}
 }
 
-// Ensure Repository implements the auth.ApplicationRepository interface.
+// Ensure repository implements the auth.ApplicationRepository interface.
 var _ auth.ApplicationRepository = (*ApplicationRepository)(nil)
 
 // GetApplications implements the auth.ApplicationRepository interface.
