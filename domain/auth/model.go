@@ -2,11 +2,15 @@ package auth
 
 import "time"
 
-// ProviderTypeGoogle represents the Google authentication provider.
-const ProviderTypeGoogle ProviderType = "google"
-
-// SystemRole represents the role of a user in the system.
+// Provider types.
 const (
+	ProviderTypeNone   ProviderType = ""
+	ProviderTypeGoogle ProviderType = "google"
+)
+
+// System roles.
+const (
+	SystemRoleNone    SystemRole = ""         // no access
 	SystemRoleUser    SystemRole = "user"     // user only access
 	SystemRoleManager SystemRole = "admin"    // application management access
 	SystemRoleAdmin   SystemRole = "sysadmin" // system-wide access
@@ -17,8 +21,8 @@ const (
 //
 //nolint:gochecknoglobals
 var (
-	AllProviderTypes = []ProviderType{ProviderTypeGoogle}
-	AllSystemRoles   = []SystemRole{SystemRoleUser, SystemRoleManager, SystemRoleAdmin}
+	AllProviderTypes = []ProviderType{ProviderTypeNone, ProviderTypeGoogle}
+	AllSystemRoles   = []SystemRole{SystemRoleNone, SystemRoleUser, SystemRoleManager, SystemRoleAdmin}
 )
 
 // Application represents an application that can be used to authenticate

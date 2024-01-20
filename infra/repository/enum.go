@@ -1,9 +1,13 @@
 package repository
 
-const dbProviderTypeGoogle dbProviderType = 1
+const (
+	dbProviderTypeNone dbProviderType = iota
+	dbProviderTypeGoogle
+)
 
 const (
-	dbSystemRoleUser dbSystemRole = iota + 1
+	dbSystemRoleNone dbSystemRole = iota
+	dbSystemRoleUser
 	dbSystemRoleManager
 	dbSystemRoleAdmin
 )
@@ -13,8 +17,8 @@ const (
 //
 //nolint:gochecknoglobals,unused
 var (
-	allProviderTypes = []dbProviderType{dbProviderTypeGoogle}
-	allSystemRoles   = []dbSystemRole{dbSystemRoleUser, dbSystemRoleManager, dbSystemRoleAdmin}
+	allProviderTypes = []dbProviderType{dbProviderTypeNone, dbProviderTypeGoogle}
+	allSystemRoles   = []dbSystemRole{dbSystemRoleNone, dbSystemRoleUser, dbSystemRoleManager, dbSystemRoleAdmin}
 )
 
 type dbProviderType int
