@@ -49,25 +49,3 @@ func fromSystemRole(r dbSystemRole) auth.SystemRole {
 		panic(fmt.Sprintf("unknown system role: %v", r))
 	}
 }
-
-func toKeyOwnerType(t auth.KeyOwnerType) dbKeyOwnerType {
-	switch t {
-	case auth.KeyOwnerTypeUser:
-		return dbKeyOwnerTypeUser
-	case auth.KeyOwnerTypeDaemon:
-		return dbKeyOwnerTypeDaemon
-	default:
-		panic(fmt.Sprintf("unknown key owner type: %v", t))
-	}
-}
-
-func fromKeyOwnerType(t dbKeyOwnerType) auth.KeyOwnerType {
-	switch t {
-	case dbKeyOwnerTypeUser:
-		return auth.KeyOwnerTypeUser
-	case dbKeyOwnerTypeDaemon:
-		return auth.KeyOwnerTypeDaemon
-	default:
-		panic(fmt.Sprintf("unknown key owner type: %v", t))
-	}
-}

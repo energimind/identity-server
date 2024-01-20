@@ -33,33 +33,32 @@ type dbUser struct {
 	Description   string       `bson:"description,omitempty"`
 	Enabled       bool         `bson:"enabled"`
 	Role          dbSystemRole `bson:"role"`
+	Accounts      []dbAccount  `bson:"accounts,omitempty"`
+	APIKeys       []dbAPIKey   `bson:"apiKeys,omitempty"`
 }
 
 // dbAccount is the database model for an account.
 type dbAccount struct {
-	ID      string `bson:"id"`
-	UserID  string `bson:"userId"`
-	UserIDN string `bson:"userIdn"`
+	Identifier string `bson:"identifier"`
+	Enabled    bool   `bson:"enabled"`
 }
 
 // dbDaemon is the database model for a daemon.
 type dbDaemon struct {
-	ID            string `bson:"id"`
-	ApplicationID string `bson:"applicationId"`
-	Code          string `bson:"code"`
-	Name          string `bson:"name,omitempty"`
-	Description   string `bson:"description,omitempty"`
-	Enabled       bool   `bson:"enabled"`
+	ID            string     `bson:"id"`
+	ApplicationID string     `bson:"applicationId"`
+	Code          string     `bson:"code"`
+	Name          string     `bson:"name,omitempty"`
+	Description   string     `bson:"description,omitempty"`
+	Enabled       bool       `bson:"enabled"`
+	APIKeys       []dbAPIKey `bson:"apiKeys,omitempty"`
 }
 
 // dbAPIKey is the database model for an API key.
 type dbAPIKey struct {
-	ID          string         `bson:"id"`
-	OwnerID     string         `bson:"ownerId"`
-	OwnerType   dbKeyOwnerType `bson:"ownerType"`
-	Name        string         `bson:"name,omitempty"`
-	Description string         `bson:"description,omitempty"`
-	Enabled     bool           `bson:"enabled"`
-	Key         string         `bson:"key"`
-	ExpiresAt   time.Time      `bson:"expiresAt"`
+	Name        string    `bson:"name,omitempty"`
+	Description string    `bson:"description,omitempty"`
+	Enabled     bool      `bson:"enabled"`
+	Key         string    `bson:"key"`
+	ExpiresAt   time.Time `bson:"expiresAt"`
 }

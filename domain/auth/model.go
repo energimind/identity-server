@@ -12,12 +12,6 @@ const (
 	SystemRoleSysadmin SystemRole = "sysadmin" // system-wide access
 )
 
-// KeyOwnerType represents the type of API key owner.
-const (
-	KeyOwnerTypeUser KeyOwnerType = iota
-	KeyOwnerTypeDaemon
-)
-
 // All enums. Used for testing purposes to validate that all enum values are
 // covered.
 //
@@ -25,7 +19,6 @@ const (
 var (
 	AllProviderTypes = []ProviderType{ProviderTypeGoogle}
 	AllSystemRoles   = []SystemRole{SystemRoleUser, SystemRoleAdmin, SystemRoleSysadmin}
-	AllKeyOwnerTypes = []KeyOwnerType{KeyOwnerTypeUser, KeyOwnerTypeDaemon}
 )
 
 // Application represents an application that can be used to authenticate
@@ -68,13 +61,14 @@ type User struct {
 	Description   string
 	Enabled       bool
 	Role          SystemRole
+	Accounts      []Account
+	APIKeys       []APIKey
 }
 
 // Account represents an account of a user in the system.
 type Account struct {
-	ID      ID
-	UserID  ID
-	UserIDN string
+	Identifier string
+	Enabled    bool
 }
 
 // Daemon represents a non-organic user in the system.
@@ -86,20 +80,15 @@ type Daemon struct {
 	Name          string
 	Description   string
 	Enabled       bool
+	APIKeys       []APIKey
 }
 
 // APIKey represents an API key that can be used to authenticate a daemon.
 // It can also be used to authenticate a user.
 type APIKey struct {
-	ID          ID
-	OwnerID     ID
-	OwnerType   KeyOwnerType
 	Name        string
 	Description string
 	Enabled     bool
 	Key         string
 	ExpiresAt   time.Time
 }
-
-// KeyOwnerType represents the type of API key owner.
-type KeyOwnerType int

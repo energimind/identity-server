@@ -97,6 +97,8 @@ func Test_mapUser(t *testing.T) {
 		Description:   "User 1",
 		Enabled:       true,
 		Role:          auth.SystemRoleAdmin,
+		Accounts:      []auth.Account{{}},
+		APIKeys:       []auth.APIKey{{}},
 	}
 
 	expected := dbUser{
@@ -106,6 +108,8 @@ func Test_mapUser(t *testing.T) {
 		Description:   "User 1",
 		Enabled:       true,
 		Role:          dbSystemRoleAdmin,
+		Accounts:      []dbAccount{{}},
+		APIKeys:       []dbAPIKey{{}},
 	}
 
 	mapped := toUser(from)
@@ -119,15 +123,13 @@ func Test_mapAccount(t *testing.T) {
 	t.Parallel()
 
 	from := auth.Account{
-		ID:      "account1",
-		UserID:  "user1",
-		UserIDN: "user1@domain.com",
+		Identifier: "user1@domain.com",
+		Enabled:    true,
 	}
 
 	expected := dbAccount{
-		ID:      "account1",
-		UserID:  "user1",
-		UserIDN: "user1@domain.com",
+		Identifier: "user1@domain.com",
+		Enabled:    true,
 	}
 
 	mapped := toAccount(from)
@@ -147,6 +149,7 @@ func Test_mapDaemon(t *testing.T) {
 		Name:          "Daemon 1",
 		Description:   "Daemon 1",
 		Enabled:       true,
+		APIKeys:       []auth.APIKey{{}},
 	}
 
 	expected := dbDaemon{
@@ -156,6 +159,7 @@ func Test_mapDaemon(t *testing.T) {
 		Name:          "Daemon 1",
 		Description:   "Daemon 1",
 		Enabled:       true,
+		APIKeys:       []dbAPIKey{{}},
 	}
 
 	mapped := toDaemon(from)
@@ -171,9 +175,6 @@ func Test_mapAPIKey(t *testing.T) {
 	now := time.Now().Round(time.Second)
 
 	from := auth.APIKey{
-		ID:          "key1",
-		OwnerID:     "app1",
-		OwnerType:   auth.KeyOwnerTypeUser,
 		Name:        "Key 1",
 		Description: "Key 1",
 		Enabled:     true,
@@ -182,9 +183,6 @@ func Test_mapAPIKey(t *testing.T) {
 	}
 
 	expected := dbAPIKey{
-		ID:          "key1",
-		OwnerID:     "app1",
-		OwnerType:   dbKeyOwnerTypeUser,
 		Name:        "Key 1",
 		Description: "Key 1",
 		Enabled:     true,

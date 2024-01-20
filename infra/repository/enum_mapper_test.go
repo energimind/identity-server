@@ -11,11 +11,9 @@ import (
 func Test_allEnumValuesAreMapped(t *testing.T) {
 	utils.CheckAllEnumValuesAreMapped(t, auth.AllProviderTypes, allProviderTypes, toProviderType)
 	utils.CheckAllEnumValuesAreMapped(t, auth.AllSystemRoles, allSystemRoles, toSystemRole)
-	utils.CheckAllEnumValuesAreMapped(t, auth.AllKeyOwnerTypes, allKeyOwnerTypes, toKeyOwnerType)
 
 	utils.CheckAllEnumValuesAreMapped(t, allProviderTypes, auth.AllProviderTypes, fromProviderType)
 	utils.CheckAllEnumValuesAreMapped(t, allSystemRoles, auth.AllSystemRoles, fromSystemRole)
-	utils.CheckAllEnumValuesAreMapped(t, allKeyOwnerTypes, auth.AllKeyOwnerTypes, fromKeyOwnerType)
 }
 
 func Test_toProviderType(t *testing.T) {
@@ -162,80 +160,6 @@ func Test_fromSystemRole(t *testing.T) {
 			}
 
 			require.Equal(t, tc.exp, fromSystemRole(tc.r))
-		})
-	}
-}
-
-func Test_toKeyOwnerType(t *testing.T) {
-	t.Parallel()
-
-	tests := map[string]struct {
-		t      auth.KeyOwnerType
-		exp    dbKeyOwnerType
-		panics bool
-	}{
-		"user": {
-			t:   auth.KeyOwnerTypeUser,
-			exp: dbKeyOwnerTypeUser,
-		},
-		"daemon": {
-			t:   auth.KeyOwnerTypeDaemon,
-			exp: dbKeyOwnerTypeDaemon,
-		},
-		"unknown": {
-			t:      auth.KeyOwnerType(-1),
-			panics: true,
-		},
-	}
-
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-			if tc.panics {
-				require.Panics(t, func() {
-					toKeyOwnerType(tc.t)
-				})
-
-				return
-			}
-
-			require.Equal(t, tc.exp, toKeyOwnerType(tc.t))
-		})
-	}
-}
-
-func Test_fromKeyOwnerType(t *testing.T) {
-	t.Parallel()
-
-	tests := map[string]struct {
-		t      dbKeyOwnerType
-		exp    auth.KeyOwnerType
-		panics bool
-	}{
-		"user": {
-			t:   dbKeyOwnerTypeUser,
-			exp: auth.KeyOwnerTypeUser,
-		},
-		"daemon": {
-			t:   dbKeyOwnerTypeDaemon,
-			exp: auth.KeyOwnerTypeDaemon,
-		},
-		"unknown": {
-			t:      dbKeyOwnerType(-1),
-			panics: true,
-		},
-	}
-
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-			if tc.panics {
-				require.Panics(t, func() {
-					fromKeyOwnerType(tc.t)
-				})
-
-				return
-			}
-
-			require.Equal(t, tc.exp, fromKeyOwnerType(tc.t))
 		})
 	}
 }

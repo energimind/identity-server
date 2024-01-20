@@ -60,16 +60,6 @@ func fromProvider(provider dbProvider) auth.Provider {
 	}
 }
 
-func fromProviders(providers []dbProvider) []auth.Provider {
-	converted := make([]auth.Provider, len(providers))
-
-	for i, provider := range providers {
-		converted[i] = fromProvider(provider)
-	}
-
-	return converted
-}
-
 func toUser(user auth.User) dbUser {
 	return dbUser{
 		ID:            toID(user.ID),
@@ -78,6 +68,8 @@ func toUser(user auth.User) dbUser {
 		Description:   user.Description,
 		Enabled:       user.Enabled,
 		Role:          toSystemRole(user.Role),
+		Accounts:      mapSlice(user.Accounts, toAccount),
+		APIKeys:       mapSlice(user.APIKeys, toAPIKey),
 	}
 }
 
@@ -89,22 +81,22 @@ func fromUser(user dbUser) auth.User {
 		Description:   user.Description,
 		Enabled:       user.Enabled,
 		Role:          fromSystemRole(user.Role),
+		Accounts:      mapSlice(user.Accounts, fromAccount),
+		APIKeys:       mapSlice(user.APIKeys, fromAPIKey),
 	}
 }
 
 func toAccount(account auth.Account) dbAccount {
 	return dbAccount{
-		ID:      toID(account.ID),
-		UserID:  toID(account.UserID),
-		UserIDN: account.UserIDN,
+		Identifier: account.Identifier,
+		Enabled:    account.Enabled,
 	}
 }
 
 func fromAccount(account dbAccount) auth.Account {
 	return auth.Account{
-		ID:      fromID(account.ID),
-		UserID:  fromID(account.UserID),
-		UserIDN: account.UserIDN,
+		Identifier: account.Identifier,
+		Enabled:    account.Enabled,
 	}
 }
 
@@ -116,6 +108,7 @@ func toDaemon(daemon auth.Daemon) dbDaemon {
 		Name:          daemon.Name,
 		Description:   daemon.Description,
 		Enabled:       daemon.Enabled,
+		APIKeys:       mapSlice(daemon.APIKeys, toAPIKey),
 	}
 }
 
@@ -127,14 +120,12 @@ func fromDaemon(daemon dbDaemon) auth.Daemon {
 		Name:          daemon.Name,
 		Description:   daemon.Description,
 		Enabled:       daemon.Enabled,
+		APIKeys:       mapSlice(daemon.APIKeys, fromAPIKey),
 	}
 }
 
 func toAPIKey(apiKey auth.APIKey) dbAPIKey {
 	return dbAPIKey{
-		ID:          toID(apiKey.ID),
-		OwnerID:     toID(apiKey.OwnerID),
-		OwnerType:   toKeyOwnerType(apiKey.OwnerType),
 		Name:        apiKey.Name,
 		Description: apiKey.Description,
 		Enabled:     apiKey.Enabled,
@@ -145,9 +136,6 @@ func toAPIKey(apiKey auth.APIKey) dbAPIKey {
 
 func fromAPIKey(apiKey dbAPIKey) auth.APIKey {
 	return auth.APIKey{
-		ID:          fromID(apiKey.ID),
-		OwnerID:     fromID(apiKey.OwnerID),
-		OwnerType:   fromKeyOwnerType(apiKey.OwnerType),
 		Name:        apiKey.Name,
 		Description: apiKey.Description,
 		Enabled:     apiKey.Enabled,

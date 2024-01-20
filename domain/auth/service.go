@@ -29,15 +29,6 @@ type UserService interface {
 	DeleteUser(ctx context.Context, actor Actor, id string) error
 }
 
-// AccountService defines the account service interface.
-type AccountService interface {
-	GetAccounts(ctx context.Context, actor Actor, userID string) ([]Account, error)
-	GetAccount(ctx context.Context, actor Actor, userID, id string) (Account, error)
-	CreateAccount(ctx context.Context, actor Actor, userID string, account Account) (Account, error)
-	UpdateAccount(ctx context.Context, actor Actor, userID string, account Account) (Account, error)
-	DeleteAccount(ctx context.Context, actor Actor, userID, id string) error
-}
-
 // DaemonService defines the daemon service interface.
 type DaemonService interface {
 	GetDaemons(ctx context.Context, actor Actor) ([]Daemon, error)
@@ -45,13 +36,4 @@ type DaemonService interface {
 	CreateDaemon(ctx context.Context, actor Actor, daemon Daemon) (Daemon, error)
 	UpdateDaemon(ctx context.Context, actor Actor, daemon Daemon) (Daemon, error)
 	DeleteDaemon(ctx context.Context, actor Actor, id string) error
-}
-
-// APIKeyService defines the API key service interface.
-type APIKeyService interface {
-	GetAPIKeys(ctx context.Context, actor Actor, ownerType KeyOwnerType, ownerID string) ([]APIKey, error)
-	GetAPIKey(ctx context.Context, actor Actor, ownerType KeyOwnerType, ownerID, id string) (APIKey, error)
-	CreateAPIKey(ctx context.Context, actor Actor, ownerType KeyOwnerType, ownerID string, key APIKey) (APIKey, error)
-	UpdateAPIKey(ctx context.Context, actor Actor, ownerType KeyOwnerType, ownerID string, key APIKey) (APIKey, error)
-	DeleteAPIKey(ctx context.Context, actor Actor, ownerType KeyOwnerType, ownerID, id string) error
 }

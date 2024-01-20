@@ -29,15 +29,6 @@ type UserRepository interface {
 	DeleteUser(ctx context.Context, id ID) error
 }
 
-// AccountRepository defines the account repository interface.
-type AccountRepository interface {
-	GetAccounts(ctx context.Context, userID ID) ([]Account, error)
-	GetAccount(ctx context.Context, userID, id ID) (Account, error)
-	CreateAccount(ctx context.Context, userID ID, account Account) error
-	UpdateAccount(ctx context.Context, userID ID, account Account) error
-	DeleteAccount(ctx context.Context, userID, id ID) error
-}
-
 // DaemonRepository defines the daemon repository interface.
 type DaemonRepository interface {
 	GetDaemons(ctx context.Context) ([]Daemon, error)
@@ -45,13 +36,4 @@ type DaemonRepository interface {
 	CreateDaemon(ctx context.Context, daemon Daemon) error
 	UpdateDaemon(ctx context.Context, daemon Daemon) error
 	DeleteDaemon(ctx context.Context, id ID) error
-}
-
-// APIKeyRepository defines the API key repository interface.
-type APIKeyRepository interface {
-	GetAPIKeys(ctx context.Context, ownerType KeyOwnerType, ownerID ID) ([]APIKey, error)
-	GetAPIKey(ctx context.Context, ownerType KeyOwnerType, ownerID, id ID) (APIKey, error)
-	CreateAPIKey(ctx context.Context, ownerType KeyOwnerType, ownerID ID, key APIKey) error
-	UpdateAPIKey(ctx context.Context, ownerType KeyOwnerType, ownerID ID, key APIKey) error
-	DeleteAPIKey(ctx context.Context, ownerType KeyOwnerType, ownerID, id ID) error
 }
