@@ -26,10 +26,9 @@ var _ auth.ApplicationRepository = (*ApplicationRepository)(nil)
 // GetApplications implements the auth.ApplicationRepository interface.
 func (r *ApplicationRepository) GetApplications(
 	ctx context.Context,
-	principal auth.Principal,
 ) ([]auth.Application, error) {
 	coll := r.db.Collection("applications")
-	qFilter := newFilter().scope("id", principal.ApplicationID)
+	qFilter := bson.M{}
 
 	qCursor, err := coll.Find(ctx, qFilter)
 	if err != nil {
@@ -47,11 +46,10 @@ func (r *ApplicationRepository) GetApplications(
 // GetApplication implements the auth.ApplicationRepository interface.
 func (r *ApplicationRepository) GetApplication(
 	ctx context.Context,
-	principal auth.Principal,
 	id auth.ID,
 ) (auth.Application, error) {
 	coll := r.db.Collection("applications")
-	qFilter := newFilter().matchID(id, principal.ApplicationID)
+	qFilter := bson.M{"id": id}
 	application := dbApplication{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&application); err != nil {
@@ -68,7 +66,6 @@ func (r *ApplicationRepository) GetApplication(
 // CreateApplication implements the auth.ApplicationRepository interface.
 func (r *ApplicationRepository) CreateApplication(
 	ctx context.Context,
-	_ auth.Principal,
 	app auth.Application,
 ) error {
 	coll := r.db.Collection("applications")
@@ -83,11 +80,10 @@ func (r *ApplicationRepository) CreateApplication(
 // UpdateApplication implements the auth.ApplicationRepository interface.
 func (r *ApplicationRepository) UpdateApplication(
 	ctx context.Context,
-	principal auth.Principal,
 	app auth.Application,
 ) error {
 	coll := r.db.Collection("applications")
-	qFilter := newFilter().matchID(app.ID, principal.ApplicationID)
+	qFilter := bson.M{"id": app.ID}
 	qUpdate := bson.M{"$set": toApplication(app)}
 
 	result, err := coll.UpdateOne(ctx, qFilter, qUpdate)
@@ -105,11 +101,10 @@ func (r *ApplicationRepository) UpdateApplication(
 // DeleteApplication implements the auth.ApplicationRepository interface.
 func (r *ApplicationRepository) DeleteApplication(
 	ctx context.Context,
-	principal auth.Principal,
 	id auth.ID,
 ) error {
 	coll := r.db.Collection("applications")
-	qFilter := newFilter().matchID(id, principal.ApplicationID)
+	qFilter := bson.M{"id": id}
 
 	result, err := coll.DeleteOne(ctx, qFilter)
 	if err != nil {

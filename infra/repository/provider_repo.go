@@ -26,10 +26,9 @@ var _ auth.ProviderRepository = (*ProviderRepository)(nil)
 // GetProviders implements the auth.ProviderRepository interface.
 func (r *ProviderRepository) GetProviders(
 	ctx context.Context,
-	principal auth.Principal,
 ) ([]auth.Provider, error) {
 	coll := r.db.Collection("providers")
-	qFilter := newFilter().scope("application_id", principal.ApplicationID)
+	qFilter := bson.M{}
 
 	qCursor, err := coll.Find(ctx, qFilter)
 	if err != nil {
@@ -47,11 +46,10 @@ func (r *ProviderRepository) GetProviders(
 // GetProvider implements the auth.ProviderRepository interface.
 func (r *ProviderRepository) GetProvider(
 	ctx context.Context,
-	principal auth.Principal,
 	id auth.ID,
 ) (auth.Provider, error) {
 	coll := r.db.Collection("providers")
-	qFilter := newFilter().id(id).scope("application_id", principal.ApplicationID)
+	qFilter := bson.M{"id": id}
 	provider := dbProvider{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&provider); err != nil {
@@ -68,7 +66,6 @@ func (r *ProviderRepository) GetProvider(
 // CreateProvider implements the auth.ProviderRepository interface.
 func (r *ProviderRepository) CreateProvider(
 	ctx context.Context,
-	_ auth.Principal,
 	provider auth.Provider,
 ) error {
 	coll := r.db.Collection("providers")
@@ -81,9 +78,12 @@ func (r *ProviderRepository) CreateProvider(
 }
 
 // UpdateProvider implements the auth.ProviderRepository interface.
-func (r *ProviderRepository) UpdateProvider(ctx context.Context, principal auth.Principal, provider auth.Provider) error {
+func (r *ProviderRepository) UpdateProvider(
+	ctx context.Context,
+	provider auth.Provider,
+) error {
 	coll := r.db.Collection("providers")
-	qFilter := newFilter().id(provider.ID).scope("application_id", principal.ApplicationID)
+	qFilter := bson.M{"id": provider.ID}
 	qUpdate := bson.M{"$set": toProvider(provider)}
 
 	result, err := coll.UpdateOne(ctx, qFilter, qUpdate)
@@ -99,9 +99,12 @@ func (r *ProviderRepository) UpdateProvider(ctx context.Context, principal auth.
 }
 
 // DeleteProvider implements the auth.ProviderRepository interface.
-func (r *ProviderRepository) DeleteProvider(ctx context.Context, principal auth.Principal, id auth.ID) error {
+func (r *ProviderRepository) DeleteProvider(
+	ctx context.Context,
+	id auth.ID,
+) error {
 	coll := r.db.Collection("providers")
-	qFilter := newFilter().id(id).scope("application_id", principal.ApplicationID)
+	qFilter := bson.M{"id": id}
 
 	result, err := coll.DeleteOne(ctx, qFilter)
 	if err != nil {

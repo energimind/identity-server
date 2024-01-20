@@ -17,23 +17,22 @@ func TestProviderRepository_CRUD(t *testing.T) {
 	defer closer()
 
 	repo := repository.NewProviderRepository(db)
-	allowAll := auth.Principal{}
 
 	utils.RunCRUDTests(t, utils.CRUDSetup[auth.Provider, auth.ID]{
 		GetAll: func(ctx context.Context) ([]auth.Provider, error) {
-			return repo.GetProviders(ctx, allowAll)
+			return repo.GetProviders(ctx)
 		},
 		GetByID: func(ctx context.Context, id auth.ID) (auth.Provider, error) {
-			return repo.GetProvider(ctx, allowAll, id)
+			return repo.GetProvider(ctx, id)
 		},
 		Create: func(ctx context.Context, provider auth.Provider) error {
-			return repo.CreateProvider(ctx, allowAll, provider)
+			return repo.CreateProvider(ctx, provider)
 		},
 		Update: func(ctx context.Context, provider auth.Provider) error {
-			return repo.UpdateProvider(ctx, allowAll, provider)
+			return repo.UpdateProvider(ctx, provider)
 		},
 		Delete: func(ctx context.Context, id auth.ID) error {
-			return repo.DeleteProvider(ctx, allowAll, id)
+			return repo.DeleteProvider(ctx, id)
 		},
 		NewEntity: func(key int) auth.Provider {
 			return auth.Provider{
