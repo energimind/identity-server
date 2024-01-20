@@ -26,9 +26,10 @@ var _ auth.ProviderRepository = (*ProviderRepository)(nil)
 // GetProviders implements the auth.ProviderRepository interface.
 func (r *ProviderRepository) GetProviders(
 	ctx context.Context,
+	appID auth.ID,
 ) ([]auth.Provider, error) {
 	coll := r.db.Collection("providers")
-	qFilter := bson.M{}
+	qFilter := bson.M{"applicationId": appID}
 
 	qCursor, err := coll.Find(ctx, qFilter)
 	if err != nil {

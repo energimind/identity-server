@@ -17,10 +17,11 @@ func TestProviderRepository_CRUD(t *testing.T) {
 	defer closer()
 
 	repo := repository.NewProviderRepository(db)
+	appID := auth.ID("1")
 
 	utils.RunCRUDTests(t, utils.CRUDSetup[auth.Provider, auth.ID]{
 		GetAll: func(ctx context.Context) ([]auth.Provider, error) {
-			return repo.GetProviders(ctx)
+			return repo.GetProviders(ctx, appID)
 		},
 		GetByID: func(ctx context.Context, id auth.ID) (auth.Provider, error) {
 			return repo.GetProvider(ctx, id)
@@ -37,7 +38,7 @@ func TestProviderRepository_CRUD(t *testing.T) {
 		NewEntity: func(key int) auth.Provider {
 			return auth.Provider{
 				ID:            auth.ID(strconv.Itoa(key)),
-				ApplicationID: "app1",
+				ApplicationID: appID,
 				Type:          auth.ProviderTypeGoogle,
 				Code:          "google",
 				Name:          "Google",
