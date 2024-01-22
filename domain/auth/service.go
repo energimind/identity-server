@@ -32,7 +32,7 @@ type UserService interface {
 // DaemonService defines the daemon service interface.
 type DaemonService interface {
 	GetDaemons(ctx context.Context, actor Actor, appID ID) ([]Daemon, error)
-	GetDaemon(ctx context.Context, actor Actor, id ID) (Daemon, error)
+	GetDaemon(ctx context.Context, actor Actor, appID, id ID) (Daemon, error)
 	CreateDaemon(ctx context.Context, actor Actor, daemon Daemon) (Daemon, error)
 	UpdateDaemon(ctx context.Context, actor Actor, daemon Daemon) (Daemon, error)
 	DeleteDaemon(ctx context.Context, actor Actor, appID, id ID) error
