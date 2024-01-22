@@ -7,13 +7,13 @@ import (
 // Actor represents a user or application that is performing an action.
 // The actor is used in the context of a service call.
 type Actor struct {
-	UserID        string
-	ApplicationID string
+	UserID        ID
+	ApplicationID ID
 	Role          SystemRole
 }
 
 // NewActor returns a new actor.
-func NewActor(userID string, applicationID string, role SystemRole) Actor {
+func NewActor(userID ID, applicationID ID, role SystemRole) Actor {
 	return Actor{
 		UserID:        userID,
 		ApplicationID: applicationID,
