@@ -82,25 +82,25 @@ func (s *UserService) GetUser(ctx context.Context, actor auth.Actor, appID, id a
 			return auth.User{}, domain.NewAccessDeniedError("user %s cannot get user %s", actor.UserID, id)
 		}
 
-		user, err := s.repo.GetUser(ctx, id)
+		user, err := s.repo.GetUser(ctx, appID, id)
 		if err != nil {
 			return auth.User{}, err
 		}
 
 		return user, nil
 	case auth.SystemRoleManager:
-		user, err := s.repo.GetUser(ctx, id)
-		if err != nil {
-			return auth.User{}, err
-		}
-
 		if actor.ApplicationID != appID {
 			return auth.User{}, domain.NewAccessDeniedError("manager %s cannot get user %s", actor.UserID, id)
 		}
 
+		user, err := s.repo.GetUser(ctx, appID, id)
+		if err != nil {
+			return auth.User{}, err
+		}
+
 		return user, nil
 	case auth.SystemRoleAdmin:
-		user, err := s.repo.GetUser(ctx, id)
+		user, err := s.repo.GetUser(ctx, appID, id)
 		if err != nil {
 			return auth.User{}, err
 		}

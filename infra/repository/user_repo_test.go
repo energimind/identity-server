@@ -24,7 +24,7 @@ func TestUserRepository_CRUD(t *testing.T) {
 			return repo.GetUsers(ctx, appID)
 		},
 		GetByID: func(ctx context.Context, id auth.ID) (auth.User, error) {
-			return repo.GetUser(ctx, id)
+			return repo.GetUser(ctx, appID, id)
 		},
 		Create: func(ctx context.Context, user auth.User) error {
 			return repo.CreateUser(ctx, user)

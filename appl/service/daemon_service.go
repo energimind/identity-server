@@ -13,9 +13,6 @@ import (
 //
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
-//
-// Some methods are reported as to complex by the linter. We disable the linter for
-// these methods, because they are not too complex, but just have a lot of error handling.
 type DaemonService struct {
 	repo  auth.DaemonRepository
 	idgen domain.IDGenerator
@@ -73,7 +70,7 @@ func (s *DaemonService) GetDaemons(
 
 // GetDaemon implements the auth.DaemonService interface.
 //
-//nolint:wrapcheck,cyclop // see comment in the header
+//nolint:wrapcheck // see comment in the header
 func (s *DaemonService) GetDaemon(
 	ctx context.Context,
 	actor auth.Actor,
@@ -83,18 +80,18 @@ func (s *DaemonService) GetDaemon(
 	case auth.SystemRoleUser:
 		return auth.Daemon{}, domain.NewAccessDeniedError("user %s cannot get daemon %s", actor.UserID, id)
 	case auth.SystemRoleManager:
-		daemon, err := s.repo.GetDaemon(ctx, id)
-		if err != nil {
-			return auth.Daemon{}, err
-		}
-
 		if actor.ApplicationID != appID {
 			return auth.Daemon{}, domain.NewAccessDeniedError("manager %s cannot get daemon %s", actor.UserID, id)
 		}
 
+		daemon, err := s.repo.GetDaemon(ctx, appID, id)
+		if err != nil {
+			return auth.Daemon{}, err
+		}
+
 		return daemon, nil
 	case auth.SystemRoleAdmin:
-		user, err := s.repo.GetDaemon(ctx, id)
+		user, err := s.repo.GetDaemon(ctx, appID, id)
 		if err != nil {
 			return auth.Daemon{}, err
 		}
@@ -147,7 +144,7 @@ func (s *DaemonService) CreateDaemon(
 
 // UpdateDaemon implements the auth.DaemonService interface.
 //
-//nolint:wrapcheck,cyclop // see comment in the header
+//nolint:wrapcheck // see comment in the header
 func (s *DaemonService) UpdateDaemon(
 	ctx context.Context,
 	actor auth.Actor,

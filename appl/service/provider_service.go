@@ -13,9 +13,6 @@ import (
 //
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
-//
-// Some methods are reported as to complex by the linter. We disable the linter for
-// these methods, because they are not too complex, but just have a lot of error handling.
 type ProviderService struct {
 	repo  auth.ProviderRepository
 	idgen domain.IDGenerator
@@ -73,7 +70,7 @@ func (s *ProviderService) GetProviders(
 
 // GetProvider implements the auth.ProviderService interface.
 //
-//nolint:wrapcheck,cyclop // see comment in the header
+//nolint:wrapcheck // see comment in the header
 func (s *ProviderService) GetProvider(
 	ctx context.Context,
 	actor auth.Actor,
@@ -83,18 +80,18 @@ func (s *ProviderService) GetProvider(
 	case auth.SystemRoleUser:
 		return auth.Provider{}, domain.NewAccessDeniedError("user %s cannot get provider %s", actor.UserID, id)
 	case auth.SystemRoleManager:
-		provider, err := s.repo.GetProvider(ctx, id)
-		if err != nil {
-			return auth.Provider{}, err
-		}
-
 		if actor.ApplicationID != appID {
 			return auth.Provider{}, domain.NewAccessDeniedError("manager %s cannot get provider %s", actor.UserID, id)
 		}
 
+		provider, err := s.repo.GetProvider(ctx, appID, id)
+		if err != nil {
+			return auth.Provider{}, err
+		}
+
 		return provider, nil
 	case auth.SystemRoleAdmin:
-		user, err := s.repo.GetProvider(ctx, id)
+		user, err := s.repo.GetProvider(ctx, appID, id)
 		if err != nil {
 			return auth.Provider{}, err
 		}
@@ -147,7 +144,7 @@ func (s *ProviderService) CreateProvider(
 
 // UpdateProvider implements the auth.ProviderService interface.
 //
-//nolint:wrapcheck,cyclop // see comment in the header
+//nolint:wrapcheck // see comment in the header
 func (s *ProviderService) UpdateProvider(
 	ctx context.Context,
 	actor auth.Actor,

@@ -387,7 +387,11 @@ func (r *mockDaemonRepository) GetDaemons(_ context.Context, appID auth.ID) ([]a
 	return []auth.Daemon{r.mockDaemon()}, r.forcedError
 }
 
-func (r *mockDaemonRepository) GetDaemon(_ context.Context, id auth.ID) (auth.Daemon, error) {
+func (r *mockDaemonRepository) GetDaemon(_ context.Context, appID, id auth.ID) (auth.Daemon, error) {
+	if appID == "" {
+		return auth.Daemon{}, errors.New("test-precondition: empty appID")
+	}
+
 	if id == "" {
 		return auth.Daemon{}, errors.New("test-precondition: empty id")
 	}

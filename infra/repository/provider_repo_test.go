@@ -24,7 +24,7 @@ func TestProviderRepository_CRUD(t *testing.T) {
 			return repo.GetProviders(ctx, appID)
 		},
 		GetByID: func(ctx context.Context, id auth.ID) (auth.Provider, error) {
-			return repo.GetProvider(ctx, id)
+			return repo.GetProvider(ctx, appID, id)
 		},
 		Create: func(ctx context.Context, provider auth.Provider) error {
 			return repo.CreateProvider(ctx, provider)

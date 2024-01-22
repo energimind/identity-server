@@ -47,10 +47,10 @@ func (r *DaemonRepository) GetDaemons(
 // GetDaemon implements the auth.DaemonRepository interface.
 func (r *DaemonRepository) GetDaemon(
 	ctx context.Context,
-	id auth.ID,
+	appID, id auth.ID,
 ) (auth.Daemon, error) {
 	coll := r.db.Collection("daemons")
-	qFilter := bson.M{"id": id}
+	qFilter := bson.M{"id": id, "applicationId": appID}
 	daemon := dbDaemon{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&daemon); err != nil {

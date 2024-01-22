@@ -47,10 +47,10 @@ func (r *UserRepository) GetUsers(
 // GetUser implements the auth.UserRepository interface.
 func (r *UserRepository) GetUser(
 	ctx context.Context,
-	id auth.ID,
+	appID, id auth.ID,
 ) (auth.User, error) {
 	coll := r.db.Collection("users")
-	qFilter := bson.M{"id": id}
+	qFilter := bson.M{"id": id, "applicationId": appID}
 	user := dbUser{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&user); err != nil {

@@ -411,7 +411,11 @@ func (r *mockUserRepository) GetUsers(_ context.Context, appID auth.ID) ([]auth.
 	return []auth.User{r.mockUser()}, r.forcedError
 }
 
-func (r *mockUserRepository) GetUser(_ context.Context, id auth.ID) (auth.User, error) {
+func (r *mockUserRepository) GetUser(_ context.Context, appID, id auth.ID) (auth.User, error) {
+	if appID == "" {
+		return auth.User{}, errors.New("test-precondition: empty appID")
+	}
+
 	if id == "" {
 		return auth.User{}, errors.New("test-precondition: empty id")
 	}

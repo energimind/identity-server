@@ -24,7 +24,7 @@ func TestDaemonRepository_CRUD(t *testing.T) {
 			return repo.GetDaemons(ctx, appID)
 		},
 		GetByID: func(ctx context.Context, id auth.ID) (auth.Daemon, error) {
-			return repo.GetDaemon(ctx, id)
+			return repo.GetDaemon(ctx, appID, id)
 		},
 		Create: func(ctx context.Context, user auth.Daemon) error {
 			return repo.CreateDaemon(ctx, user)

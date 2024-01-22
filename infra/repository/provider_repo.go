@@ -47,10 +47,10 @@ func (r *ProviderRepository) GetProviders(
 // GetProvider implements the auth.ProviderRepository interface.
 func (r *ProviderRepository) GetProvider(
 	ctx context.Context,
-	id auth.ID,
+	appID, id auth.ID,
 ) (auth.Provider, error) {
 	coll := r.db.Collection("providers")
-	qFilter := bson.M{"id": id}
+	qFilter := bson.M{"id": id, "applicationId": appID}
 	provider := dbProvider{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&provider); err != nil {

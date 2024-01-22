@@ -387,7 +387,11 @@ func (r *mockProviderRepository) GetProviders(_ context.Context, appID auth.ID) 
 	return []auth.Provider{r.mockProvider()}, r.forcedError
 }
 
-func (r *mockProviderRepository) GetProvider(_ context.Context, id auth.ID) (auth.Provider, error) {
+func (r *mockProviderRepository) GetProvider(_ context.Context, appID, id auth.ID) (auth.Provider, error) {
+	if appID == "" {
+		return auth.Provider{}, errors.New("test-precondition: empty appID")
+	}
+
 	if id == "" {
 		return auth.Provider{}, errors.New("test-precondition: empty id")
 	}

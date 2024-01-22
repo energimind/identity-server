@@ -14,7 +14,7 @@ type ApplicationRepository interface {
 // ProviderRepository defines the provider repository interface.
 type ProviderRepository interface {
 	GetProviders(ctx context.Context, appID ID) ([]Provider, error)
-	GetProvider(ctx context.Context, id ID) (Provider, error)
+	GetProvider(ctx context.Context, appID, id ID) (Provider, error)
 	CreateProvider(ctx context.Context, provider Provider) error
 	UpdateProvider(ctx context.Context, provider Provider) error
 	DeleteProvider(ctx context.Context, appID, id ID) error
@@ -23,7 +23,7 @@ type ProviderRepository interface {
 // UserRepository defines the user repository interface.
 type UserRepository interface {
 	GetUsers(ctx context.Context, appID ID) ([]User, error)
-	GetUser(ctx context.Context, id ID) (User, error)
+	GetUser(ctx context.Context, appID, id ID) (User, error)
 	CreateUser(ctx context.Context, user User) error
 	UpdateUser(ctx context.Context, user User) error
 	DeleteUser(ctx context.Context, appID, id ID) error
@@ -32,7 +32,7 @@ type UserRepository interface {
 // DaemonRepository defines the daemon repository interface.
 type DaemonRepository interface {
 	GetDaemons(ctx context.Context, appID ID) ([]Daemon, error)
-	GetDaemon(ctx context.Context, id ID) (Daemon, error)
+	GetDaemon(ctx context.Context, appID, id ID) (Daemon, error)
 	CreateDaemon(ctx context.Context, daemon Daemon) error
 	UpdateDaemon(ctx context.Context, daemon Daemon) error
 	DeleteDaemon(ctx context.Context, appID, id ID) error
