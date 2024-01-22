@@ -33,7 +33,7 @@ func TestUserRepository_CRUD(t *testing.T) {
 			return repo.UpdateUser(ctx, user)
 		},
 		Delete: func(ctx context.Context, id auth.ID) error {
-			return repo.DeleteUser(ctx, id)
+			return repo.DeleteUser(ctx, appID, id)
 		},
 		NewEntity: func(key int) auth.User {
 			return auth.User{

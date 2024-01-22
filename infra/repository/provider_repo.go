@@ -102,10 +102,10 @@ func (r *ProviderRepository) UpdateProvider(
 // DeleteProvider implements the auth.ProviderRepository interface.
 func (r *ProviderRepository) DeleteProvider(
 	ctx context.Context,
-	id auth.ID,
+	appID, id auth.ID,
 ) error {
 	coll := r.db.Collection("providers")
-	qFilter := bson.M{"id": id}
+	qFilter := bson.M{"id": id, "applicationId": appID}
 
 	result, err := coll.DeleteOne(ctx, qFilter)
 	if err != nil {

@@ -102,10 +102,10 @@ func (r *DaemonRepository) UpdateDaemon(
 // DeleteDaemon implements the auth.DaemonRepository interface.
 func (r *DaemonRepository) DeleteDaemon(
 	ctx context.Context,
-	id auth.ID,
+	appID, id auth.ID,
 ) error {
 	coll := r.db.Collection("daemons")
-	qFilter := bson.M{"id": id}
+	qFilter := bson.M{"id": id, "applicationId": appID}
 
 	result, err := coll.DeleteOne(ctx, qFilter)
 	if err != nil {

@@ -102,10 +102,10 @@ func (r *UserRepository) UpdateUser(
 // DeleteUser implements the auth.UserRepository interface.
 func (r *UserRepository) DeleteUser(
 	ctx context.Context,
-	id auth.ID,
+	appID, id auth.ID,
 ) error {
 	coll := r.db.Collection("users")
-	qFilter := bson.M{"id": id}
+	qFilter := bson.M{"id": id, "applicationId": appID}
 
 	result, err := coll.DeleteOne(ctx, qFilter)
 	if err != nil {

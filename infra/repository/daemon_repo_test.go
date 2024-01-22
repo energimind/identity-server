@@ -33,7 +33,7 @@ func TestDaemonRepository_CRUD(t *testing.T) {
 			return repo.UpdateDaemon(ctx, user)
 		},
 		Delete: func(ctx context.Context, id auth.ID) error {
-			return repo.DeleteDaemon(ctx, id)
+			return repo.DeleteDaemon(ctx, appID, id)
 		},
 		NewEntity: func(key int) auth.Daemon {
 			return auth.Daemon{

@@ -33,7 +33,7 @@ func TestProviderRepository_CRUD(t *testing.T) {
 			return repo.UpdateProvider(ctx, provider)
 		},
 		Delete: func(ctx context.Context, id auth.ID) error {
-			return repo.DeleteProvider(ctx, id)
+			return repo.DeleteProvider(ctx, appID, id)
 		},
 		NewEntity: func(key int) auth.Provider {
 			return auth.Provider{
