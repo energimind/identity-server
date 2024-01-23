@@ -7,6 +7,8 @@ import (
 )
 
 // ctxActor is the key used to store the actor in the context.
+//
+//nolint:gochecknoglobals // not accessible outside this package
 var ctxActor = struct{}{}
 
 // WithActor returns a new context with the given actor.
