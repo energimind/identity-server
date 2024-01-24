@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/energimind/identity-service/core/domain/auth"
-	"github.com/energimind/identity-service/test/utils"
+	"github.com/energimind/identity-service/core/test/utils"
 	"github.com/stretchr/testify/require"
 )
 

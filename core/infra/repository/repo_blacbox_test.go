@@ -3,7 +3,7 @@ package repository_test
 import (
 	"testing"
 
-	"github.com/energimind/identity-service/test/utils"
+	"github.com/energimind/identity-service/core/test/utils"
 )
 
 var mongoEnv utils.MongoEnvironment

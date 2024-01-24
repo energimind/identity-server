@@ -7,7 +7,7 @@ import (
 
 	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/energimind/identity-service/core/infra/repository"
-	"github.com/energimind/identity-service/test/utils"
+	"github.com/energimind/identity-service/core/test/utils"
 )
 
 func TestApplicationRepository_CRUD(t *testing.T) {
