@@ -46,7 +46,8 @@ func (r *Router) GetRoutes() []gin.RouteInfo {
 func configure(config Config, handlers Handlers) *gin.Engine {
 	rtr := gin.New()
 
-	rtr.Use(gin.Logger())
+	rtr.Use(loggerInjector())
+	rtr.Use(requestLogger())
 	rtr.Use(cors(config.AllowOrigin))
 
 	admin := rtr.Group("/api/v1/admin")
