@@ -10,10 +10,10 @@ const (
 
 // System roles.
 const (
-	SystemRoleNone    SystemRole = ""         // no access
-	SystemRoleUser    SystemRole = "user"     // user only access
-	SystemRoleManager SystemRole = "admin"    // application management access
-	SystemRoleAdmin   SystemRole = "sysadmin" // system-wide access
+	SystemRoleNone    SystemRole = ""        // no access
+	SystemRoleUser    SystemRole = "user"    // user only access
+	SystemRoleManager SystemRole = "manager" // application management access
+	SystemRoleAdmin   SystemRole = "admin"   // system-wide access
 )
 
 // All enums. Used for testing purposes to validate that all enum values are
