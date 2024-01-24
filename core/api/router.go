@@ -39,8 +39,18 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 // GetRoutes returns the routes of the router.
-func (r *Router) GetRoutes() []gin.RouteInfo {
-	return r.rtr.Routes()
+func (r *Router) GetRoutes() []RouteInfo {
+	routes := r.rtr.Routes()
+	infos := make([]RouteInfo, 0, len(routes))
+
+	for _, route := range routes {
+		infos = append(infos, RouteInfo{
+			Method: route.Method,
+			Path:   route.Path,
+		})
+	}
+
+	return infos
 }
 
 func configure(config Config, handlers Handlers) *gin.Engine {
