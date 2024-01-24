@@ -6,10 +6,17 @@ import (
 	"strings"
 )
 
-// Dump dumps the configuration to a string slice.
+// Section represents a configuration section.
+type Section struct {
+	Name   string
+	Values []string
+}
+
+// Sections dumps the configuration to a slice of sections.
 // Sensible fields are masked.
-func Dump(cfg *Config) []string {
-	sections := make([]string, 0)
+// This is useful for logging.
+func Sections(cfg *Config) []Section {
+	sections := make([]Section, 0)
 
 	sectionType := reflect.TypeOf(*cfg)
 	sectionValue := reflect.ValueOf(*cfg)
@@ -18,17 +25,20 @@ func Dump(cfg *Config) []string {
 		sectionName := sectionType.Field(i).Name
 		fieldValue := sectionValues(sectionValue.Field(i).Interface())
 
-		sections = append(sections, fmt.Sprintf("%s {%s}", sectionName, fieldValue))
+		sections = append(sections, Section{
+			Name:   sectionName,
+			Values: fieldValue,
+		})
 	}
 
 	return sections
 }
 
-func sectionValues(section any) string {
+func sectionValues(section any) []string {
 	t := reflect.TypeOf(section)
 	v := reflect.ValueOf(section)
 
-	fields := make([]string, 0, t.NumField())
+	values := make([]string, 0, t.NumField())
 
 	for i := 0; i < t.NumField(); i++ {
 		fieldName := t.Field(i).Name
@@ -38,10 +48,10 @@ func sectionValues(section any) string {
 			fieldValue = "****"
 		}
 
-		fields = append(fields, fmt.Sprintf("%s=%v", fieldName, fieldValue))
+		values = append(values, fmt.Sprintf("%s=%v", fieldName, fieldValue))
 	}
 
-	return strings.Join(fields, " ")
+	return values
 }
 
 func isProtectedField(fieldName string) bool {
