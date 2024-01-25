@@ -17,6 +17,7 @@ import (
 	"github.com/energimind/identity-service/core/infra/rest/middleware"
 	"github.com/energimind/identity-service/core/infra/rest/router"
 	"github.com/energimind/identity-service/pkg/httpd"
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -36,9 +37,11 @@ func setupServer(cfg *config.Config) (*httpd.Server, context.CancelFunc, error) 
 	routes := api.NewRoutes(setupHandlers(mongoDB, idGen))
 
 	restRouter := router.New(
+		gin.Recovery(),
 		middleware.LoggerInjector(),
 		middleware.RequestLogger(),
-		middleware.CORS(cfg.Router.AllowOrigin))
+		middleware.CORS(cfg.Router.AllowOrigin),
+		middleware.ErrorMapper())
 
 	restRouter.RegisterRoutes(routes)
 
