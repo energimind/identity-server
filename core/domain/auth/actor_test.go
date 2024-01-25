@@ -71,5 +71,5 @@ func TestActor_String(t *testing.T) {
 
 	act := NewActor("user1", "app1", SystemRoleManager)
 
-	require.Equal(t, "user1@app1[admin]", act.String())
+	require.Equal(t, "user1@app1[manager]", act.String())
 }
