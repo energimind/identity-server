@@ -3,7 +3,11 @@ package handler
 import (
 	"net/http"
 
+	"github.com/energimind/identity-service/core/api/dto"
 	"github.com/energimind/identity-service/core/appl/service"
+	"github.com/energimind/identity-service/core/domain"
+	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,21 +31,86 @@ func (h *ApplicationHandler) Bind(root gin.IRoutes) {
 }
 
 func (h *ApplicationHandler) findAll(c *gin.Context) {
-	c.Status(http.StatusNotImplemented)
+	actor := reqctx.Actor(c)
+
+	applications, err := h.service.GetApplications(c, actor)
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.FromApplications(applications))
 }
 
 func (h *ApplicationHandler) findByID(c *gin.Context) {
-	c.Status(http.StatusNotImplemented)
+	id := c.Param("id")
+	actor := reqctx.Actor(c)
+
+	application, err := h.service.GetApplication(c, actor, auth.ID(id))
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.FromApplication(application))
 }
 
 func (h *ApplicationHandler) create(c *gin.Context) {
-	c.Status(http.StatusNotImplemented)
+	actor := reqctx.Actor(c)
+
+	dtoApplication := dto.Application{}
+
+	if err := c.ShouldBindJSON(&dtoApplication); err != nil {
+		_ = c.Error(domain.NewBadRequestError("invalid json payload"))
+
+		return
+	}
+
+	application, err := h.service.CreateApplication(c, actor, dto.ToApplication(dtoApplication))
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	c.JSON(http.StatusCreated, dto.FromApplication(application))
 }
 
 func (h *ApplicationHandler) update(c *gin.Context) {
-	c.Status(http.StatusNotImplemented)
+	id := c.Param("id")
+	actor := reqctx.Actor(c)
+
+	dtoApplication := dto.Application{}
+
+	if err := c.ShouldBindJSON(&dtoApplication); err != nil {
+		_ = c.Error(domain.NewBadRequestError("invalid json payload"))
+
+		return
+	}
+
+	dtoApplication.ID = id
+
+	application, err := h.service.UpdateApplication(c, actor, dto.ToApplication(dtoApplication))
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.FromApplication(application))
 }
 
 func (h *ApplicationHandler) delete(c *gin.Context) {
-	c.Status(http.StatusNotImplemented)
+	id := c.Param("id")
+	actor := reqctx.Actor(c)
+
+	if err := h.service.DeleteApplication(c, actor, auth.ID(id)); err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }
