@@ -4,6 +4,7 @@ package config
 type Config struct {
 	HTTP   HTTPConfig
 	Router RouterConfig
+	Mongo  MongoConfig
 }
 
 // HTTPConfig contains HTTP server setup.
@@ -15,4 +16,12 @@ type HTTPConfig struct {
 // RouterConfig contains router setup.
 type RouterConfig struct {
 	AllowOrigin string `env:"ROUTER_ALLOW_ORIGIN"`
+}
+
+// MongoConfig contains MongoDB setup.
+type MongoConfig struct {
+	Address  string `env:"MONGO_ADDRESS"`
+	Database string `env:"MONGO_DATABASE"`
+	Username string `env:"MONGO_USERNAME"`
+	Password string `env:"MONGO_PASSWORD"`
 }

@@ -9,10 +9,10 @@ import (
 func Run(cfg *config.Config) error {
 	logger.Debug().Msgf("Loaded config:\n%+v", formatConfigs(config.Sections(cfg)))
 
-	srv, err := buildServer(cfg)
+	srv, free, err := setupServer(cfg)
 	if err != nil {
 		return err
 	}
 
-	return run(srv)
+	return run(srv, free)
 }

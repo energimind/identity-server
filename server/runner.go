@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,8 +12,9 @@ import (
 )
 
 // Run runs the server. This method blocks until the server is stopped.
-func run(srv *httpd.Server) error {
-	startTime := time.Now()
+func run(srv *httpd.Server, releaseResources context.CancelFunc) error {
+	defer logRunTime()()
+	defer releaseResources()
 
 	errorCh := make(chan error, 1)
 
@@ -28,7 +30,7 @@ func run(srv *httpd.Server) error {
 	case err := <-errorCh:
 		return err
 	case sig := <-interrupted():
-		logger.Info().Any("signal", sig.String()).Msg("Interrupted, stopping server gracefully...")
+		logger.Info().Any("signal", sig.String()).Msg("Server interrupted")
 
 		if err := srv.Unbind(); err != nil {
 			logger.Warn().Err(err).Msg("Failed to unbind server")
@@ -39,11 +41,17 @@ func run(srv *httpd.Server) error {
 		}
 	}
 
-	runTime := time.Since(startTime).Round(time.Second)
-
-	logger.Info().Str("runTime", runTime.String()).Msg("Server stopped")
-
 	return nil
+}
+
+func logRunTime() func() {
+	startTime := time.Now()
+
+	return func() {
+		runTime := time.Since(startTime).Round(time.Second)
+
+		logger.Info().Str("runTime", runTime.String()).Msg("Server stopped")
+	}
 }
 
 func interrupted() <-chan os.Signal {
