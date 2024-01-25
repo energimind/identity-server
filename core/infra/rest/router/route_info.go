@@ -1,4 +1,4 @@
-package api
+package router
 
 // RouteInfo represents the route information.
 type RouteInfo struct {

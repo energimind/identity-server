@@ -1,14 +1,14 @@
-package api
+package middleware
 
 import (
-	"github.com/energimind/identity-service/core/api/reqctx"
 	"github.com/energimind/identity-service/core/infra/logger"
+	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
 
-// loggerInjector is a middleware that injects the global logger
+// LoggerInjector is a middleware that injects the global logger
 // into the request context.
-func loggerInjector() gin.HandlerFunc {
+func LoggerInjector() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		reqctx.SetLogger(c, logger.Global)
 

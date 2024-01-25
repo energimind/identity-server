@@ -1,2 +1,2 @@
-// Package api implements the API router.
+// Package api implements the API routes.
 package api

@@ -1,4 +1,4 @@
-package api
+package middleware
 
 import (
 	"net/http"
@@ -6,13 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// cors is a middleware that adds CORS headers to requests.
+// CORS is a middleware that adds CORS headers to requests.
 //
 // It allows requests from the specified origin.
 //
 // It also handles preflight requests via the OPTIONS method. In this case,
 // the request is aborted with a 200 OK status.
-func cors(allowOrigin string) gin.HandlerFunc {
+func CORS(allowOrigin string) gin.HandlerFunc {
 	const (
 		allowCredentials = "true"
 		allowMethods     = "OPTIONS, POST, GET, PUT, DELETE"

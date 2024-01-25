@@ -1,15 +1,15 @@
-package api
+package middleware
 
 import (
 	"strings"
 	"time"
 
-	"github.com/energimind/identity-service/core/api/reqctx"
+	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
 
-// requestLogger is a middleware that logs requests.
-func requestLogger() gin.HandlerFunc {
+// RequestLogger is a middleware that logs requests.
+func RequestLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 
