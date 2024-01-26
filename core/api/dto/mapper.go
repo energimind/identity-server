@@ -75,3 +75,122 @@ func ToProvider(provider Provider) auth.Provider {
 		RedirectURL:  provider.RedirectURL,
 	}
 }
+
+// FromUser converts a domain user to a DTO user.
+func FromUser(user auth.User) User {
+	return User{
+		ID:          string(user.ID),
+		Username:    user.Username,
+		Description: user.Description,
+		Enabled:     user.Enabled,
+		Role:        string(user.Role),
+		Accounts:    fromAccounts(user.Accounts),
+		APIKeys:     fromAPIKeys(user.APIKeys),
+	}
+}
+
+// FromUsers converts a slice of domain users to a slice of DTO users.
+func FromUsers(users []auth.User) []User {
+	dtos := make([]User, len(users))
+
+	for i, user := range users {
+		dtos[i] = FromUser(user)
+	}
+
+	return dtos
+}
+
+// ToUser converts a DTO user to a domain user.
+func ToUser(user User) auth.User {
+	return auth.User{
+		ID:          auth.ID(user.ID),
+		Username:    user.Username,
+		Description: user.Description,
+		Enabled:     user.Enabled,
+		Role:        auth.SystemRole(user.Role),
+		Accounts:    toAccounts(user.Accounts),
+		APIKeys:     toAPIKeys(user.APIKeys),
+	}
+}
+
+// fromAccount converts a domain account to a DTO account.
+func fromAccount(account auth.Account) Account {
+	return Account{
+		Identifier: account.Identifier,
+		Enabled:    account.Enabled,
+	}
+}
+
+// fromAccounts converts a slice of domain accounts to a slice of DTO accounts.
+func fromAccounts(accounts []auth.Account) []Account {
+	dtos := make([]Account, len(accounts))
+
+	for i, account := range accounts {
+		dtos[i] = fromAccount(account)
+	}
+
+	return dtos
+}
+
+// toAccount converts a DTO account to a domain account.
+func toAccount(account Account) auth.Account {
+	return auth.Account{
+		Identifier: account.Identifier,
+		Enabled:    account.Enabled,
+	}
+}
+
+// toAccounts converts a slice of DTO accounts to a slice of domain accounts.
+func toAccounts(accounts []Account) []auth.Account {
+	dtos := make([]auth.Account, len(accounts))
+
+	for i, account := range accounts {
+		dtos[i] = toAccount(account)
+	}
+
+	return dtos
+}
+
+// fromAPIKey converts a domain API key to a DTO API key.
+func fromAPIKey(apiKey auth.APIKey) APIKey {
+	return APIKey{
+		Name:        apiKey.Name,
+		Description: apiKey.Description,
+		Enabled:     apiKey.Enabled,
+		Key:         apiKey.Key,
+		ExpiresAt:   apiKey.ExpiresAt,
+	}
+}
+
+// fromAPIKeys converts a slice of domain API keys to a slice of DTO API keys.
+func fromAPIKeys(apiKeys []auth.APIKey) []APIKey {
+	dtos := make([]APIKey, len(apiKeys))
+
+	for i, apiKey := range apiKeys {
+		dtos[i] = fromAPIKey(apiKey)
+	}
+
+	return dtos
+}
+
+// toAPIKey converts a DTO API key to a domain API key.
+func toAPIKey(apiKey APIKey) auth.APIKey {
+	return auth.APIKey{
+		Name:        apiKey.Name,
+		Description: apiKey.Description,
+		Enabled:     apiKey.Enabled,
+		Key:         apiKey.Key,
+		ExpiresAt:   apiKey.ExpiresAt,
+	}
+}
+
+// toAPIKeys converts a slice of DTO API keys to a slice of domain API keys.
+func toAPIKeys(apiKeys []APIKey) []auth.APIKey {
+	dtos := make([]auth.APIKey, len(apiKeys))
+
+	for i, apiKey := range apiKeys {
+		dtos[i] = toAPIKey(apiKey)
+	}
+
+	return dtos
+}

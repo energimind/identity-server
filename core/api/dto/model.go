@@ -1,5 +1,7 @@
 package dto
 
+import "time"
+
 // Application represents an application.
 type Application struct {
 	ID          string `json:"id"`
@@ -20,4 +22,31 @@ type Provider struct {
 	ClientID     string `json:"clientId"`
 	ClientSecret string `json:"clientSecret"`
 	RedirectURL  string `json:"redirectUrl"`
+}
+
+// User represents an organic user in the system.
+type User struct {
+	ID          string    `json:"id"`
+	Username    string    `json:"username"`
+	Description string    `json:"description"`
+	Enabled     bool      `json:"enabled"`
+	Role        string    `json:"role"`
+	Accounts    []Account `json:"accounts"`
+	APIKeys     []APIKey  `json:"apiKeys"`
+}
+
+// Account represents an account of a user in the system.
+type Account struct {
+	Identifier string `json:"identifier"`
+	Enabled    bool   `json:"enabled"`
+}
+
+// APIKey represents an API key that can be used to authenticate a daemon.
+// It can also be used to authenticate a user.
+type APIKey struct {
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Enabled     bool      `json:"enabled"`
+	Key         string    `json:"key"`
+	ExpiresAt   time.Time `json:"expiresAt"`
 }
