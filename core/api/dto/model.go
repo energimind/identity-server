@@ -41,6 +41,16 @@ type Account struct {
 	Enabled    bool   `json:"enabled"`
 }
 
+// Daemon represents a non-organic user in the system.
+type Daemon struct {
+	ID          string   `json:"id"`
+	Code        string   `json:"code"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Enabled     bool     `json:"enabled"`
+	APIKeys     []APIKey `json:"apiKeys"`
+}
+
 // APIKey represents an API key that can be used to authenticate a daemon.
 // It can also be used to authenticate a user.
 type APIKey struct {

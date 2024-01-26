@@ -151,6 +151,41 @@ func toAccounts(accounts []Account) []auth.Account {
 	return dtos
 }
 
+// FromDaemon converts a domain daemon to a DTO daemon.
+func FromDaemon(daemon auth.Daemon) Daemon {
+	return Daemon{
+		ID:          string(daemon.ID),
+		Code:        daemon.Code,
+		Name:        daemon.Name,
+		Description: daemon.Description,
+		Enabled:     daemon.Enabled,
+		APIKeys:     fromAPIKeys(daemon.APIKeys),
+	}
+}
+
+// FromDaemons converts a slice of domain daemons to a slice of DTO daemons.
+func FromDaemons(daemons []auth.Daemon) []Daemon {
+	dtos := make([]Daemon, len(daemons))
+
+	for i, daemon := range daemons {
+		dtos[i] = FromDaemon(daemon)
+	}
+
+	return dtos
+}
+
+// ToDaemon converts a DTO daemon to a domain daemon.
+func ToDaemon(daemon Daemon) auth.Daemon {
+	return auth.Daemon{
+		ID:          auth.ID(daemon.ID),
+		Code:        daemon.Code,
+		Name:        daemon.Name,
+		Description: daemon.Description,
+		Enabled:     daemon.Enabled,
+		APIKeys:     toAPIKeys(daemon.APIKeys),
+	}
+}
+
 // fromAPIKey converts a domain API key to a DTO API key.
 func fromAPIKey(apiKey auth.APIKey) APIKey {
 	return APIKey{

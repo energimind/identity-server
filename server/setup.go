@@ -68,15 +68,18 @@ func setupHandlers(mongoDB *mongo.Database, idGen *xid.Generator) api.Handlers {
 	applicationRepo := repository.NewApplicationRepository(mongoDB)
 	providerRepo := repository.NewProviderRepository(mongoDB)
 	userRepo := repository.NewUserRepository(mongoDB)
+	daemonRepo := repository.NewDaemonRepository(mongoDB)
 
 	applicationService := service.NewApplicationService(applicationRepo, idGen)
 	providerService := service.NewProviderService(providerRepo, idGen)
 	userService := service.NewUserService(userRepo, idGen)
+	daemonService := service.NewDaemonService(daemonRepo, idGen)
 
 	handlers := api.Handlers{
 		Application: handler.NewApplicationHandler(applicationService),
 		Provider:    handler.NewProviderHandler(providerService),
 		User:        handler.NewUserHandler(userService),
+		Daemon:      handler.NewDaemonHandler(daemonService),
 		Health:      handler.NewHealthHandler(),
 	}
 

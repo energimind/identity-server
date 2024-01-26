@@ -15,6 +15,7 @@ type Handlers struct {
 	Application handler
 	Provider    handler
 	User        handler
+	Daemon      handler
 	Health      handler
 }
 
@@ -41,6 +42,7 @@ func (r *Routes) RegisterRoutes(root gin.IRouter) {
 		r.handlers.Application.Bind(apps)
 		r.handlers.Provider.Bind(apps.Group("/:aid/providers"))
 		r.handlers.User.Bind(apps.Group("/:aid/users"))
+		r.handlers.Daemon.Bind(apps.Group("/:aid/daemons"))
 	}
 
 	health := root.Group("/health")
