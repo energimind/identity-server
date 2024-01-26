@@ -34,3 +34,44 @@ func ToApplication(app Application) auth.Application {
 		Enabled:     app.Enabled,
 	}
 }
+
+// FromProvider converts a domain provider to a DTO provider.
+func FromProvider(provider auth.Provider) Provider {
+	return Provider{
+		ID:           string(provider.ID),
+		Type:         string(provider.Type),
+		Code:         provider.Code,
+		Name:         provider.Name,
+		Description:  provider.Description,
+		Enabled:      provider.Enabled,
+		ClientID:     provider.ClientID,
+		ClientSecret: provider.ClientSecret,
+		RedirectURL:  provider.RedirectURL,
+	}
+}
+
+// FromProviders converts a slice of domain providers to a slice of DTO providers.
+func FromProviders(providers []auth.Provider) []Provider {
+	dtos := make([]Provider, len(providers))
+
+	for i, provider := range providers {
+		dtos[i] = FromProvider(provider)
+	}
+
+	return dtos
+}
+
+// ToProvider converts a DTO provider to a domain provider.
+func ToProvider(provider Provider) auth.Provider {
+	return auth.Provider{
+		ID:           auth.ID(provider.ID),
+		Type:         auth.ProviderType(provider.Type),
+		Code:         provider.Code,
+		Name:         provider.Name,
+		Description:  provider.Description,
+		Enabled:      provider.Enabled,
+		ClientID:     provider.ClientID,
+		ClientSecret: provider.ClientSecret,
+		RedirectURL:  provider.RedirectURL,
+	}
+}

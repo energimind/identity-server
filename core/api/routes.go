@@ -12,8 +12,9 @@ type handler interface {
 
 // Handlers is a collection of handler that will be bound to the router.
 type Handlers struct {
-	ApplicationHandler handler
-	HealthHandler      handler
+	Application handler
+	Provider    handler
+	Health      handler
 }
 
 // Routes is a collection of routes that will be registered to the router.
@@ -34,11 +35,14 @@ func (r *Routes) RegisterRoutes(root gin.IRouter) {
 	{
 		admin.Use(middleware.RequireActor())
 
-		r.handlers.ApplicationHandler.Bind(admin.Group("/applications"))
+		apps := admin.Group("/applications")
+
+		r.handlers.Application.Bind(apps)
+		r.handlers.Provider.Bind(apps.Group("/:aid/providers"))
 	}
 
 	health := root.Group("/health")
 	{
-		r.handlers.HealthHandler.Bind(health)
+		r.handlers.Health.Bind(health)
 	}
 }

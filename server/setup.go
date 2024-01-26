@@ -66,12 +66,15 @@ func setupServer(cfg *config.Config) (*httpd.Server, context.CancelFunc, error) 
 
 func setupHandlers(mongoDB *mongo.Database, idGen *xid.Generator) api.Handlers {
 	applicationRepo := repository.NewApplicationRepository(mongoDB)
+	providerRepo := repository.NewProviderRepository(mongoDB)
 
 	applicationService := service.NewApplicationService(applicationRepo, idGen)
+	providerService := service.NewProviderService(providerRepo, idGen)
 
 	handlers := api.Handlers{
-		ApplicationHandler: handler.NewApplicationHandler(applicationService),
-		HealthHandler:      handler.NewHealthHandler(),
+		Application: handler.NewApplicationHandler(applicationService),
+		Provider:    handler.NewProviderHandler(providerService),
+		Health:      handler.NewHealthHandler(),
 	}
 
 	return handlers

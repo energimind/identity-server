@@ -24,10 +24,10 @@ func NewApplicationHandler(service *service.ApplicationService) *ApplicationHand
 // Bind binds the ApplicationHandler to a root provided by a router.
 func (h *ApplicationHandler) Bind(root gin.IRoutes) {
 	root.GET("", h.findAll)
-	root.GET("/:id", h.findByID)
+	root.GET("/:aid", h.findByID)
 	root.POST("", h.create)
-	root.PUT("/:id", h.update)
-	root.DELETE("/:id", h.delete)
+	root.PUT("/:aid", h.update)
+	root.DELETE("/:aid", h.delete)
 }
 
 func (h *ApplicationHandler) findAll(c *gin.Context) {
@@ -44,7 +44,7 @@ func (h *ApplicationHandler) findAll(c *gin.Context) {
 }
 
 func (h *ApplicationHandler) findByID(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("aid")
 	actor := reqctx.Actor(c)
 
 	application, err := h.service.GetApplication(c, actor, auth.ID(id))
@@ -79,7 +79,7 @@ func (h *ApplicationHandler) create(c *gin.Context) {
 }
 
 func (h *ApplicationHandler) update(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("aid")
 	actor := reqctx.Actor(c)
 
 	dtoApplication := dto.Application{}
@@ -103,7 +103,7 @@ func (h *ApplicationHandler) update(c *gin.Context) {
 }
 
 func (h *ApplicationHandler) delete(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("aid")
 	actor := reqctx.Actor(c)
 
 	if err := h.service.DeleteApplication(c, actor, auth.ID(id)); err != nil {
