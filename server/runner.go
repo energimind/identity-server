@@ -24,7 +24,7 @@ func run(srv *httpd.Server, releaseResources context.CancelFunc) error {
 		}
 	}()
 
-	logger.Info().Msgf("Server listening on %s", srv.Address())
+	logger.Info().Str("address", srv.Address()).Msg("Server listening")
 
 	select {
 	case err := <-errorCh:
