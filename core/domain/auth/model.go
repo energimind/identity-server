@@ -62,6 +62,7 @@ type User struct {
 	ID            ID
 	ApplicationID ID
 	Username      string
+	DisplayName   string
 	Description   string
 	Enabled       bool
 	Role          SystemRole

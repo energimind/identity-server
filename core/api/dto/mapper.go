@@ -81,6 +81,7 @@ func FromUser(user auth.User) User {
 	return User{
 		ID:          string(user.ID),
 		Username:    user.Username,
+		DisplayName: user.DisplayName,
 		Description: user.Description,
 		Enabled:     user.Enabled,
 		Role:        string(user.Role),
@@ -104,6 +105,7 @@ func ToUser(user User) auth.User {
 	return auth.User{
 		ID:          auth.ID(user.ID),
 		Username:    user.Username,
+		DisplayName: user.DisplayName,
 		Description: user.Description,
 		Enabled:     user.Enabled,
 		Role:        auth.SystemRole(user.Role),

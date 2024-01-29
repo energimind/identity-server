@@ -28,6 +28,7 @@ type Provider struct {
 type User struct {
 	ID          string   `json:"id"`
 	Username    string   `json:"username"`
+	DisplayName string   `json:"displayName"`
 	Description string   `json:"description"`
 	Enabled     bool     `json:"enabled"`
 	Role        string   `json:"role"`

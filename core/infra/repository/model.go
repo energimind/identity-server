@@ -30,6 +30,7 @@ type dbUser struct {
 	ID            string       `bson:"id"`
 	ApplicationID string       `bson:"applicationId"`
 	Username      string       `bson:"username"`
+	DisplayName   string       `bson:"displayName"`
 	Description   string       `bson:"description,omitempty"`
 	Enabled       bool         `bson:"enabled"`
 	Role          dbSystemRole `bson:"role"`
