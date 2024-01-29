@@ -33,14 +33,7 @@ type dbUser struct {
 	Description   string       `bson:"description,omitempty"`
 	Enabled       bool         `bson:"enabled"`
 	Role          dbSystemRole `bson:"role"`
-	Accounts      []dbAccount  `bson:"accounts,omitempty"`
 	APIKeys       []dbAPIKey   `bson:"apiKeys,omitempty"`
-}
-
-// dbAccount is the database model for an account.
-type dbAccount struct {
-	Identifier string `bson:"identifier"`
-	Enabled    bool   `bson:"enabled"`
 }
 
 // dbDaemon is the database model for a daemon.

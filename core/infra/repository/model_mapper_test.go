@@ -13,14 +13,12 @@ func Test_allUserFieldsAreMapped(t *testing.T) {
 	utils.CheckAllFieldsAreMapped(t, auth.Application{}, dbApplication{})
 	utils.CheckAllFieldsAreMapped(t, auth.Provider{}, dbProvider{})
 	utils.CheckAllFieldsAreMapped(t, auth.User{}, dbUser{})
-	utils.CheckAllFieldsAreMapped(t, auth.Account{}, dbAccount{})
 	utils.CheckAllFieldsAreMapped(t, auth.Daemon{}, dbDaemon{})
 	utils.CheckAllFieldsAreMapped(t, auth.APIKey{}, dbAPIKey{})
 
 	utils.CheckAllFieldsAreMapped(t, dbApplication{}, auth.Application{})
 	utils.CheckAllFieldsAreMapped(t, dbProvider{}, auth.Provider{})
 	utils.CheckAllFieldsAreMapped(t, dbUser{}, auth.User{})
-	utils.CheckAllFieldsAreMapped(t, dbAccount{}, auth.Account{})
 	utils.CheckAllFieldsAreMapped(t, dbDaemon{}, auth.Daemon{})
 	utils.CheckAllFieldsAreMapped(t, dbAPIKey{}, auth.APIKey{})
 }
@@ -97,7 +95,6 @@ func Test_mapUser(t *testing.T) {
 		Description:   "User 1",
 		Enabled:       true,
 		Role:          auth.SystemRoleManager,
-		Accounts:      []auth.Account{{}},
 		APIKeys:       []auth.APIKey{{}},
 	}
 
@@ -108,32 +105,11 @@ func Test_mapUser(t *testing.T) {
 		Description:   "User 1",
 		Enabled:       true,
 		Role:          dbSystemRoleManager,
-		Accounts:      []dbAccount{{}},
 		APIKeys:       []dbAPIKey{{}},
 	}
 
 	mapped := toUser(from)
 	back := fromUser(mapped)
-
-	require.Equal(t, expected, mapped)
-	require.Equal(t, from, back)
-}
-
-func Test_mapAccount(t *testing.T) {
-	t.Parallel()
-
-	from := auth.Account{
-		Identifier: "user1@domain.com",
-		Enabled:    true,
-	}
-
-	expected := dbAccount{
-		Identifier: "user1@domain.com",
-		Enabled:    true,
-	}
-
-	mapped := toAccount(from)
-	back := fromAccount(mapped)
 
 	require.Equal(t, expected, mapped)
 	require.Equal(t, from, back)

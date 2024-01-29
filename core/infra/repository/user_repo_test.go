@@ -43,7 +43,6 @@ func TestUserRepository_CRUD(t *testing.T) {
 				Description:   "description",
 				Enabled:       true,
 				Role:          auth.SystemRoleAdmin,
-				Accounts:      []auth.Account{{}},
 				APIKeys:       []auth.APIKey{{}},
 			}
 		},

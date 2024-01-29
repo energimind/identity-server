@@ -68,7 +68,6 @@ func toUser(user auth.User) dbUser {
 		Description:   user.Description,
 		Enabled:       user.Enabled,
 		Role:          toSystemRole(user.Role),
-		Accounts:      mapSlice(user.Accounts, toAccount),
 		APIKeys:       mapSlice(user.APIKeys, toAPIKey),
 	}
 }
@@ -81,22 +80,7 @@ func fromUser(user dbUser) auth.User {
 		Description:   user.Description,
 		Enabled:       user.Enabled,
 		Role:          fromSystemRole(user.Role),
-		Accounts:      mapSlice(user.Accounts, fromAccount),
 		APIKeys:       mapSlice(user.APIKeys, fromAPIKey),
-	}
-}
-
-func toAccount(account auth.Account) dbAccount {
-	return dbAccount{
-		Identifier: account.Identifier,
-		Enabled:    account.Enabled,
-	}
-}
-
-func fromAccount(account dbAccount) auth.Account {
-	return auth.Account{
-		Identifier: account.Identifier,
-		Enabled:    account.Enabled,
 	}
 }
 

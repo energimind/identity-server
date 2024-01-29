@@ -84,7 +84,6 @@ func FromUser(user auth.User) User {
 		Description: user.Description,
 		Enabled:     user.Enabled,
 		Role:        string(user.Role),
-		Accounts:    fromAccounts(user.Accounts),
 		APIKeys:     fromAPIKeys(user.APIKeys),
 	}
 }
@@ -108,47 +107,8 @@ func ToUser(user User) auth.User {
 		Description: user.Description,
 		Enabled:     user.Enabled,
 		Role:        auth.SystemRole(user.Role),
-		Accounts:    toAccounts(user.Accounts),
 		APIKeys:     toAPIKeys(user.APIKeys),
 	}
-}
-
-// fromAccount converts a domain account to a DTO account.
-func fromAccount(account auth.Account) Account {
-	return Account{
-		Identifier: account.Identifier,
-		Enabled:    account.Enabled,
-	}
-}
-
-// fromAccounts converts a slice of domain accounts to a slice of DTO accounts.
-func fromAccounts(accounts []auth.Account) []Account {
-	dtos := make([]Account, len(accounts))
-
-	for i, account := range accounts {
-		dtos[i] = fromAccount(account)
-	}
-
-	return dtos
-}
-
-// toAccount converts a DTO account to a domain account.
-func toAccount(account Account) auth.Account {
-	return auth.Account{
-		Identifier: account.Identifier,
-		Enabled:    account.Enabled,
-	}
-}
-
-// toAccounts converts a slice of DTO accounts to a slice of domain accounts.
-func toAccounts(accounts []Account) []auth.Account {
-	dtos := make([]auth.Account, len(accounts))
-
-	for i, account := range accounts {
-		dtos[i] = toAccount(account)
-	}
-
-	return dtos
 }
 
 // FromDaemon converts a domain daemon to a DTO daemon.

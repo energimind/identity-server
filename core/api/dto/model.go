@@ -26,19 +26,12 @@ type Provider struct {
 
 // User represents an organic user in the system.
 type User struct {
-	ID          string    `json:"id"`
-	Username    string    `json:"username"`
-	Description string    `json:"description"`
-	Enabled     bool      `json:"enabled"`
-	Role        string    `json:"role"`
-	Accounts    []Account `json:"accounts"`
-	APIKeys     []APIKey  `json:"apiKeys"`
-}
-
-// Account represents an account of a user in the system.
-type Account struct {
-	Identifier string `json:"identifier"`
-	Enabled    bool   `json:"enabled"`
+	ID          string   `json:"id"`
+	Username    string   `json:"username"`
+	Description string   `json:"description"`
+	Enabled     bool     `json:"enabled"`
+	Role        string   `json:"role"`
+	APIKeys     []APIKey `json:"apiKeys"`
 }
 
 // Daemon represents a non-organic user in the system.

@@ -65,14 +65,7 @@ type User struct {
 	Description   string
 	Enabled       bool
 	Role          SystemRole
-	Accounts      []Account
 	APIKeys       []APIKey
-}
-
-// Account represents an account of a user in the system.
-type Account struct {
-	Identifier string
-	Enabled    bool
 }
 
 // Daemon represents a non-organic user in the system.
