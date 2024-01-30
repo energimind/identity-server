@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/energimind/identity-service/core/api/dto"
-	auth2 "github.com/energimind/identity-service/core/appl/service/auth"
+	service "github.com/energimind/identity-service/core/appl/service/auth"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
@@ -13,11 +13,11 @@ import (
 
 // UserHandler is an HTTP API handler for managing users.
 type UserHandler struct {
-	service *auth2.UserService
+	service *service.UserService
 }
 
 // NewUserHandler creates a new UserHandler.
-func NewUserHandler(service *auth2.UserService) *UserHandler {
+func NewUserHandler(service *service.UserService) *UserHandler {
 	return &UserHandler{service: service}
 }
 

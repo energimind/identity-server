@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/energimind/identity-service/core/api/dto"
-	auth2 "github.com/energimind/identity-service/core/appl/service/auth"
+	service "github.com/energimind/identity-service/core/appl/service/auth"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
@@ -13,11 +13,11 @@ import (
 
 // ProviderHandler is an HTTP API handler for managing authentication providers.
 type ProviderHandler struct {
-	service *auth2.ProviderService
+	service *service.ProviderService
 }
 
 // NewProviderHandler creates a new ProviderHandler.
-func NewProviderHandler(service *auth2.ProviderService) *ProviderHandler {
+func NewProviderHandler(service *service.ProviderService) *ProviderHandler {
 	return &ProviderHandler{service: service}
 }
 
