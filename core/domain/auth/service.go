@@ -37,3 +37,8 @@ type DaemonService interface {
 	UpdateDaemon(ctx context.Context, actor Actor, daemon Daemon) (Daemon, error)
 	DeleteDaemon(ctx context.Context, actor Actor, appID, id ID) error
 }
+
+// ProviderLookupService defines the provider lookup service interface.
+type ProviderLookupService interface {
+	LookupProvider(ctx context.Context, applicationCode, providerCode string) (Provider, error)
+}
