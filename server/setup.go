@@ -10,7 +10,10 @@ import (
 	"github.com/energimind/identity-service/core/api"
 	"github.com/energimind/identity-service/core/api/handler"
 	"github.com/energimind/identity-service/core/appl/service/auth"
+	"github.com/energimind/identity-service/core/appl/service/login"
 	"github.com/energimind/identity-service/core/config"
+	"github.com/energimind/identity-service/core/domain"
+	"github.com/energimind/identity-service/core/infra/idgen/shortid"
 	"github.com/energimind/identity-service/core/infra/idgen/xid"
 	"github.com/energimind/identity-service/core/infra/logger"
 	"github.com/energimind/identity-service/core/infra/repository"
@@ -26,6 +29,7 @@ import (
 // It returns the server, a function to release resources and an error if any.
 func setupServer(cfg *config.Config) (*httpd.Server, context.CancelFunc, error) {
 	idGen := xid.NewGenerator()
+	shortIDGen := shortid.NewGenerator()
 
 	mongoClient, err := connectToMongoDB(&cfg.Mongo)
 	if err != nil {
@@ -34,7 +38,7 @@ func setupServer(cfg *config.Config) (*httpd.Server, context.CancelFunc, error) 
 
 	mongoDB := mongoClient.Database(cfg.Mongo.Database)
 
-	routes := api.NewRoutes(setupHandlers(mongoDB, idGen))
+	routes := api.NewRoutes(setupHandlers(mongoDB, idGen, shortIDGen, cfg.Auth.Endpoint))
 
 	restRouter := router.New(
 		gin.Recovery(),
@@ -64,7 +68,7 @@ func setupServer(cfg *config.Config) (*httpd.Server, context.CancelFunc, error) 
 	return srv, releaseResources, nil
 }
 
-func setupHandlers(mongoDB *mongo.Database, idGen *xid.Generator) api.Handlers {
+func setupHandlers(mongoDB *mongo.Database, idGen, shortIDGen domain.IDGenerator, authEndpoint string) api.Handlers {
 	applicationRepo := repository.NewApplicationRepository(mongoDB)
 	providerRepo := repository.NewProviderRepository(mongoDB)
 	userRepo := repository.NewUserRepository(mongoDB)
@@ -74,12 +78,16 @@ func setupHandlers(mongoDB *mongo.Database, idGen *xid.Generator) api.Handlers {
 	providerService := auth.NewProviderService(providerRepo, idGen)
 	userService := auth.NewUserService(userRepo, idGen)
 	daemonService := auth.NewDaemonService(daemonRepo, idGen)
+	providerLookupService := auth.NewProviderLookupService(applicationService, providerService)
+	sessionService := login.NewSessionService(providerLookupService, shortIDGen)
 
 	handlers := api.Handlers{
 		Application: handler.NewApplicationHandler(applicationService),
 		Provider:    handler.NewProviderHandler(providerService),
 		User:        handler.NewUserHandler(userService),
 		Daemon:      handler.NewDaemonHandler(daemonService),
+		Auth:        handler.NewLoginHandler(sessionService),
+		AdminAuth:   handler.NewAdminLoginHandler(authEndpoint),
 		Health:      handler.NewHealthHandler(),
 	}
 
@@ -92,14 +100,14 @@ func connectToMongoDB(cfg *config.MongoConfig) (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	auth := options.Credential{
+	cred := options.Credential{
 		AuthSource:  cfg.Database,
 		Username:    cfg.Username,
 		Password:    cfg.Password,
 		PasswordSet: false,
 	}
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.Address).SetAuth(auth))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.Address).SetAuth(cred))
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to MongoDB: %w", err)
 	}

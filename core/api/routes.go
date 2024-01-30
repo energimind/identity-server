@@ -16,6 +16,8 @@ type Handlers struct {
 	Provider    handler
 	User        handler
 	Daemon      handler
+	Auth        handler
+	AdminAuth   handler
 	Health      handler
 }
 
@@ -33,7 +35,9 @@ func NewRoutes(handlers Handlers) *Routes {
 
 // RegisterRoutes registers the routes to the router.
 func (r *Routes) RegisterRoutes(root gin.IRouter) {
-	admin := root.Group("/api/v1/admin")
+	api := root.Group("/api/v1")
+
+	admin := api.Group("/admin")
 	{
 		admin.Use(middleware.RequireActor())
 
@@ -43,6 +47,15 @@ func (r *Routes) RegisterRoutes(root gin.IRouter) {
 		r.handlers.Provider.Bind(apps.Group("/:aid/providers"))
 		r.handlers.User.Bind(apps.Group("/:aid/users"))
 		r.handlers.Daemon.Bind(apps.Group("/:aid/daemons"))
+
+		adminAuth := admin.Group("/auth")
+
+		r.handlers.AdminAuth.Bind(adminAuth)
+	}
+
+	auth := api.Group("/auth")
+	{
+		r.handlers.Auth.Bind(auth)
 	}
 
 	health := root.Group("/health")
