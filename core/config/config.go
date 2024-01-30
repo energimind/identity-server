@@ -5,6 +5,7 @@ type Config struct {
 	HTTP   HTTPConfig
 	Router RouterConfig
 	Mongo  MongoConfig
+	Auth   AuthenticatorConfig
 }
 
 // HTTPConfig contains HTTP server setup.
@@ -24,4 +25,9 @@ type MongoConfig struct {
 	Database string `env:"MONGO_DATABASE"`
 	Username string `env:"MONGO_USERNAME"`
 	Password string `env:"MONGO_PASSWORD"`
+}
+
+// AuthenticatorConfig contains authenticator setup.
+type AuthenticatorConfig struct {
+	Endpoint string `env:"AUTH_ENDPOINT"`
 }
