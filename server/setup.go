@@ -9,7 +9,7 @@ import (
 
 	"github.com/energimind/identity-service/core/api"
 	"github.com/energimind/identity-service/core/api/handler"
-	"github.com/energimind/identity-service/core/appl/service"
+	"github.com/energimind/identity-service/core/appl/service/auth"
 	"github.com/energimind/identity-service/core/config"
 	"github.com/energimind/identity-service/core/infra/idgen/xid"
 	"github.com/energimind/identity-service/core/infra/logger"
@@ -70,10 +70,10 @@ func setupHandlers(mongoDB *mongo.Database, idGen *xid.Generator) api.Handlers {
 	userRepo := repository.NewUserRepository(mongoDB)
 	daemonRepo := repository.NewDaemonRepository(mongoDB)
 
-	applicationService := service.NewApplicationService(applicationRepo, idGen)
-	providerService := service.NewProviderService(providerRepo, idGen)
-	userService := service.NewUserService(userRepo, idGen)
-	daemonService := service.NewDaemonService(daemonRepo, idGen)
+	applicationService := auth.NewApplicationService(applicationRepo, idGen)
+	providerService := auth.NewProviderService(providerRepo, idGen)
+	userService := auth.NewUserService(userRepo, idGen)
+	daemonService := auth.NewDaemonService(daemonRepo, idGen)
 
 	handlers := api.Handlers{
 		Application: handler.NewApplicationHandler(applicationService),

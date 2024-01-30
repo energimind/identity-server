@@ -1,4 +1,4 @@
-package service
+package auth
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUserService_GetUsers(t *testing.T) {
+func TestProviderService_GetProviders(t *testing.T) {
 	t.Parallel()
 
 	appID := auth.ID("a1")
@@ -55,8 +55,8 @@ func TestUserService_GetUsers(t *testing.T) {
 		},
 	}
 
-	repo := newMockUserRepository()
-	svc := NewUserService(repo, nil)
+	repo := newMockProviderRepository()
+	svc := NewProviderService(repo, nil)
 
 	for name, test := range tests {
 		if errors.Is(test.wantError, domain.StoreError{}) {
@@ -66,7 +66,7 @@ func TestUserService_GetUsers(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.GetUsers(context.Background(), test.actor, appID)
+			res, err := svc.GetProviders(context.Background(), test.actor, appID)
 
 			if test.wantResult {
 				require.Len(t, res, 1)
@@ -81,7 +81,7 @@ func TestUserService_GetUsers(t *testing.T) {
 	}
 }
 
-func TestUserService_GetUser(t *testing.T) {
+func TestProviderService_GetProvider(t *testing.T) {
 	t.Parallel()
 
 	appID := auth.ID("a1")
@@ -93,20 +93,8 @@ func TestUserService_GetUser(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:      auth.Actor{Role: auth.SystemRoleUser, ApplicationID: appID, UserID: userID},
-			wantResult: true,
-		},
-		"user-wrongAppID": {
-			actor:     auth.Actor{Role: auth.SystemRoleUser, ApplicationID: "wrongAppID", UserID: userID},
-			wantError: domain.AccessDeniedError{},
-		},
-		"user-wrongUserID": {
-			actor:     auth.Actor{Role: auth.SystemRoleUser, ApplicationID: appID, UserID: "wrongUserID"},
-			wantError: domain.AccessDeniedError{},
-		},
-		"user-repoError": {
 			actor:     auth.Actor{Role: auth.SystemRoleUser, ApplicationID: appID, UserID: userID},
-			wantError: domain.StoreError{},
+			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
 			actor:      auth.Actor{Role: auth.SystemRoleManager, ApplicationID: appID},
@@ -138,8 +126,8 @@ func TestUserService_GetUser(t *testing.T) {
 		},
 	}
 
-	repo := newMockUserRepository()
-	svc := NewUserService(repo, nil)
+	repo := newMockProviderRepository()
+	svc := NewProviderService(repo, nil)
 
 	for name, test := range tests {
 		if errors.Is(test.wantError, domain.StoreError{}) {
@@ -149,7 +137,7 @@ func TestUserService_GetUser(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.GetUser(context.Background(), test.actor, appID, userID)
+			res, err := svc.GetProvider(context.Background(), test.actor, appID, userID)
 
 			if test.wantResult {
 				require.NotEmpty(t, res)
@@ -164,7 +152,7 @@ func TestUserService_GetUser(t *testing.T) {
 	}
 }
 
-func TestUserService_CreateUser(t *testing.T) {
+func TestProviderService_CreateProvider(t *testing.T) {
 	t.Parallel()
 
 	appID := auth.ID("a1")
@@ -208,8 +196,8 @@ func TestUserService_CreateUser(t *testing.T) {
 		},
 	}
 
-	repo := newMockUserRepository()
-	svc := NewUserService(repo, newMockIDGenerator())
+	repo := newMockProviderRepository()
+	svc := NewProviderService(repo, newMockIDGenerator())
 
 	for name, test := range tests {
 		if errors.Is(test.wantError, domain.StoreError{}) {
@@ -219,9 +207,9 @@ func TestUserService_CreateUser(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			user := auth.User{ApplicationID: appID}
+			user := auth.Provider{ApplicationID: appID}
 
-			res, err := svc.CreateUser(context.Background(), test.actor, user)
+			res, err := svc.CreateProvider(context.Background(), test.actor, user)
 
 			if test.wantResult {
 				require.NotEmpty(t, res)
@@ -237,7 +225,7 @@ func TestUserService_CreateUser(t *testing.T) {
 	}
 }
 
-func TestUserService_UpdateUser(t *testing.T) {
+func TestProviderService_UpdateProvider(t *testing.T) {
 	t.Parallel()
 
 	userID := auth.ID("u1")
@@ -249,20 +237,8 @@ func TestUserService_UpdateUser(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:      auth.Actor{Role: auth.SystemRoleUser, ApplicationID: appID, UserID: userID},
-			wantResult: true,
-		},
-		"user-wrongAppID": {
-			actor:     auth.Actor{Role: auth.SystemRoleUser, ApplicationID: "wrongAppID", UserID: userID},
-			wantError: domain.AccessDeniedError{},
-		},
-		"user-wrongUserID": {
-			actor:     auth.Actor{Role: auth.SystemRoleUser, ApplicationID: appID, UserID: "wrongUserID"},
-			wantError: domain.AccessDeniedError{},
-		},
-		"user-repoError": {
 			actor:     auth.Actor{Role: auth.SystemRoleUser, ApplicationID: appID, UserID: userID},
-			wantError: domain.StoreError{},
+			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
 			actor:      auth.Actor{Role: auth.SystemRoleManager, ApplicationID: appID},
@@ -294,8 +270,8 @@ func TestUserService_UpdateUser(t *testing.T) {
 		},
 	}
 
-	repo := newMockUserRepository()
-	svc := NewUserService(repo, nil)
+	repo := newMockProviderRepository()
+	svc := NewProviderService(repo, nil)
 
 	for name, test := range tests {
 		if errors.Is(test.wantError, domain.StoreError{}) {
@@ -305,8 +281,8 @@ func TestUserService_UpdateUser(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			user := auth.User{ID: userID, ApplicationID: appID}
-			res, err := svc.UpdateUser(context.Background(), test.actor, user)
+			user := auth.Provider{ID: userID, ApplicationID: appID}
+			res, err := svc.UpdateProvider(context.Background(), test.actor, user)
 
 			if test.wantResult {
 				require.NotEmpty(t, res)
@@ -321,7 +297,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 	}
 }
 
-func TestUserService_DeleteUser(t *testing.T) {
+func TestProviderService_DeleteProvider(t *testing.T) {
 	t.Parallel()
 
 	userID := auth.ID("u1")
@@ -366,8 +342,8 @@ func TestUserService_DeleteUser(t *testing.T) {
 		},
 	}
 
-	repo := newMockUserRepository()
-	svc := NewUserService(repo, nil)
+	repo := newMockProviderRepository()
+	svc := NewProviderService(repo, nil)
 
 	for name, test := range tests {
 		if errors.Is(test.wantError, domain.StoreError{}) {
@@ -377,7 +353,7 @@ func TestUserService_DeleteUser(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			err := svc.DeleteUser(context.Background(), test.actor, appID, userID)
+			err := svc.DeleteProvider(context.Background(), test.actor, appID, userID)
 
 			if test.wantResult {
 				require.NoError(t, err)
@@ -392,54 +368,54 @@ func TestUserService_DeleteUser(t *testing.T) {
 	}
 }
 
-type mockUserRepository struct {
+type mockProviderRepository struct {
 	forcedError error
 }
 
-// ensure mockUserRepository implements auth.UserRepository.
-var _ auth.UserRepository = (*mockUserRepository)(nil)
+// ensure mockProviderRepository implements auth.ProviderRepository.
+var _ auth.ProviderRepository = (*mockProviderRepository)(nil)
 
-func newMockUserRepository() *mockUserRepository {
-	return &mockUserRepository{}
+func newMockProviderRepository() *mockProviderRepository {
+	return &mockProviderRepository{}
 }
 
-func (r *mockUserRepository) GetUsers(_ context.Context, appID auth.ID) ([]auth.User, error) {
+func (r *mockProviderRepository) GetProviders(_ context.Context, appID auth.ID) ([]auth.Provider, error) {
 	if appID == "" {
 		return nil, errors.New("test-precondition: empty appID")
 	}
 
-	return []auth.User{r.mockUser()}, r.forcedError
+	return []auth.Provider{r.mockProvider()}, r.forcedError
 }
 
-func (r *mockUserRepository) GetUser(_ context.Context, appID, id auth.ID) (auth.User, error) {
+func (r *mockProviderRepository) GetProvider(_ context.Context, appID, id auth.ID) (auth.Provider, error) {
 	if appID == "" {
-		return auth.User{}, errors.New("test-precondition: empty appID")
+		return auth.Provider{}, errors.New("test-precondition: empty appID")
 	}
 
 	if id == "" {
-		return auth.User{}, errors.New("test-precondition: empty id")
+		return auth.Provider{}, errors.New("test-precondition: empty id")
 	}
 
-	return r.mockUser(), r.forcedError
+	return r.mockProvider(), r.forcedError
 }
 
-func (r *mockUserRepository) CreateUser(_ context.Context, user auth.User) error {
-	if (reflect.DeepEqual(user, auth.User{})) {
+func (r *mockProviderRepository) CreateProvider(_ context.Context, user auth.Provider) error {
+	if (reflect.DeepEqual(user, auth.Provider{})) {
 		return errors.New("test-precondition: empty user")
 	}
 
 	return r.forcedError
 }
 
-func (r *mockUserRepository) UpdateUser(_ context.Context, user auth.User) error {
-	if (reflect.DeepEqual(user, auth.User{})) {
+func (r *mockProviderRepository) UpdateProvider(_ context.Context, user auth.Provider) error {
+	if (reflect.DeepEqual(user, auth.Provider{})) {
 		return errors.New("test-precondition: empty user")
 	}
 
 	return r.forcedError
 }
 
-func (r *mockUserRepository) DeleteUser(_ context.Context, appID, id auth.ID) error {
+func (r *mockProviderRepository) DeleteProvider(_ context.Context, appID, id auth.ID) error {
 	if appID == "" {
 		return errors.New("test-precondition: empty appID")
 	}
@@ -451,10 +427,10 @@ func (r *mockUserRepository) DeleteUser(_ context.Context, appID, id auth.ID) er
 	return r.forcedError
 }
 
-func (r *mockUserRepository) mockUser() auth.User {
-	return auth.User{
+func (r *mockProviderRepository) mockProvider() auth.Provider {
+	return auth.Provider{
 		ID:            "u1",
 		ApplicationID: "a1",
-		Username:      "mockUser",
+		Name:          "mockProvider",
 	}
 }

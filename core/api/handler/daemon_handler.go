@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/energimind/identity-service/core/api/dto"
-	"github.com/energimind/identity-service/core/appl/service"
+	auth2 "github.com/energimind/identity-service/core/appl/service/auth"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
@@ -13,11 +13,11 @@ import (
 
 // DaemonHandler is an HTTP API handler for managing daemons.
 type DaemonHandler struct {
-	service *service.DaemonService
+	service *auth2.DaemonService
 }
 
 // NewDaemonHandler creates a new DaemonHandler.
-func NewDaemonHandler(service *service.DaemonService) *DaemonHandler {
+func NewDaemonHandler(service *auth2.DaemonService) *DaemonHandler {
 	return &DaemonHandler{service: service}
 }
 

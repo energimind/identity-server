@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/energimind/identity-service/core/api/dto"
-	"github.com/energimind/identity-service/core/appl/service"
+	auth2 "github.com/energimind/identity-service/core/appl/service/auth"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
@@ -13,11 +13,11 @@ import (
 
 // ApplicationHandler is a REST API handler for managing applications.
 type ApplicationHandler struct {
-	service *service.ApplicationService
+	service *auth2.ApplicationService
 }
 
 // NewApplicationHandler creates a new ApplicationHandler.
-func NewApplicationHandler(service *service.ApplicationService) *ApplicationHandler {
+func NewApplicationHandler(service *auth2.ApplicationService) *ApplicationHandler {
 	return &ApplicationHandler{service: service}
 }
 
