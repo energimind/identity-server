@@ -47,7 +47,6 @@ func NewAdminLoginHandler(
 func (h *AdminLoginHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares) {
 	root.GET("/link", h.getProviderLink)
 	root.POST("/login", h.completeLogin)
-	root.PUT("/refresh", mws.RequireActor, h.refreshSession)
 	root.DELETE("/logout", mws.RequireActor, h.logout)
 }
 
@@ -139,35 +138,8 @@ func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
 	})
 }
 
-func (h *AdminLoginHandler) refreshSession(c *gin.Context) {
-	sessionID := c.GetHeader("X-IS-SessionID")
-
-	_, err := h.client.R().
-		SetContext(c.Request.Context()).
-		SetHeader("X-IS-SessionID", sessionID).
-		Put(h.authEndpoint + "/refresh")
-	if err != nil {
-		_ = c.Error(err)
-
-		return
-	}
-
-	c.Status(http.StatusOK)
-}
-
 func (h *AdminLoginHandler) logout(c *gin.Context) {
-	sessionID := c.GetHeader("X-IS-SessionID")
-
-	_, err := h.client.R().
-		SetContext(c.Request.Context()).
-		SetHeader("X-IS-SessionID", sessionID).
-		Delete(h.authEndpoint + "/logout")
-	if err != nil {
-		_ = c.Error(err)
-
-		return
-	}
-
+	// reset the cookie even if the logout fails
 	cookie, err := h.cookieProvider.ResetCookie(c.Request, cookieName)
 	if err != nil {
 		_ = c.Error(err)
@@ -177,6 +149,18 @@ func (h *AdminLoginHandler) logout(c *gin.Context) {
 
 	c.SetSameSite(cookie.SameSite)
 	c.SetCookie(cookieName, cookie.Value, cookie.MaxAge, cookie.Path, cookie.Domain, cookie.Secure, cookie.HttpOnly)
+
+	sessionID := c.GetString("sessionId")
+
+	_, dErr := h.client.R().
+		SetContext(c.Request.Context()).
+		SetHeader("X-IS-SessionID", sessionID).
+		Delete(h.authEndpoint + "/logout")
+	if dErr != nil {
+		_ = c.Error(dErr)
+
+		return
+	}
 
 	c.Status(http.StatusOK)
 }

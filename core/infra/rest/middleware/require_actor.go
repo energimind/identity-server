@@ -45,6 +45,9 @@ func RequireActor(verifier auth.CookieVerifier) gin.HandlerFunc {
 			return
 		}
 
+		// add sessionID to the request
+		c.Set("sessionId", us.SessionID)
+
 		actor := auth.NewActor(auth.ID(us.UserID), auth.ID(us.ApplicationID), auth.SystemRole(us.UserRole))
 
 		// add the actor to the request context
