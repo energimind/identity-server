@@ -81,6 +81,7 @@ func FromUser(user auth.User) User {
 	return User{
 		ID:          string(user.ID),
 		Username:    user.Username,
+		Email:       user.Email,
 		DisplayName: user.DisplayName,
 		Description: user.Description,
 		Enabled:     user.Enabled,
@@ -105,6 +106,7 @@ func ToUser(user User) auth.User {
 	return auth.User{
 		ID:          auth.ID(user.ID),
 		Username:    user.Username,
+		Email:       user.Email,
 		DisplayName: user.DisplayName,
 		Description: user.Description,
 		Enabled:     user.Enabled,

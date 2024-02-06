@@ -8,6 +8,7 @@ import (
 	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/energimind/identity-service/core/infra/repository"
 	"github.com/energimind/identity-service/core/test/utils"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUserRepository_CRUD(t *testing.T) {
@@ -64,4 +65,33 @@ func TestUserRepository_CRUD(t *testing.T) {
 			return "missing"
 		},
 	})
+}
+
+func TestUserRepository_GetUserByEmail(t *testing.T) {
+	t.Parallel()
+
+	db, closer := mongoEnv.NewInstance()
+	defer closer()
+
+	repo := repository.NewUserRepository(db)
+	appID := auth.ID("1")
+
+	ctx := context.Background()
+	user := auth.User{
+		ID:            "1",
+		ApplicationID: appID,
+		Email:         "user@somedomain.com",
+		APIKeys:       []auth.APIKey{},
+	}
+
+	if err := repo.CreateUser(ctx, user); err != nil {
+		t.Fatalf("failed to create user: %v", err)
+	}
+
+	got, err := repo.GetUserByEmail(ctx, appID, user.Email)
+	if err != nil {
+		t.Fatalf("failed to get user by email: %v", err)
+	}
+
+	require.Equal(t, user, got)
 }

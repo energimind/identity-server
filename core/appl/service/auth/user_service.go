@@ -219,3 +219,35 @@ func (s *UserService) DeleteUser(ctx context.Context, actor auth.Actor, appID, i
 		return domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
 	}
 }
+
+// GetUserByEmail implements the auth.UserService interface.
+//
+//nolint:wrapcheck // see comment in the header
+func (s *UserService) GetUserByEmail(ctx context.Context, actor auth.Actor, appID auth.ID, email string) (auth.User, error) {
+	switch actor.Role {
+	case auth.SystemRoleUser:
+		return auth.User{}, domain.NewAccessDeniedError("user %s cannot get user by email", actor.UserID)
+	case auth.SystemRoleManager:
+		if actor.ApplicationID != appID {
+			return auth.User{}, domain.NewAccessDeniedError("manager %s cannot get user by email", actor.UserID)
+		}
+
+		user, err := s.repo.GetUserByEmail(ctx, appID, email)
+		if err != nil {
+			return auth.User{}, err
+		}
+
+		return user, nil
+	case auth.SystemRoleAdmin:
+		user, err := s.repo.GetUserByEmail(ctx, appID, email)
+		if err != nil {
+			return auth.User{}, err
+		}
+
+		return user, nil
+	case auth.SystemRoleNone:
+		return auth.User{}, domain.NewAccessDeniedError("anonymous user cannot get user by email")
+	default:
+		return auth.User{}, domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
+	}
+}

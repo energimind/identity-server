@@ -451,6 +451,18 @@ func (r *mockUserRepository) DeleteUser(_ context.Context, appID, id auth.ID) er
 	return r.forcedError
 }
 
+func (r *mockUserRepository) GetUserByEmail(_ context.Context, appID auth.ID, email string) (auth.User, error) {
+	if appID == "" {
+		return auth.User{}, errors.New("test-precondition: empty appID")
+	}
+
+	if email == "" {
+		return auth.User{}, errors.New("test-precondition: empty email")
+	}
+
+	return r.mockUser(), r.forcedError
+}
+
 func (r *mockUserRepository) mockUser() auth.User {
 	return auth.User{
 		ID:            "u1",

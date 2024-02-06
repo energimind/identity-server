@@ -118,3 +118,24 @@ func (r *UserRepository) DeleteUser(
 
 	return nil
 }
+
+// GetUserByEmail implements the auth.UserRepository interface.
+func (r *UserRepository) GetUserByEmail(
+	ctx context.Context,
+	appID auth.ID,
+	email string,
+) (auth.User, error) {
+	coll := r.db.Collection("users")
+	qFilter := bson.M{"email": email, "applicationId": appID}
+	user := dbUser{}
+
+	if err := coll.FindOne(ctx, qFilter).Decode(&user); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return auth.User{}, domain.NewNotFoundError("user with email %s not found", email)
+		}
+
+		return auth.User{}, domain.NewStoreError("failed to get user by email: %v", err)
+	}
+
+	return fromUser(user), nil
+}

@@ -97,7 +97,7 @@ func setupHandlers(
 		User:        handler.NewUserHandler(userService),
 		Daemon:      handler.NewDaemonHandler(daemonService),
 		Auth:        handler.NewLoginHandler(sessionService),
-		AdminAuth:   handler.NewAdminLoginHandler(authEndpoint, cookieProvider),
+		AdminAuth:   handler.NewAdminLoginHandler(authEndpoint, userService, cookieProvider),
 		Health:      handler.NewHealthHandler(),
 	}
 

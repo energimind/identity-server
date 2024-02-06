@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -11,19 +12,30 @@ import (
 
 const cookieName = "sessionKey"
 
+// UserFinder is an interface for finding users.
+type UserFinder interface {
+	GetUserByEmail(ctx context.Context, actor auth.Actor, appID auth.ID, email string) (auth.User, error)
+}
+
 // AdminLoginHandler handles admin login requests.
 type AdminLoginHandler struct {
 	authEndpoint   string
+	userFinder     UserFinder
 	cookieProvider auth.CookieProvider
 	client         *resty.Client
 }
 
 // NewAdminLoginHandler returns a new instance of AdminLoginHandler.
-func NewAdminLoginHandler(authEndpoint string, cookieProvider auth.CookieProvider) *AdminLoginHandler {
+func NewAdminLoginHandler(
+	authEndpoint string,
+	userFinder UserFinder,
+	cookieProvider auth.CookieProvider,
+) *AdminLoginHandler {
 	const clientTimeout = 10 * time.Second
 
 	return &AdminLoginHandler{
 		authEndpoint:   authEndpoint + "/api/v1/auth",
+		userFinder:     userFinder,
 		cookieProvider: cookieProvider,
 		client:         resty.New().SetTimeout(clientTimeout),
 	}
@@ -63,8 +75,12 @@ func (h *AdminLoginHandler) getProviderLink(c *gin.Context) {
 }
 
 func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
-	var result struct {
-		SessionID string `json:"sessionId"`
+	var completeResult struct {
+		SessionID     string `json:"sessionId"`
+		ApplicationID string `json:"applicationId"`
+		UserInfo      struct {
+			Email string `json:"email"`
+		} `json:"userInfo"`
 	}
 
 	code := c.Query("code")
@@ -76,7 +92,7 @@ func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
 			"code":  code,
 			"state": state,
 		}).
-		SetResult(&result).
+		SetResult(&completeResult).
 		Post(h.authEndpoint + "/login")
 	if err != nil {
 		_ = c.Error(err)
@@ -84,7 +100,19 @@ func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
 		return
 	}
 
-	cookie, err := h.cookieProvider.CreateCookie(c.Request, cookieName, result.SessionID)
+	user, err := h.userFinder.GetUserByEmail(
+		c.Request.Context(),
+		adminActor,
+		auth.ID(completeResult.ApplicationID),
+		completeResult.UserInfo.Email,
+	)
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	cookie, err := h.cookieProvider.CreateCookie(c.Request, cookieName, completeResult.SessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -94,7 +122,12 @@ func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
 	c.SetSameSite(cookie.SameSite)
 	c.SetCookie(cookieName, cookie.Value, cookie.MaxAge, cookie.Path, cookie.Domain, cookie.Secure, cookie.HttpOnly)
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{
+		"username":    user.Username,
+		"email":       user.Email,
+		"displayName": user.DisplayName,
+		"role":        user.Role,
+	})
 }
 
 func (h *AdminLoginHandler) refreshSession(c *gin.Context) {

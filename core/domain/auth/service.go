@@ -27,6 +27,7 @@ type UserService interface {
 	CreateUser(ctx context.Context, actor Actor, user User) (User, error)
 	UpdateUser(ctx context.Context, actor Actor, user User) (User, error)
 	DeleteUser(ctx context.Context, actor Actor, appID, id ID) error
+	GetUserByEmail(ctx context.Context, actor Actor, appID ID, email string) (User, error)
 }
 
 // DaemonService defines the daemon service interface.
