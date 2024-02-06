@@ -1,4 +1,4 @@
-package handler
+package admin
 
 import (
 	"context"
@@ -13,28 +13,33 @@ import (
 
 const cookieName = "sessionKey"
 
+// adminActor is the actor for the admin role.
+//
+//nolint:gochecknoglobals // it is a constant
+var adminActor = admin.Actor{Role: admin.SystemRoleAdmin}
+
 // UserFinder is an interface for finding users.
 type UserFinder interface {
 	GetUserByEmail(ctx context.Context, actor admin.Actor, appID admin.ID, email string) (admin.User, error)
 }
 
-// AdminLoginHandler handles admin auth requests.
-type AdminLoginHandler struct {
+// AuthHandler handles admin auth requests.
+type AuthHandler struct {
 	authEndpoint   string
 	userFinder     UserFinder
 	cookieProvider admin.CookieProvider
 	client         *resty.Client
 }
 
-// NewAdminLoginHandler returns a new instance of AdminLoginHandler.
-func NewAdminLoginHandler(
+// NewAuthHandler returns a new instance of AuthHandler.
+func NewAuthHandler(
 	authEndpoint string,
 	userFinder UserFinder,
 	cookieProvider admin.CookieProvider,
-) *AdminLoginHandler {
+) *AuthHandler {
 	const clientTimeout = 10 * time.Second
 
-	return &AdminLoginHandler{
+	return &AuthHandler{
 		authEndpoint:   authEndpoint + "/api/v1/auth",
 		userFinder:     userFinder,
 		cookieProvider: cookieProvider,
@@ -43,13 +48,13 @@ func NewAdminLoginHandler(
 }
 
 // BindWithMiddlewares binds the LoginHandler to a root provided by a router.
-func (h *AdminLoginHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares) {
+func (h *AuthHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares) {
 	root.GET("/link", h.getProviderLink)
 	root.POST("/login", h.completeLogin)
 	root.DELETE("/logout", mws.RequireActor, h.logout)
 }
 
-func (h *AdminLoginHandler) getProviderLink(c *gin.Context) {
+func (h *AuthHandler) getProviderLink(c *gin.Context) {
 	var result struct {
 		Link string `json:"link"`
 	}
@@ -74,7 +79,7 @@ func (h *AdminLoginHandler) getProviderLink(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"link": result.Link})
 }
 
-func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
+func (h *AuthHandler) completeLogin(c *gin.Context) {
 	var completeResult struct {
 		SessionID     string `json:"sessionId"`
 		ApplicationID string `json:"applicationId"`
@@ -137,7 +142,7 @@ func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
 	})
 }
 
-func (h *AdminLoginHandler) logout(c *gin.Context) {
+func (h *AuthHandler) logout(c *gin.Context) {
 	// reset the cookie even if the logout fails
 	cookie, err := h.cookieProvider.ResetCookie(c.Request, cookieName)
 	if err != nil {

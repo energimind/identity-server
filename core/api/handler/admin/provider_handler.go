@@ -1,9 +1,8 @@
-package handler
+package admin
 
 import (
 	"net/http"
 
-	"github.com/energimind/identity-service/core/api/dto"
 	service "github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/admin"
@@ -41,7 +40,7 @@ func (h *ProviderHandler) findAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromProviders(providers))
+	c.JSON(http.StatusOK, FromProviders(providers))
 }
 
 func (h *ProviderHandler) findByID(c *gin.Context) {
@@ -56,14 +55,14 @@ func (h *ProviderHandler) findByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromProvider(provider))
+	c.JSON(http.StatusOK, FromProvider(provider))
 }
 
 func (h *ProviderHandler) create(c *gin.Context) {
 	appID := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	dtoProvider := dto.Provider{}
+	dtoProvider := Provider{}
 
 	if err := c.ShouldBindJSON(&dtoProvider); err != nil {
 		_ = c.Error(domain.NewBadRequestError("invalid request body"))
@@ -71,7 +70,7 @@ func (h *ProviderHandler) create(c *gin.Context) {
 		return
 	}
 
-	provider := dto.ToProvider(dtoProvider)
+	provider := ToProvider(dtoProvider)
 
 	provider.ApplicationID = admin.ID(appID)
 
@@ -82,7 +81,7 @@ func (h *ProviderHandler) create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, dto.FromProvider(provider))
+	c.JSON(http.StatusCreated, FromProvider(provider))
 }
 
 func (h *ProviderHandler) update(c *gin.Context) {
@@ -90,7 +89,7 @@ func (h *ProviderHandler) update(c *gin.Context) {
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	dtoProvider := dto.Provider{}
+	dtoProvider := Provider{}
 
 	if err := c.ShouldBindJSON(&dtoProvider); err != nil {
 		_ = c.Error(domain.NewBadRequestError("invalid request body"))
@@ -98,7 +97,7 @@ func (h *ProviderHandler) update(c *gin.Context) {
 		return
 	}
 
-	provider := dto.ToProvider(dtoProvider)
+	provider := ToProvider(dtoProvider)
 
 	provider.ID = admin.ID(id)
 	provider.ApplicationID = admin.ID(appID)
@@ -110,7 +109,7 @@ func (h *ProviderHandler) update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromProvider(provider))
+	c.JSON(http.StatusOK, FromProvider(provider))
 }
 
 func (h *ProviderHandler) delete(c *gin.Context) {

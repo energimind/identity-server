@@ -2,7 +2,9 @@ package server
 
 import (
 	"github.com/energimind/identity-service/core/api"
-	"github.com/energimind/identity-service/core/api/handler"
+	adminapi "github.com/energimind/identity-service/core/api/handler/admin"
+	authapi "github.com/energimind/identity-service/core/api/handler/auth"
+	healthapi "github.com/energimind/identity-service/core/api/handler/health"
 	"github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/appl/service/auth"
 	"github.com/energimind/identity-service/core/domain"
@@ -32,13 +34,13 @@ func setupHandlers(
 	sessionService := auth.NewSessionService(providerLookupService, shortIDGen, cache)
 
 	handlers := api.Handlers{
-		Application: handler.NewApplicationHandler(applicationService),
-		Provider:    handler.NewProviderHandler(providerService),
-		User:        handler.NewUserHandler(userService),
-		Daemon:      handler.NewDaemonHandler(daemonService),
-		Auth:        handler.NewLoginHandler(sessionService),
-		AdminAuth:   handler.NewAdminLoginHandler(authEndpoint, userService, cookieProvider),
-		Health:      handler.NewHealthHandler(),
+		Application: adminapi.NewApplicationHandler(applicationService),
+		Provider:    adminapi.NewProviderHandler(providerService),
+		User:        adminapi.NewUserHandler(userService),
+		Daemon:      adminapi.NewDaemonHandler(daemonService),
+		AdminAuth:   adminapi.NewAuthHandler(authEndpoint, userService, cookieProvider),
+		Auth:        authapi.NewHandler(sessionService),
+		Health:      healthapi.NewHandler(),
 	}
 
 	return handlers

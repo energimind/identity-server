@@ -21,7 +21,7 @@ type Handlers struct {
 	Provider    anyHandler
 	User        anyHandler
 	Daemon      anyHandler
-	Auth        anyHandler
 	AdminAuth   anyHandler
+	Auth        anyHandler
 	Health      anyHandler
 }

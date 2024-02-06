@@ -1,9 +1,8 @@
-package handler
+package admin
 
 import (
 	"net/http"
 
-	"github.com/energimind/identity-service/core/api/dto"
 	service "github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/admin"
@@ -40,7 +39,7 @@ func (h *ApplicationHandler) findAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromApplications(applications))
+	c.JSON(http.StatusOK, FromApplications(applications))
 }
 
 func (h *ApplicationHandler) findByID(c *gin.Context) {
@@ -54,13 +53,13 @@ func (h *ApplicationHandler) findByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromApplication(application))
+	c.JSON(http.StatusOK, FromApplication(application))
 }
 
 func (h *ApplicationHandler) create(c *gin.Context) {
 	actor := reqctx.Actor(c)
 
-	dtoApplication := dto.Application{}
+	dtoApplication := Application{}
 
 	if err := c.ShouldBindJSON(&dtoApplication); err != nil {
 		_ = c.Error(domain.NewBadRequestError("invalid json payload"))
@@ -68,21 +67,21 @@ func (h *ApplicationHandler) create(c *gin.Context) {
 		return
 	}
 
-	application, err := h.service.CreateApplication(c, actor, dto.ToApplication(dtoApplication))
+	application, err := h.service.CreateApplication(c, actor, ToApplication(dtoApplication))
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	c.JSON(http.StatusCreated, dto.FromApplication(application))
+	c.JSON(http.StatusCreated, FromApplication(application))
 }
 
 func (h *ApplicationHandler) update(c *gin.Context) {
 	id := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	dtoApplication := dto.Application{}
+	dtoApplication := Application{}
 
 	if err := c.ShouldBindJSON(&dtoApplication); err != nil {
 		_ = c.Error(domain.NewBadRequestError("invalid json payload"))
@@ -92,14 +91,14 @@ func (h *ApplicationHandler) update(c *gin.Context) {
 
 	dtoApplication.ID = id
 
-	application, err := h.service.UpdateApplication(c, actor, dto.ToApplication(dtoApplication))
+	application, err := h.service.UpdateApplication(c, actor, ToApplication(dtoApplication))
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromApplication(application))
+	c.JSON(http.StatusOK, FromApplication(application))
 }
 
 func (h *ApplicationHandler) delete(c *gin.Context) {

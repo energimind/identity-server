@@ -1,9 +1,8 @@
-package handler
+package admin
 
 import (
 	"net/http"
 
-	"github.com/energimind/identity-service/core/api/dto"
 	service "github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/admin"
@@ -41,7 +40,7 @@ func (h *DaemonHandler) findAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromDaemons(daemonss))
+	c.JSON(http.StatusOK, FromDaemons(daemonss))
 }
 
 func (h *DaemonHandler) findByID(c *gin.Context) {
@@ -56,14 +55,14 @@ func (h *DaemonHandler) findByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromDaemon(daemons))
+	c.JSON(http.StatusOK, FromDaemon(daemons))
 }
 
 func (h *DaemonHandler) create(c *gin.Context) {
 	appID := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	dtoDaemon := dto.Daemon{}
+	dtoDaemon := Daemon{}
 
 	if err := c.ShouldBindJSON(&dtoDaemon); err != nil {
 		_ = c.Error(domain.NewBadRequestError("invalid request body"))
@@ -71,7 +70,7 @@ func (h *DaemonHandler) create(c *gin.Context) {
 		return
 	}
 
-	daemons := dto.ToDaemon(dtoDaemon)
+	daemons := ToDaemon(dtoDaemon)
 
 	daemons.ApplicationID = admin.ID(appID)
 
@@ -82,7 +81,7 @@ func (h *DaemonHandler) create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, dto.FromDaemon(daemons))
+	c.JSON(http.StatusCreated, FromDaemon(daemons))
 }
 
 func (h *DaemonHandler) update(c *gin.Context) {
@@ -90,7 +89,7 @@ func (h *DaemonHandler) update(c *gin.Context) {
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	dtoDaemon := dto.Daemon{}
+	dtoDaemon := Daemon{}
 
 	if err := c.ShouldBindJSON(&dtoDaemon); err != nil {
 		_ = c.Error(domain.NewBadRequestError("invalid request body"))
@@ -98,7 +97,7 @@ func (h *DaemonHandler) update(c *gin.Context) {
 		return
 	}
 
-	daemons := dto.ToDaemon(dtoDaemon)
+	daemons := ToDaemon(dtoDaemon)
 
 	daemons.ID = admin.ID(id)
 	daemons.ApplicationID = admin.ID(appID)
@@ -110,7 +109,7 @@ func (h *DaemonHandler) update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromDaemon(daemons))
+	c.JSON(http.StatusOK, FromDaemon(daemons))
 }
 
 func (h *DaemonHandler) delete(c *gin.Context) {

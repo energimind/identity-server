@@ -1,9 +1,8 @@
-package handler
+package admin
 
 import (
 	"net/http"
 
-	"github.com/energimind/identity-service/core/api/dto"
 	service "github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/admin"
@@ -41,7 +40,7 @@ func (h *UserHandler) findAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromUsers(users))
+	c.JSON(http.StatusOK, FromUsers(users))
 }
 
 func (h *UserHandler) findByID(c *gin.Context) {
@@ -56,14 +55,14 @@ func (h *UserHandler) findByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromUser(users))
+	c.JSON(http.StatusOK, FromUser(users))
 }
 
 func (h *UserHandler) create(c *gin.Context) {
 	appID := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	dtoUser := dto.User{}
+	dtoUser := User{}
 
 	if err := c.ShouldBindJSON(&dtoUser); err != nil {
 		_ = c.Error(domain.NewBadRequestError("invalid request body"))
@@ -71,7 +70,7 @@ func (h *UserHandler) create(c *gin.Context) {
 		return
 	}
 
-	users := dto.ToUser(dtoUser)
+	users := ToUser(dtoUser)
 
 	users.ApplicationID = admin.ID(appID)
 
@@ -82,7 +81,7 @@ func (h *UserHandler) create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, dto.FromUser(users))
+	c.JSON(http.StatusCreated, FromUser(users))
 }
 
 func (h *UserHandler) update(c *gin.Context) {
@@ -90,7 +89,7 @@ func (h *UserHandler) update(c *gin.Context) {
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	dtoUser := dto.User{}
+	dtoUser := User{}
 
 	if err := c.ShouldBindJSON(&dtoUser); err != nil {
 		_ = c.Error(domain.NewBadRequestError("invalid request body"))
@@ -98,7 +97,7 @@ func (h *UserHandler) update(c *gin.Context) {
 		return
 	}
 
-	users := dto.ToUser(dtoUser)
+	users := ToUser(dtoUser)
 
 	users.ID = admin.ID(id)
 	users.ApplicationID = admin.ID(appID)
@@ -110,7 +109,7 @@ func (h *UserHandler) update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.FromUser(users))
+	c.JSON(http.StatusOK, FromUser(users))
 }
 
 func (h *UserHandler) delete(c *gin.Context) {
