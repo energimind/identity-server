@@ -1,11 +1,9 @@
 package server
 
 import (
-	"context"
 	"fmt"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/energimind/identity-service/core/api"
 	"github.com/energimind/identity-service/core/api/handler"
@@ -13,6 +11,7 @@ import (
 	"github.com/energimind/identity-service/core/appl/service/login"
 	"github.com/energimind/identity-service/core/config"
 	"github.com/energimind/identity-service/core/domain"
+	"github.com/energimind/identity-service/core/domain/cache"
 	"github.com/energimind/identity-service/core/infra/cookie"
 	"github.com/energimind/identity-service/core/infra/idgen/shortid"
 	"github.com/energimind/identity-service/core/infra/idgen/xid"
@@ -23,25 +22,39 @@ import (
 	"github.com/energimind/identity-service/pkg/httpd"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // setupServer creates and configures a new server.
 // It returns the server, a function to release resources and an error if any.
-func setupServer(cfg *config.Config) (*httpd.Server, context.CancelFunc, error) {
+func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) {
+	clr := &closer{}
+
 	idGen := xid.NewGenerator()
 	shortIDGen := shortid.NewGenerator()
 
 	mongoClient, err := connectToMongoDB(&cfg.Mongo)
 	if err != nil {
-		return nil, nil, err
+		return nil, clr, err
 	}
+
+	clr.add(func() {
+		disconnectFromMongoDB(mongoClient)
+	})
 
 	mongoDB := mongoClient.Database(cfg.Mongo.Database)
 
+	redisCache, err := connectToRedis(&cfg.Redis)
+	if err != nil {
+		return nil, clr, err
+	}
+
+	clr.add(func() {
+		disconnectFromRedis(redisCache)
+	})
+
 	cookieProvider := cookie.NewProvider(cfg.Cookie.Secret)
 
-	handlers := setupHandlers(mongoDB, idGen, shortIDGen, cfg.Auth.Endpoint, cookieProvider)
+	handlers := setupHandlers(mongoDB, idGen, shortIDGen, cfg.Auth.Endpoint, cookieProvider, redisCache)
 
 	routes := api.NewRoutes(handlers)
 
@@ -59,18 +72,12 @@ func setupServer(cfg *config.Config) (*httpd.Server, context.CancelFunc, error) 
 		Port:      cfg.HTTP.Port,
 	}, restRouter)
 	if err != nil {
-		disconnectFromMongoDB(mongoClient)
-
-		return nil, nil, fmt.Errorf("failed to create server: %w", err)
+		return nil, clr, fmt.Errorf("failed to create server: %w", err)
 	}
 
 	logger.Debug().Msgf("Routes:\n%s", formatRoutes(restRouter.GetRoutes()))
 
-	releaseResources := func() {
-		disconnectFromMongoDB(mongoClient)
-	}
-
-	return srv, releaseResources, nil
+	return srv, clr, nil
 }
 
 func setupHandlers(
@@ -78,6 +85,7 @@ func setupHandlers(
 	idGen, shortIDGen domain.IDGenerator,
 	authEndpoint string,
 	cookieProvider *cookie.Provider,
+	cache cache.Cache,
 ) api.Handlers {
 	applicationRepo := repository.NewApplicationRepository(mongoDB)
 	providerRepo := repository.NewProviderRepository(mongoDB)
@@ -89,7 +97,7 @@ func setupHandlers(
 	userService := auth.NewUserService(userRepo, idGen)
 	daemonService := auth.NewDaemonService(daemonRepo, idGen)
 	providerLookupService := auth.NewProviderLookupService(applicationService, providerService)
-	sessionService := login.NewSessionService(providerLookupService, shortIDGen)
+	sessionService := login.NewSessionService(providerLookupService, shortIDGen, cache)
 
 	handlers := api.Handlers{
 		Application: handler.NewApplicationHandler(applicationService),
@@ -102,48 +110,6 @@ func setupHandlers(
 	}
 
 	return handlers
-}
-
-func connectToMongoDB(cfg *config.MongoConfig) (*mongo.Client, error) {
-	const timeout = 5 * time.Second
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	cred := options.Credential{
-		AuthSource:  cfg.Database,
-		Username:    cfg.Username,
-		Password:    cfg.Password,
-		PasswordSet: false,
-	}
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.Address).SetAuth(cred))
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to MongoDB: %w", err)
-	}
-
-	if pErr := client.Ping(ctx, nil); pErr != nil {
-		return nil, fmt.Errorf("failed to ping MongoDB: %w", pErr)
-	}
-
-	logger.Info().Str("address", cfg.Address).Str("database", cfg.Database).Msg("Connected to MongoDB")
-
-	return client, nil
-}
-
-func disconnectFromMongoDB(client *mongo.Client) {
-	const timeout = 5 * time.Second
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	if dErr := client.Disconnect(ctx); dErr != nil {
-		logger.Warn().Err(dErr).Msg("Failed to disconnect from MongoDB")
-
-		return
-	}
-
-	logger.Info().Msg("Disconnected from MongoDB")
 }
 
 func formatConfigs(sections []config.Section) string {

@@ -1,7 +1,6 @@
 package server
 
 import (
-	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,9 +11,8 @@ import (
 )
 
 // Run runs the server. This method blocks until the server is stopped.
-func run(srv *httpd.Server, releaseResources context.CancelFunc) error {
+func run(srv *httpd.Server) error {
 	defer logRunTime()()
-	defer releaseResources()
 
 	errorCh := make(chan error, 1)
 

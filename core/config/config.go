@@ -7,6 +7,7 @@ type Config struct {
 	Mongo  MongoConfig
 	Auth   AuthenticatorConfig
 	Cookie CookieConfig
+	Redis  RedisConfig
 }
 
 // HTTPConfig contains HTTP server setup.
@@ -36,4 +37,14 @@ type AuthenticatorConfig struct {
 // CookieConfig contains cookie setup.
 type CookieConfig struct {
 	Secret string
+}
+
+// RedisConfig contains redis setup.
+type RedisConfig struct {
+	Host       string `env:"REDIS_HOST"`
+	Port       string `env:"REDIS_PORT"`
+	Username   string `env:"REDIS_USERNAME"`
+	Password   string `env:"REDIS_PASSWORD"`
+	Namespace  string `env:"REDIS_NAMESPACE"`
+	Standalone bool   `env:"REDIS_STANDALONE"`
 }
