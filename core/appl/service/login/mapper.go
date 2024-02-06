@@ -1,9 +1,9 @@
 package login
 
-import "github.com/energimind/identity-service/core/domain/login"
+import "github.com/energimind/identity-service/core/domain/session"
 
-func toUserInfo(ui userInfo) login.UserInfo {
-	return login.UserInfo{
+func toUserInfo(ui userInfo) session.UserInfo {
+	return session.UserInfo{
 		ID:         ui.ID,
 		Name:       ui.Name,
 		GivenName:  ui.GivenName,

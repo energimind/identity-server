@@ -1,9 +1,9 @@
-package login
+package session
 
 import "context"
 
-// SessionService is a service that handles sessions.
-type SessionService interface {
+// Service is a service that handles sessions.
+type Service interface {
 	GetProviderLink(ctx context.Context, applicationCode, providerCode string) (string, error)
 	CompleteLogin(ctx context.Context, code, state string) (Info, error)
 	Refresh(ctx context.Context, sessionID string) error

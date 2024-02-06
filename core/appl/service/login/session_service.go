@@ -7,7 +7,7 @@ import (
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/energimind/identity-service/core/domain/cache"
-	"github.com/energimind/identity-service/core/domain/login"
+	"github.com/energimind/identity-service/core/domain/session"
 	"github.com/energimind/identity-service/core/infra/logger"
 )
 
@@ -15,7 +15,7 @@ const sessionTTL = 24 * 7 * time.Hour
 
 // SessionService manages user sessions.
 //
-// It implements the login.SessionService interface.
+// It implements the session.Service interface.
 //
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
@@ -38,10 +38,10 @@ func NewSessionService(
 	}
 }
 
-// Ensure service implements the login.SessionService interface.
-var _ login.SessionService = (*SessionService)(nil)
+// Ensure service implements the session.Service interface.
+var _ session.Service = (*SessionService)(nil)
 
-// GetProviderLink implements the login.SessionService interface.
+// GetProviderLink implements the session.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *SessionService) GetProviderLink(ctx context.Context, applicationCode, providerCode string) (string, error) {
@@ -54,7 +54,7 @@ func (s *SessionService) GetProviderLink(ctx context.Context, applicationCode, p
 	sessionID := s.idgen.GenerateID()
 	link := getAuthCodeURL(ctx, cfg, sessionID)
 
-	sess := newSession(provider.ApplicationID.String(), cfg)
+	sess := newUserSession(provider.ApplicationID.String(), cfg)
 
 	if pErr := s.cache.Put(ctx, sessionID, sess, sessionTTL); pErr != nil {
 		return "", pErr
@@ -63,44 +63,44 @@ func (s *SessionService) GetProviderLink(ctx context.Context, applicationCode, p
 	return link, nil
 }
 
-// CompleteLogin implements the login.SessionService interface.
+// CompleteLogin implements the session.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) (login.Info, error) {
+func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) (session.Info, error) {
 	sessionID := state
 
-	sess := session{}
+	sess := userSession{}
 
 	found, err := s.cache.Get(ctx, sessionID, &sess)
 	if err != nil {
-		return login.Info{}, err
+		return session.Info{}, err
 	}
 
 	if !found {
-		return login.Info{}, domain.NewAccessDeniedError("invalid state parameter")
+		return session.Info{}, domain.NewAccessDeniedError("invalid state parameter")
 	}
 
 	token, err := exchangeCodeForAccessToken(ctx, sess.Config, code)
 	if err != nil {
 		s.silentlyDeleteSession(ctx, sessionID)
 
-		return login.Info{}, err
+		return session.Info{}, err
 	}
 
 	oui, err := getUserInfo(ctx, token)
 	if err != nil {
 		s.silentlyDeleteSession(ctx, sessionID)
 
-		return login.Info{}, err
+		return session.Info{}, err
 	}
 
 	sess.updateToken(token)
 
 	if pErr := s.cache.Put(ctx, sessionID, sess, sessionTTL); pErr != nil {
-		return login.Info{}, pErr
+		return session.Info{}, pErr
 	}
 
-	info := login.Info{
+	info := session.Info{
 		SessionID:     sessionID,
 		ApplicationID: sess.ApplicationID,
 		UserInfo:      toUserInfo(oui),
@@ -109,11 +109,11 @@ func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) 
 	return info, nil
 }
 
-// Refresh implements the login.SessionService interface.
+// Refresh implements the session.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *SessionService) Refresh(ctx context.Context, sessionID string) error {
-	sess := session{}
+	sess := userSession{}
 
 	found, err := s.cache.Get(ctx, sessionID, &sess)
 	if err != nil {
@@ -121,7 +121,7 @@ func (s *SessionService) Refresh(ctx context.Context, sessionID string) error {
 	}
 
 	if !found {
-		return domain.NewAccessDeniedError("invalid session ID")
+		return domain.NewAccessDeniedError("invalid userSession ID")
 	}
 
 	token, err := refreshAccessToken(ctx, sess.Config, sess.Token)
@@ -138,11 +138,11 @@ func (s *SessionService) Refresh(ctx context.Context, sessionID string) error {
 	return nil
 }
 
-// Logout implements the login.SessionService interface.
+// Logout implements the session.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *SessionService) Logout(ctx context.Context, sessionID string) error {
-	sess := session{}
+	sess := userSession{}
 
 	found, err := s.cache.Get(ctx, sessionID, &sess)
 	if err != nil {
@@ -150,7 +150,7 @@ func (s *SessionService) Logout(ctx context.Context, sessionID string) error {
 	}
 
 	if !found {
-		return domain.NewAccessDeniedError("invalid session ID")
+		return domain.NewAccessDeniedError("invalid userSession ID")
 	}
 
 	s.silentlyDeleteSession(ctx, sessionID)
@@ -164,6 +164,6 @@ func (s *SessionService) Logout(ctx context.Context, sessionID string) error {
 
 func (s *SessionService) silentlyDeleteSession(ctx context.Context, sessionID string) {
 	if err := s.cache.Delete(ctx, sessionID); err != nil {
-		logger.FromContext(ctx).Info().Err(err).Msg("failed to delete session")
+		logger.FromContext(ctx).Info().Err(err).Msg("failed to delete userSession")
 	}
 }

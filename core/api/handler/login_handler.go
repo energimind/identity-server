@@ -3,18 +3,18 @@ package handler
 import (
 	"net/http"
 
-	"github.com/energimind/identity-service/core/domain/login"
+	"github.com/energimind/identity-service/core/domain/session"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
 
 // LoginHandler is a handler that handles login requests and sessions.
 type LoginHandler struct {
-	service login.SessionService
+	service session.Service
 }
 
 // NewLoginHandler returns a new LoginHandler.
-func NewLoginHandler(service login.SessionService) *LoginHandler {
+func NewLoginHandler(service session.Service) *LoginHandler {
 	return &LoginHandler{
 		service: service,
 	}
@@ -23,7 +23,7 @@ func NewLoginHandler(service login.SessionService) *LoginHandler {
 // Bind binds the LoginHandler to a root provided by a router.
 func (h *LoginHandler) Bind(root gin.IRoutes) {
 	root.GET("/link", h.getProviderLink)
-	root.POST("/login", h.completeLogin)
+	root.POST("/session", h.completeLogin)
 	root.PUT("/refresh", h.refreshSession)
 	root.DELETE("/logout", h.logout)
 }
