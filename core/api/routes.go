@@ -22,32 +22,32 @@ func NewRoutes(handlers Handlers, middlewares Middlewares) *Routes {
 func (r *Routes) RegisterRoutes(root gin.IRouter) {
 	api := root.Group("/api/v1")
 
-	admin := api.Group("/admin")
+	adminEndpoint := api.Group("/admin")
 	{
-		apps := admin.Group("/applications")
+		appsEndpoint := adminEndpoint.Group("/applications")
 		{
-			apps.Use(r.middlewares.RequireActor)
+			appsEndpoint.Use(r.middlewares.RequireActor)
 
-			r.bind(apps, r.handlers.Application)
-			r.bind(apps.Group("/:aid/providers"), r.handlers.Provider)
-			r.bind(apps.Group("/:aid/users"), r.handlers.User)
-			r.bind(apps.Group("/:aid/daemons"), r.handlers.Daemon)
+			r.bind(appsEndpoint, r.handlers.Application)
+			r.bind(appsEndpoint.Group("/:aid/providers"), r.handlers.Provider)
+			r.bind(appsEndpoint.Group("/:aid/users"), r.handlers.User)
+			r.bind(appsEndpoint.Group("/:aid/daemons"), r.handlers.Daemon)
 		}
 
-		adminAuth := admin.Group("/auth")
+		adminAuthEndpoint := adminEndpoint.Group("/auth")
 		{
-			r.bind(adminAuth, r.handlers.AdminAuth)
+			r.bind(adminAuthEndpoint, r.handlers.AdminAuth)
 		}
 	}
 
-	auth := api.Group("/auth")
+	authEndpoint := api.Group("/auth")
 	{
-		r.bind(auth, r.handlers.Auth)
+		r.bind(authEndpoint, r.handlers.Auth)
 	}
 
-	health := root.Group("/health")
+	healthEndpoint := root.Group("/health")
 	{
-		r.bind(health, r.handlers.Health)
+		r.bind(healthEndpoint, r.handlers.Health)
 	}
 }
 
