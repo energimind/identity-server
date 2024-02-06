@@ -40,7 +40,7 @@ func (h *UserHandler) findAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromUsers(users))
+	c.JSON(http.StatusOK, fromUsers(users))
 }
 
 func (h *UserHandler) findByID(c *gin.Context) {
@@ -55,7 +55,7 @@ func (h *UserHandler) findByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromUser(users))
+	c.JSON(http.StatusOK, fromUser(users))
 }
 
 func (h *UserHandler) create(c *gin.Context) {
@@ -70,7 +70,7 @@ func (h *UserHandler) create(c *gin.Context) {
 		return
 	}
 
-	users := ToUser(dtoUser)
+	users := toUser(dtoUser)
 
 	users.ApplicationID = admin.ID(appID)
 
@@ -81,7 +81,7 @@ func (h *UserHandler) create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, FromUser(users))
+	c.JSON(http.StatusCreated, fromUser(users))
 }
 
 func (h *UserHandler) update(c *gin.Context) {
@@ -97,7 +97,7 @@ func (h *UserHandler) update(c *gin.Context) {
 		return
 	}
 
-	users := ToUser(dtoUser)
+	users := toUser(dtoUser)
 
 	users.ID = admin.ID(id)
 	users.ApplicationID = admin.ID(appID)
@@ -109,7 +109,7 @@ func (h *UserHandler) update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromUser(users))
+	c.JSON(http.StatusOK, fromUser(users))
 }
 
 func (h *UserHandler) delete(c *gin.Context) {

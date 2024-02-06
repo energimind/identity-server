@@ -39,7 +39,7 @@ func (h *ApplicationHandler) findAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromApplications(applications))
+	c.JSON(http.StatusOK, fromApplications(applications))
 }
 
 func (h *ApplicationHandler) findByID(c *gin.Context) {
@@ -53,7 +53,7 @@ func (h *ApplicationHandler) findByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromApplication(application))
+	c.JSON(http.StatusOK, fromApplication(application))
 }
 
 func (h *ApplicationHandler) create(c *gin.Context) {
@@ -67,14 +67,14 @@ func (h *ApplicationHandler) create(c *gin.Context) {
 		return
 	}
 
-	application, err := h.service.CreateApplication(c, actor, ToApplication(dtoApplication))
+	application, err := h.service.CreateApplication(c, actor, toApplication(dtoApplication))
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	c.JSON(http.StatusCreated, FromApplication(application))
+	c.JSON(http.StatusCreated, fromApplication(application))
 }
 
 func (h *ApplicationHandler) update(c *gin.Context) {
@@ -91,14 +91,14 @@ func (h *ApplicationHandler) update(c *gin.Context) {
 
 	dtoApplication.ID = id
 
-	application, err := h.service.UpdateApplication(c, actor, ToApplication(dtoApplication))
+	application, err := h.service.UpdateApplication(c, actor, toApplication(dtoApplication))
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, FromApplication(application))
+	c.JSON(http.StatusOK, fromApplication(application))
 }
 
 func (h *ApplicationHandler) delete(c *gin.Context) {

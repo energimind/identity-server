@@ -40,7 +40,7 @@ func (h *DaemonHandler) findAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromDaemons(daemonss))
+	c.JSON(http.StatusOK, fromDaemons(daemonss))
 }
 
 func (h *DaemonHandler) findByID(c *gin.Context) {
@@ -55,7 +55,7 @@ func (h *DaemonHandler) findByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromDaemon(daemons))
+	c.JSON(http.StatusOK, fromDaemon(daemons))
 }
 
 func (h *DaemonHandler) create(c *gin.Context) {
@@ -70,7 +70,7 @@ func (h *DaemonHandler) create(c *gin.Context) {
 		return
 	}
 
-	daemons := ToDaemon(dtoDaemon)
+	daemons := toDaemon(dtoDaemon)
 
 	daemons.ApplicationID = admin.ID(appID)
 
@@ -81,7 +81,7 @@ func (h *DaemonHandler) create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, FromDaemon(daemons))
+	c.JSON(http.StatusCreated, fromDaemon(daemons))
 }
 
 func (h *DaemonHandler) update(c *gin.Context) {
@@ -97,7 +97,7 @@ func (h *DaemonHandler) update(c *gin.Context) {
 		return
 	}
 
-	daemons := ToDaemon(dtoDaemon)
+	daemons := toDaemon(dtoDaemon)
 
 	daemons.ID = admin.ID(id)
 	daemons.ApplicationID = admin.ID(appID)
@@ -109,7 +109,7 @@ func (h *DaemonHandler) update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromDaemon(daemons))
+	c.JSON(http.StatusOK, fromDaemon(daemons))
 }
 
 func (h *DaemonHandler) delete(c *gin.Context) {

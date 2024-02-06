@@ -2,8 +2,8 @@ package admin
 
 import "github.com/energimind/identity-service/core/domain/admin"
 
-// FromApplication converts a domain application to a DTO application.
-func FromApplication(app admin.Application) Application {
+// fromApplication converts a domain application to a DTO application.
+func fromApplication(app admin.Application) Application {
 	return Application{
 		ID:          string(app.ID),
 		Code:        app.Code,
@@ -13,19 +13,19 @@ func FromApplication(app admin.Application) Application {
 	}
 }
 
-// FromApplications converts a slice of domain applications to a slice of DTO applications.
-func FromApplications(apps []admin.Application) []Application {
+// fromApplications converts a slice of domain applications to a slice of DTO applications.
+func fromApplications(apps []admin.Application) []Application {
 	dtos := make([]Application, len(apps))
 
 	for i, app := range apps {
-		dtos[i] = FromApplication(app)
+		dtos[i] = fromApplication(app)
 	}
 
 	return dtos
 }
 
-// ToApplication converts a DTO application to a domain application.
-func ToApplication(app Application) admin.Application {
+// toApplication converts a DTO application to a domain application.
+func toApplication(app Application) admin.Application {
 	return admin.Application{
 		ID:          admin.ID(app.ID),
 		Code:        app.Code,
@@ -35,8 +35,8 @@ func ToApplication(app Application) admin.Application {
 	}
 }
 
-// FromProvider converts a domain provider to a DTO provider.
-func FromProvider(provider admin.Provider) Provider {
+// fromProvider converts a domain provider to a DTO provider.
+func fromProvider(provider admin.Provider) Provider {
 	return Provider{
 		ID:           string(provider.ID),
 		Type:         string(provider.Type),
@@ -50,19 +50,19 @@ func FromProvider(provider admin.Provider) Provider {
 	}
 }
 
-// FromProviders converts a slice of domain providers to a slice of DTO providers.
-func FromProviders(providers []admin.Provider) []Provider {
+// fromProviders converts a slice of domain providers to a slice of DTO providers.
+func fromProviders(providers []admin.Provider) []Provider {
 	dtos := make([]Provider, len(providers))
 
 	for i, provider := range providers {
-		dtos[i] = FromProvider(provider)
+		dtos[i] = fromProvider(provider)
 	}
 
 	return dtos
 }
 
-// ToProvider converts a DTO provider to a domain provider.
-func ToProvider(provider Provider) admin.Provider {
+// toProvider converts a DTO provider to a domain provider.
+func toProvider(provider Provider) admin.Provider {
 	return admin.Provider{
 		ID:           admin.ID(provider.ID),
 		Type:         admin.ProviderType(provider.Type),
@@ -76,8 +76,8 @@ func ToProvider(provider Provider) admin.Provider {
 	}
 }
 
-// FromUser converts a domain user to a DTO user.
-func FromUser(user admin.User) User {
+// fromUser converts a domain user to a DTO user.
+func fromUser(user admin.User) User {
 	return User{
 		ID:          string(user.ID),
 		Username:    user.Username,
@@ -90,19 +90,19 @@ func FromUser(user admin.User) User {
 	}
 }
 
-// FromUsers converts a slice of domain users to a slice of DTO users.
-func FromUsers(users []admin.User) []User {
+// fromUsers converts a slice of domain users to a slice of DTO users.
+func fromUsers(users []admin.User) []User {
 	dtos := make([]User, len(users))
 
 	for i, user := range users {
-		dtos[i] = FromUser(user)
+		dtos[i] = fromUser(user)
 	}
 
 	return dtos
 }
 
-// ToUser converts a DTO user to a domain user.
-func ToUser(user User) admin.User {
+// toUser converts a DTO user to a domain user.
+func toUser(user User) admin.User {
 	return admin.User{
 		ID:          admin.ID(user.ID),
 		Username:    user.Username,
@@ -115,8 +115,8 @@ func ToUser(user User) admin.User {
 	}
 }
 
-// FromDaemon converts a domain daemon to a DTO daemon.
-func FromDaemon(daemon admin.Daemon) Daemon {
+// fromDaemon converts a domain daemon to a DTO daemon.
+func fromDaemon(daemon admin.Daemon) Daemon {
 	return Daemon{
 		ID:          string(daemon.ID),
 		Code:        daemon.Code,
@@ -127,19 +127,19 @@ func FromDaemon(daemon admin.Daemon) Daemon {
 	}
 }
 
-// FromDaemons converts a slice of domain daemons to a slice of DTO daemons.
-func FromDaemons(daemons []admin.Daemon) []Daemon {
+// fromDaemons converts a slice of domain daemons to a slice of DTO daemons.
+func fromDaemons(daemons []admin.Daemon) []Daemon {
 	dtos := make([]Daemon, len(daemons))
 
 	for i, daemon := range daemons {
-		dtos[i] = FromDaemon(daemon)
+		dtos[i] = fromDaemon(daemon)
 	}
 
 	return dtos
 }
 
-// ToDaemon converts a DTO daemon to a domain daemon.
-func ToDaemon(daemon Daemon) admin.Daemon {
+// toDaemon converts a DTO daemon to a domain daemon.
+func toDaemon(daemon Daemon) admin.Daemon {
 	return admin.Daemon{
 		ID:          admin.ID(daemon.ID),
 		Code:        daemon.Code,

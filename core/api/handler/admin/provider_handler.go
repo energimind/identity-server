@@ -40,7 +40,7 @@ func (h *ProviderHandler) findAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromProviders(providers))
+	c.JSON(http.StatusOK, fromProviders(providers))
 }
 
 func (h *ProviderHandler) findByID(c *gin.Context) {
@@ -55,7 +55,7 @@ func (h *ProviderHandler) findByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromProvider(provider))
+	c.JSON(http.StatusOK, fromProvider(provider))
 }
 
 func (h *ProviderHandler) create(c *gin.Context) {
@@ -70,7 +70,7 @@ func (h *ProviderHandler) create(c *gin.Context) {
 		return
 	}
 
-	provider := ToProvider(dtoProvider)
+	provider := toProvider(dtoProvider)
 
 	provider.ApplicationID = admin.ID(appID)
 
@@ -81,7 +81,7 @@ func (h *ProviderHandler) create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, FromProvider(provider))
+	c.JSON(http.StatusCreated, fromProvider(provider))
 }
 
 func (h *ProviderHandler) update(c *gin.Context) {
@@ -97,7 +97,7 @@ func (h *ProviderHandler) update(c *gin.Context) {
 		return
 	}
 
-	provider := ToProvider(dtoProvider)
+	provider := toProvider(dtoProvider)
 
 	provider.ID = admin.ID(id)
 	provider.ApplicationID = admin.ID(appID)
@@ -109,7 +109,7 @@ func (h *ProviderHandler) update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromProvider(provider))
+	c.JSON(http.StatusOK, fromProvider(provider))
 }
 
 func (h *ProviderHandler) delete(c *gin.Context) {
