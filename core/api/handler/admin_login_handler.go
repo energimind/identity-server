@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/session"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 )
@@ -112,7 +113,14 @@ func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
 		return
 	}
 
-	cookie, err := h.cookieProvider.CreateCookie(c.Request, cookieName, completeResult.SessionID)
+	us := session.NewUserSession(
+		completeResult.SessionID,
+		completeResult.ApplicationID,
+		user.ID.String(),
+		user.Role.String(),
+	)
+
+	cookie, err := h.cookieProvider.CreateCookie(c.Request, cookieName, us.Serialize())
 	if err != nil {
 		_ = c.Error(err)
 

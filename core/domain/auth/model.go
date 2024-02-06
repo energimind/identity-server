@@ -56,6 +56,11 @@ type Provider struct {
 // SystemRole represents the role of a user in the system.
 type SystemRole string
 
+// String returns the string representation of the system role.
+func (r SystemRole) String() string {
+	return string(r)
+}
+
 // User represents an organic user in the system.
 // The user authenticates with the system using an authentication provider.
 type User struct {
