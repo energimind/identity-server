@@ -10,6 +10,15 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
+//nolint:tagliatelle
+type userInfo struct {
+	ID         string `json:"sub"`
+	Name       string `json:"name"`
+	GivenName  string `json:"given_name"`
+	FamilyName string `json:"family_name"`
+	Email      string `json:"email"`
+}
+
 func getAuthCodeURL(_ context.Context, config *config, state string) string {
 	return providerConf(config).AuthCodeURL(state, oauth2.AccessTypeOffline)
 }
@@ -35,7 +44,7 @@ func refreshAccessToken(ctx context.Context, config *config, token *oauth2.Token
 func revokeAccessToken(ctx context.Context, token *oauth2.Token) error {
 	client := resty.New()
 
-	resp, err := client.R().
+	rsp, err := client.R().
 		SetContext(ctx).
 		SetHeader("Authorization", "Bearer "+token.AccessToken).
 		SetFormData(map[string]string{
@@ -46,11 +55,27 @@ func revokeAccessToken(ctx context.Context, token *oauth2.Token) error {
 		return domain.NewAccessDeniedError("failed to revoke token: %v", err)
 	}
 
-	if resp.StatusCode() != http.StatusOK {
-		return domain.NewAccessDeniedError("failed to revoke token: %s", resp.Status())
+	if rsp.StatusCode() != http.StatusOK {
+		return domain.NewAccessDeniedError("failed to revoke token: %s", rsp.Status())
 	}
 
 	return nil
+}
+
+func getUserInfo(ctx context.Context, token *oauth2.Token) (userInfo, error) {
+	client := resty.New()
+	ui := userInfo{}
+
+	_, err := client.R().
+		SetContext(ctx).
+		SetHeader("Authorization", "Bearer "+token.AccessToken).
+		SetResult(&ui).
+		Get("https://www.googleapis.com/oauth2/v3/userinfo")
+	if err != nil {
+		return userInfo{}, domain.NewAccessDeniedError("failed to get user info: %v", err)
+	}
+
+	return ui, nil
 }
 
 func providerConf(config *config) *oauth2.Config {
@@ -58,7 +83,10 @@ func providerConf(config *config) *oauth2.Config {
 		ClientID:     config.ClientID,
 		ClientSecret: config.ClientSecret,
 		RedirectURL:  config.RedirectURL,
-		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
-		Endpoint:     google.Endpoint,
+		Scopes: []string{
+			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
+		},
+		Endpoint: google.Endpoint,
 	}
 }

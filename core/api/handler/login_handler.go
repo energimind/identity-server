@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/energimind/identity-service/core/domain/login"
+	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
 
@@ -42,14 +43,28 @@ func (h *LoginHandler) getProviderLink(c *gin.Context) {
 }
 
 func (h *LoginHandler) completeLogin(c *gin.Context) {
-	sessionID, err := h.service.CompleteLogin(c, c.Query("code"), c.Query("state"))
+	sessionID, userInfo, err := h.service.CompleteLogin(c, c.Query("code"), c.Query("state"))
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"sessionId": sessionID})
+	reqctx.Logger(c).Debug().
+		Str("sessionID", sessionID).
+		Any("userInfo", userInfo).
+		Msg("Login completed")
+
+	c.JSON(http.StatusOK, gin.H{
+		"sessionId": sessionID,
+		"userInfo": map[string]any{
+			"id":         userInfo.ID,
+			"name":       userInfo.Name,
+			"given":      userInfo.GivenName,
+			"familyName": userInfo.FamilyName,
+			"email":      userInfo.Email,
+		},
+	})
 }
 
 func (h *LoginHandler) refreshSession(c *gin.Context) {

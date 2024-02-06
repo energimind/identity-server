@@ -54,24 +54,31 @@ func (s *SessionService) GetProviderLink(ctx context.Context, applicationCode, p
 }
 
 // CompleteLogin implements the login.SessionService interface.
-func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) (string, error) {
+func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) (string, login.UserInfo, error) {
 	sessionID := state
 
 	sess, found := s.sessions.get(sessionID)
 	if !found {
-		return "", domain.NewAccessDeniedError("invalid state parameter")
+		return "", login.UserInfo{}, domain.NewAccessDeniedError("invalid state parameter")
 	}
 
 	token, err := exchangeCodeForAccessToken(ctx, sess.Config, code)
 	if err != nil {
 		s.sessions.delete(sessionID)
 
-		return "", err
+		return "", login.UserInfo{}, err
+	}
+
+	oui, err := getUserInfo(ctx, token)
+	if err != nil {
+		s.sessions.delete(sessionID)
+
+		return "", login.UserInfo{}, err
 	}
 
 	sess.updateToken(token)
 
-	return sessionID, nil
+	return sessionID, toUserInfo(oui), nil
 }
 
 // Refresh implements the login.SessionService interface.
