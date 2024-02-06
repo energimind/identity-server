@@ -8,11 +8,11 @@ type Error struct {
 }
 
 // NewError creates a new Error with the given message.
-func NewError(format string, args ...any) *Error {
-	return &Error{Message: fmt.Sprintf(format, args...)}
+func NewError(format string, args ...any) Error {
+	return Error{Message: fmt.Sprintf(format, args...)}
 }
 
 // Error returns the error message.
-func (e *Error) Error() string {
+func (e Error) Error() string {
 	return fmt.Sprintf("Cookie error: %s", e.Message)
 }
