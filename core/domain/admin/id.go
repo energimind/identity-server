@@ -1,4 +1,4 @@
-package auth
+package admin
 
 // ID represents a unique identifier. It is a string type to allow for
 // different types of identifiers.

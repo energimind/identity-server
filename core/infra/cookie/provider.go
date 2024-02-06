@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 )
 
 // Provider is a cookie provider.
 //
 // It provides methods for getting, resetting and verifying cookies.
 //
-// It implements the auth.CookieProvider and auth.CookieVerifier interfaces.
+// It implements the admin.CookieProvider and admin.CookieVerifier interfaces.
 type Provider struct {
 	secret string
 }
@@ -24,10 +24,10 @@ func NewProvider(secret string) *Provider {
 }
 
 // Ensure that Provider implements the CookieProvider interface.
-var _ auth.CookieProvider = (*Provider)(nil)
+var _ admin.CookieProvider = (*Provider)(nil)
 
 // Ensure that Provider implements the CookieVerifier interface.
-var _ auth.CookieVerifier = (*Provider)(nil)
+var _ admin.CookieVerifier = (*Provider)(nil)
 
 // CreateCookie creates a cookie with the given name and value.
 func (p *Provider) CreateCookie(r *http.Request, name, value string) (*http.Cookie, error) {

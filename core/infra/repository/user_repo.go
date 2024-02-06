@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -20,14 +20,14 @@ func NewUserRepository(db *mongo.Database) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-// Ensure repository implements the auth.UserRepository interface.
-var _ auth.UserRepository = (*UserRepository)(nil)
+// Ensure repository implements the admin.UserRepository interface.
+var _ admin.UserRepository = (*UserRepository)(nil)
 
-// GetUsers implements the auth.UserRepository interface.
+// GetUsers implements the admin.UserRepository interface.
 func (r *UserRepository) GetUsers(
 	ctx context.Context,
-	appID auth.ID,
-) ([]auth.User, error) {
+	appID admin.ID,
+) ([]admin.User, error) {
 	coll := r.db.Collection("users")
 	qFilter := bson.M{"applicationId": appID}
 
@@ -44,30 +44,30 @@ func (r *UserRepository) GetUsers(
 	return users, nil
 }
 
-// GetUser implements the auth.UserRepository interface.
+// GetUser implements the admin.UserRepository interface.
 func (r *UserRepository) GetUser(
 	ctx context.Context,
-	appID, id auth.ID,
-) (auth.User, error) {
+	appID, id admin.ID,
+) (admin.User, error) {
 	coll := r.db.Collection("users")
 	qFilter := bson.M{"id": id, "applicationId": appID}
 	user := dbUser{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&user); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return auth.User{}, domain.NewNotFoundError("user %v not found", id)
+			return admin.User{}, domain.NewNotFoundError("user %v not found", id)
 		}
 
-		return auth.User{}, domain.NewStoreError("failed to get user: %v", err)
+		return admin.User{}, domain.NewStoreError("failed to get user: %v", err)
 	}
 
 	return fromUser(user), nil
 }
 
-// CreateUser implements the auth.UserRepository interface.
+// CreateUser implements the admin.UserRepository interface.
 func (r *UserRepository) CreateUser(
 	ctx context.Context,
-	user auth.User,
+	user admin.User,
 ) error {
 	coll := r.db.Collection("users")
 
@@ -78,10 +78,10 @@ func (r *UserRepository) CreateUser(
 	return nil
 }
 
-// UpdateUser implements the auth.UserRepository interface.
+// UpdateUser implements the admin.UserRepository interface.
 func (r *UserRepository) UpdateUser(
 	ctx context.Context,
-	user auth.User,
+	user admin.User,
 ) error {
 	coll := r.db.Collection("users")
 	qFilter := bson.M{"id": user.ID}
@@ -99,10 +99,10 @@ func (r *UserRepository) UpdateUser(
 	return nil
 }
 
-// DeleteUser implements the auth.UserRepository interface.
+// DeleteUser implements the admin.UserRepository interface.
 func (r *UserRepository) DeleteUser(
 	ctx context.Context,
-	appID, id auth.ID,
+	appID, id admin.ID,
 ) error {
 	coll := r.db.Collection("users")
 	qFilter := bson.M{"id": id, "applicationId": appID}
@@ -119,22 +119,22 @@ func (r *UserRepository) DeleteUser(
 	return nil
 }
 
-// GetUserByEmail implements the auth.UserRepository interface.
+// GetUserByEmail implements the admin.UserRepository interface.
 func (r *UserRepository) GetUserByEmail(
 	ctx context.Context,
-	appID auth.ID,
+	appID admin.ID,
 	email string,
-) (auth.User, error) {
+) (admin.User, error) {
 	coll := r.db.Collection("users")
 	qFilter := bson.M{"email": email, "applicationId": appID}
 	user := dbUser{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&user); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return auth.User{}, domain.NewNotFoundError("user with email %s not found", email)
+			return admin.User{}, domain.NewNotFoundError("user with email %s not found", email)
 		}
 
-		return auth.User{}, domain.NewStoreError("failed to get user by email: %v", err)
+		return admin.User{}, domain.NewStoreError("failed to get user by email: %v", err)
 	}
 
 	return fromUser(user), nil

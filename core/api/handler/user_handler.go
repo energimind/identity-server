@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/energimind/identity-service/core/api/dto"
-	service "github.com/energimind/identity-service/core/appl/service/auth"
+	service "github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
@@ -34,7 +34,7 @@ func (h *UserHandler) findAll(c *gin.Context) {
 	appID := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	users, err := h.service.GetUsers(c, actor, auth.ID(appID))
+	users, err := h.service.GetUsers(c, actor, admin.ID(appID))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -49,7 +49,7 @@ func (h *UserHandler) findByID(c *gin.Context) {
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	users, err := h.service.GetUser(c, actor, auth.ID(appID), auth.ID(id))
+	users, err := h.service.GetUser(c, actor, admin.ID(appID), admin.ID(id))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -73,7 +73,7 @@ func (h *UserHandler) create(c *gin.Context) {
 
 	users := dto.ToUser(dtoUser)
 
-	users.ApplicationID = auth.ID(appID)
+	users.ApplicationID = admin.ID(appID)
 
 	users, err := h.service.CreateUser(c, actor, users)
 	if err != nil {
@@ -100,8 +100,8 @@ func (h *UserHandler) update(c *gin.Context) {
 
 	users := dto.ToUser(dtoUser)
 
-	users.ID = auth.ID(id)
-	users.ApplicationID = auth.ID(appID)
+	users.ID = admin.ID(id)
+	users.ApplicationID = admin.ID(appID)
 
 	users, err := h.service.UpdateUser(c, actor, users)
 	if err != nil {
@@ -118,7 +118,7 @@ func (h *UserHandler) delete(c *gin.Context) {
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	if err := h.service.DeleteUser(c, actor, auth.ID(appID), auth.ID(id)); err != nil {
+	if err := h.service.DeleteUser(c, actor, admin.ID(appID), admin.ID(id)); err != nil {
 		_ = c.Error(err)
 
 		return

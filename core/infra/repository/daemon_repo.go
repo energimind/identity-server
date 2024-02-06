@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -20,14 +20,14 @@ func NewDaemonRepository(db *mongo.Database) *DaemonRepository {
 	return &DaemonRepository{db: db}
 }
 
-// Ensure repository implements the auth.DaemonRepository interface.
-var _ auth.DaemonRepository = (*DaemonRepository)(nil)
+// Ensure repository implements the admin.DaemonRepository interface.
+var _ admin.DaemonRepository = (*DaemonRepository)(nil)
 
-// GetDaemons implements the auth.DaemonRepository interface.
+// GetDaemons implements the admin.DaemonRepository interface.
 func (r *DaemonRepository) GetDaemons(
 	ctx context.Context,
-	appID auth.ID,
-) ([]auth.Daemon, error) {
+	appID admin.ID,
+) ([]admin.Daemon, error) {
 	coll := r.db.Collection("daemons")
 	qFilter := bson.M{"applicationId": appID}
 
@@ -44,30 +44,30 @@ func (r *DaemonRepository) GetDaemons(
 	return daemons, nil
 }
 
-// GetDaemon implements the auth.DaemonRepository interface.
+// GetDaemon implements the admin.DaemonRepository interface.
 func (r *DaemonRepository) GetDaemon(
 	ctx context.Context,
-	appID, id auth.ID,
-) (auth.Daemon, error) {
+	appID, id admin.ID,
+) (admin.Daemon, error) {
 	coll := r.db.Collection("daemons")
 	qFilter := bson.M{"id": id, "applicationId": appID}
 	daemon := dbDaemon{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&daemon); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return auth.Daemon{}, domain.NewNotFoundError("daemon %v not found", id)
+			return admin.Daemon{}, domain.NewNotFoundError("daemon %v not found", id)
 		}
 
-		return auth.Daemon{}, domain.NewStoreError("failed to get daemon: %v", err)
+		return admin.Daemon{}, domain.NewStoreError("failed to get daemon: %v", err)
 	}
 
 	return fromDaemon(daemon), nil
 }
 
-// CreateDaemon implements the auth.DaemonRepository interface.
+// CreateDaemon implements the admin.DaemonRepository interface.
 func (r *DaemonRepository) CreateDaemon(
 	ctx context.Context,
-	daemon auth.Daemon,
+	daemon admin.Daemon,
 ) error {
 	coll := r.db.Collection("daemons")
 
@@ -78,10 +78,10 @@ func (r *DaemonRepository) CreateDaemon(
 	return nil
 }
 
-// UpdateDaemon implements the auth.DaemonRepository interface.
+// UpdateDaemon implements the admin.DaemonRepository interface.
 func (r *DaemonRepository) UpdateDaemon(
 	ctx context.Context,
-	daemon auth.Daemon,
+	daemon admin.Daemon,
 ) error {
 	coll := r.db.Collection("daemons")
 	qFilter := bson.M{"id": daemon.ID}
@@ -99,10 +99,10 @@ func (r *DaemonRepository) UpdateDaemon(
 	return nil
 }
 
-// DeleteDaemon implements the auth.DaemonRepository interface.
+// DeleteDaemon implements the admin.DaemonRepository interface.
 func (r *DaemonRepository) DeleteDaemon(
 	ctx context.Context,
-	appID, id auth.ID,
+	appID, id admin.ID,
 ) error {
 	coll := r.db.Collection("daemons")
 	qFilter := bson.M{"id": id, "applicationId": appID}

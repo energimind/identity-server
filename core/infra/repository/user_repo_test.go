@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/infra/repository"
 	"github.com/energimind/identity-service/core/test/utils"
 	"github.com/stretchr/testify/require"
@@ -18,50 +18,50 @@ func TestUserRepository_CRUD(t *testing.T) {
 	defer closer()
 
 	repo := repository.NewUserRepository(db)
-	appID := auth.ID("1")
+	appID := admin.ID("1")
 
-	utils.RunCRUDTests(t, utils.CRUDSetup[auth.User, auth.ID]{
-		GetAll: func(ctx context.Context) ([]auth.User, error) {
+	utils.RunCRUDTests(t, utils.CRUDSetup[admin.User, admin.ID]{
+		GetAll: func(ctx context.Context) ([]admin.User, error) {
 			return repo.GetUsers(ctx, appID)
 		},
-		GetByID: func(ctx context.Context, id auth.ID) (auth.User, error) {
+		GetByID: func(ctx context.Context, id admin.ID) (admin.User, error) {
 			return repo.GetUser(ctx, appID, id)
 		},
-		Create: func(ctx context.Context, user auth.User) error {
+		Create: func(ctx context.Context, user admin.User) error {
 			return repo.CreateUser(ctx, user)
 		},
-		Update: func(ctx context.Context, user auth.User) error {
+		Update: func(ctx context.Context, user admin.User) error {
 			return repo.UpdateUser(ctx, user)
 		},
-		Delete: func(ctx context.Context, id auth.ID) error {
+		Delete: func(ctx context.Context, id admin.ID) error {
 			return repo.DeleteUser(ctx, appID, id)
 		},
-		NewEntity: func(key int) auth.User {
-			return auth.User{
-				ID:            auth.ID(strconv.Itoa(key)),
+		NewEntity: func(key int) admin.User {
+			return admin.User{
+				ID:            admin.ID(strconv.Itoa(key)),
 				ApplicationID: appID,
 				Username:      "user1",
 				Description:   "description",
 				Enabled:       true,
-				Role:          auth.SystemRoleAdmin,
-				APIKeys:       []auth.APIKey{{}},
+				Role:          admin.SystemRoleAdmin,
+				APIKeys:       []admin.APIKey{{}},
 			}
 		},
-		ModifyEntity: func(user auth.User) auth.User {
+		ModifyEntity: func(user admin.User) admin.User {
 			user.Username = "user2"
 
 			return user
 		},
-		UnboundEntity: func() auth.User {
-			return auth.User{
+		UnboundEntity: func() admin.User {
+			return admin.User{
 				ID:   "",
-				Role: auth.SystemRoleAdmin,
+				Role: admin.SystemRoleAdmin,
 			}
 		},
-		ExtractKey: func(user auth.User) auth.ID {
+		ExtractKey: func(user admin.User) admin.ID {
 			return user.ID
 		},
-		MissingKey: func() auth.ID {
+		MissingKey: func() admin.ID {
 			return "missing"
 		},
 	})
@@ -74,14 +74,14 @@ func TestUserRepository_GetUserByEmail(t *testing.T) {
 	defer closer()
 
 	repo := repository.NewUserRepository(db)
-	appID := auth.ID("1")
+	appID := admin.ID("1")
 
 	ctx := context.Background()
-	user := auth.User{
+	user := admin.User{
 		ID:            "1",
 		ApplicationID: appID,
 		Email:         "user@somedomain.com",
-		APIKeys:       []auth.APIKey{},
+		APIKeys:       []admin.APIKey{},
 	}
 
 	if err := repo.CreateUser(ctx, user); err != nil {

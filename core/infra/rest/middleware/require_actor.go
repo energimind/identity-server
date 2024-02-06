@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
@@ -15,7 +15,7 @@ import (
 // The actor can be retrieved from the request context using the reqctx.Actor function.
 //
 // If the actor can not be found, the request is aborted with a 401 Unauthorized error.
-func RequireActor(verifier auth.CookieVerifier) gin.HandlerFunc {
+func RequireActor(verifier admin.CookieVerifier) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cookie, err := c.Request.Cookie("sessionKey")
 		if err != nil {
@@ -35,7 +35,7 @@ func RequireActor(verifier auth.CookieVerifier) gin.HandlerFunc {
 			return
 		}
 
-		us, err := auth.DeserializeUserSession(serialized)
+		us, err := admin.DeserializeUserSession(serialized)
 		if err != nil {
 			_ = c.Error(domain.NewAccessDeniedError(fmt.Sprintf("invalid sessionKey cookie value: %s", err)))
 
@@ -47,7 +47,7 @@ func RequireActor(verifier auth.CookieVerifier) gin.HandlerFunc {
 		// add sessionID to the request
 		c.Set("sessionId", us.SessionID)
 
-		actor := auth.NewActor(auth.ID(us.UserID), auth.ID(us.ApplicationID), auth.SystemRole(us.UserRole))
+		actor := admin.NewActor(admin.ID(us.UserID), admin.ID(us.ApplicationID), admin.SystemRole(us.UserRole))
 
 		// add the actor to the request context
 		reqctx.SetActor(c, actor)

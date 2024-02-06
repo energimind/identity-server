@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/infra/repository"
 	"github.com/energimind/identity-service/core/test/utils"
 )
@@ -18,45 +18,45 @@ func TestApplicationRepository_CRUD(t *testing.T) {
 
 	repo := repository.NewApplicationRepository(db)
 
-	utils.RunCRUDTests(t, utils.CRUDSetup[auth.Application, auth.ID]{
-		GetAll: func(ctx context.Context) ([]auth.Application, error) {
+	utils.RunCRUDTests(t, utils.CRUDSetup[admin.Application, admin.ID]{
+		GetAll: func(ctx context.Context) ([]admin.Application, error) {
 			return repo.GetApplications(ctx)
 		},
-		GetByID: func(ctx context.Context, id auth.ID) (auth.Application, error) {
+		GetByID: func(ctx context.Context, id admin.ID) (admin.Application, error) {
 			return repo.GetApplication(ctx, id)
 		},
-		Create: func(ctx context.Context, app auth.Application) error {
+		Create: func(ctx context.Context, app admin.Application) error {
 			return repo.CreateApplication(ctx, app)
 		},
-		Update: func(ctx context.Context, app auth.Application) error {
+		Update: func(ctx context.Context, app admin.Application) error {
 			return repo.UpdateApplication(ctx, app)
 		},
-		Delete: func(ctx context.Context, id auth.ID) error {
+		Delete: func(ctx context.Context, id admin.ID) error {
 			return repo.DeleteApplication(ctx, id)
 		},
-		NewEntity: func(key int) auth.Application {
-			return auth.Application{
-				ID:          auth.ID(strconv.Itoa(key)),
+		NewEntity: func(key int) admin.Application {
+			return admin.Application{
+				ID:          admin.ID(strconv.Itoa(key)),
 				Code:        "app1",
 				Name:        "Application 1",
 				Description: "Application 1",
 				Enabled:     true,
 			}
 		},
-		ModifyEntity: func(app auth.Application) auth.Application {
+		ModifyEntity: func(app admin.Application) admin.Application {
 			app.Name = "Application 2"
 
 			return app
 		},
-		UnboundEntity: func() auth.Application {
-			return auth.Application{
+		UnboundEntity: func() admin.Application {
+			return admin.Application{
 				ID: "",
 			}
 		},
-		ExtractKey: func(app auth.Application) auth.ID {
+		ExtractKey: func(app admin.Application) admin.ID {
 			return app.ID
 		},
-		MissingKey: func() auth.ID {
+		MissingKey: func() admin.ID {
 			return "missingKey"
 		},
 	})

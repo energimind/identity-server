@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/energimind/identity-service/core/api/dto"
-	service "github.com/energimind/identity-service/core/appl/service/auth"
+	service "github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
@@ -34,7 +34,7 @@ func (h *ProviderHandler) findAll(c *gin.Context) {
 	appID := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	providers, err := h.service.GetProviders(c, actor, auth.ID(appID))
+	providers, err := h.service.GetProviders(c, actor, admin.ID(appID))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -49,7 +49,7 @@ func (h *ProviderHandler) findByID(c *gin.Context) {
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	provider, err := h.service.GetProvider(c, actor, auth.ID(appID), auth.ID(id))
+	provider, err := h.service.GetProvider(c, actor, admin.ID(appID), admin.ID(id))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -73,7 +73,7 @@ func (h *ProviderHandler) create(c *gin.Context) {
 
 	provider := dto.ToProvider(dtoProvider)
 
-	provider.ApplicationID = auth.ID(appID)
+	provider.ApplicationID = admin.ID(appID)
 
 	provider, err := h.service.CreateProvider(c, actor, provider)
 	if err != nil {
@@ -100,8 +100,8 @@ func (h *ProviderHandler) update(c *gin.Context) {
 
 	provider := dto.ToProvider(dtoProvider)
 
-	provider.ID = auth.ID(id)
-	provider.ApplicationID = auth.ID(appID)
+	provider.ID = admin.ID(id)
+	provider.ApplicationID = admin.ID(appID)
 
 	provider, err := h.service.UpdateProvider(c, actor, provider)
 	if err != nil {
@@ -118,7 +118,7 @@ func (h *ProviderHandler) delete(c *gin.Context) {
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	if err := h.service.DeleteProvider(c, actor, auth.ID(appID), auth.ID(id)); err != nil {
+	if err := h.service.DeleteProvider(c, actor, admin.ID(appID), admin.ID(id)); err != nil {
 		_ = c.Error(err)
 
 		return

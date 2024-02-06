@@ -1,4 +1,4 @@
-package auth
+package admin
 
 import "time"
 
@@ -27,7 +27,7 @@ var (
 
 // Application represents an application that can be used to authenticate
 // users. It is used to group providers and users.
-// It is the top level entity in the auth domain.
+// It is the top level entity in the admin domain.
 type Application struct {
 	ID          ID
 	Code        string

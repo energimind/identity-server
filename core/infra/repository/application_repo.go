@@ -5,12 +5,12 @@ import (
 	"errors"
 
 	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// ApplicationRepository is a MongoDB implementation of the auth.ApplicationRepository interface.
+// ApplicationRepository is a MongoDB implementation of the admin.ApplicationRepository interface.
 type ApplicationRepository struct {
 	db *mongo.Database
 }
@@ -20,13 +20,13 @@ func NewApplicationRepository(db *mongo.Database) *ApplicationRepository {
 	return &ApplicationRepository{db: db}
 }
 
-// Ensure repository implements the auth.ApplicationRepository interface.
-var _ auth.ApplicationRepository = (*ApplicationRepository)(nil)
+// Ensure repository implements the admin.ApplicationRepository interface.
+var _ admin.ApplicationRepository = (*ApplicationRepository)(nil)
 
-// GetApplications implements the auth.ApplicationRepository interface.
+// GetApplications implements the admin.ApplicationRepository interface.
 func (r *ApplicationRepository) GetApplications(
 	ctx context.Context,
-) ([]auth.Application, error) {
+) ([]admin.Application, error) {
 	coll := r.db.Collection("applications")
 	qFilter := bson.M{}
 
@@ -43,30 +43,30 @@ func (r *ApplicationRepository) GetApplications(
 	return applications, nil
 }
 
-// GetApplication implements the auth.ApplicationRepository interface.
+// GetApplication implements the admin.ApplicationRepository interface.
 func (r *ApplicationRepository) GetApplication(
 	ctx context.Context,
-	id auth.ID,
-) (auth.Application, error) {
+	id admin.ID,
+) (admin.Application, error) {
 	coll := r.db.Collection("applications")
 	qFilter := bson.M{"id": id}
 	application := dbApplication{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&application); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return auth.Application{}, domain.NewNotFoundError("application %v not found", id)
+			return admin.Application{}, domain.NewNotFoundError("application %v not found", id)
 		}
 
-		return auth.Application{}, domain.NewStoreError("failed to get application: %v", err)
+		return admin.Application{}, domain.NewStoreError("failed to get application: %v", err)
 	}
 
 	return fromApplication(application), nil
 }
 
-// CreateApplication implements the auth.ApplicationRepository interface.
+// CreateApplication implements the admin.ApplicationRepository interface.
 func (r *ApplicationRepository) CreateApplication(
 	ctx context.Context,
-	app auth.Application,
+	app admin.Application,
 ) error {
 	coll := r.db.Collection("applications")
 
@@ -77,10 +77,10 @@ func (r *ApplicationRepository) CreateApplication(
 	return nil
 }
 
-// UpdateApplication implements the auth.ApplicationRepository interface.
+// UpdateApplication implements the admin.ApplicationRepository interface.
 func (r *ApplicationRepository) UpdateApplication(
 	ctx context.Context,
-	app auth.Application,
+	app admin.Application,
 ) error {
 	coll := r.db.Collection("applications")
 	qFilter := bson.M{"id": app.ID}
@@ -98,10 +98,10 @@ func (r *ApplicationRepository) UpdateApplication(
 	return nil
 }
 
-// DeleteApplication implements the auth.ApplicationRepository interface.
+// DeleteApplication implements the admin.ApplicationRepository interface.
 func (r *ApplicationRepository) DeleteApplication(
 	ctx context.Context,
-	id auth.ID,
+	id admin.ID,
 ) error {
 	coll := r.db.Collection("applications")
 	qFilter := bson.M{"id": id}

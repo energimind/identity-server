@@ -4,29 +4,29 @@ import (
 	"testing"
 	"time"
 
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/test/utils"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_allUserFieldsAreMapped(t *testing.T) {
-	utils.CheckAllFieldsAreMapped(t, auth.Application{}, dbApplication{})
-	utils.CheckAllFieldsAreMapped(t, auth.Provider{}, dbProvider{})
-	utils.CheckAllFieldsAreMapped(t, auth.User{}, dbUser{})
-	utils.CheckAllFieldsAreMapped(t, auth.Daemon{}, dbDaemon{})
-	utils.CheckAllFieldsAreMapped(t, auth.APIKey{}, dbAPIKey{})
+	utils.CheckAllFieldsAreMapped(t, admin.Application{}, dbApplication{})
+	utils.CheckAllFieldsAreMapped(t, admin.Provider{}, dbProvider{})
+	utils.CheckAllFieldsAreMapped(t, admin.User{}, dbUser{})
+	utils.CheckAllFieldsAreMapped(t, admin.Daemon{}, dbDaemon{})
+	utils.CheckAllFieldsAreMapped(t, admin.APIKey{}, dbAPIKey{})
 
-	utils.CheckAllFieldsAreMapped(t, dbApplication{}, auth.Application{})
-	utils.CheckAllFieldsAreMapped(t, dbProvider{}, auth.Provider{})
-	utils.CheckAllFieldsAreMapped(t, dbUser{}, auth.User{})
-	utils.CheckAllFieldsAreMapped(t, dbDaemon{}, auth.Daemon{})
-	utils.CheckAllFieldsAreMapped(t, dbAPIKey{}, auth.APIKey{})
+	utils.CheckAllFieldsAreMapped(t, dbApplication{}, admin.Application{})
+	utils.CheckAllFieldsAreMapped(t, dbProvider{}, admin.Provider{})
+	utils.CheckAllFieldsAreMapped(t, dbUser{}, admin.User{})
+	utils.CheckAllFieldsAreMapped(t, dbDaemon{}, admin.Daemon{})
+	utils.CheckAllFieldsAreMapped(t, dbAPIKey{}, admin.APIKey{})
 }
 
 func Test_mapApplication(t *testing.T) {
 	t.Parallel()
 
-	from := auth.Application{
+	from := admin.Application{
 		ID:          "app1",
 		Code:        "app1",
 		Name:        "Application 1",
@@ -52,10 +52,10 @@ func Test_mapApplication(t *testing.T) {
 func Test_mapProvider(t *testing.T) {
 	t.Parallel()
 
-	from := auth.Provider{
+	from := admin.Provider{
 		ID:            "provider1",
 		ApplicationID: "app1",
-		Type:          auth.ProviderTypeGoogle,
+		Type:          admin.ProviderTypeGoogle,
 		Code:          "google",
 		Name:          "Google",
 		Description:   "Google Description",
@@ -88,15 +88,15 @@ func Test_mapProvider(t *testing.T) {
 func Test_mapUser(t *testing.T) {
 	t.Parallel()
 
-	from := auth.User{
+	from := admin.User{
 		ID:            "user1",
 		ApplicationID: "app1",
 		Username:      "user1",
 		Email:         "user@somedomain.com",
 		Description:   "User 1",
 		Enabled:       true,
-		Role:          auth.SystemRoleManager,
-		APIKeys:       []auth.APIKey{{}},
+		Role:          admin.SystemRoleManager,
+		APIKeys:       []admin.APIKey{{}},
 	}
 
 	expected := dbUser{
@@ -120,14 +120,14 @@ func Test_mapUser(t *testing.T) {
 func Test_mapDaemon(t *testing.T) {
 	t.Parallel()
 
-	from := auth.Daemon{
+	from := admin.Daemon{
 		ID:            "daemon1",
 		ApplicationID: "app1",
 		Code:          "daemon1",
 		Name:          "Daemon 1",
 		Description:   "Daemon 1",
 		Enabled:       true,
-		APIKeys:       []auth.APIKey{{}},
+		APIKeys:       []admin.APIKey{{}},
 	}
 
 	expected := dbDaemon{
@@ -152,7 +152,7 @@ func Test_mapAPIKey(t *testing.T) {
 
 	now := time.Now().Round(time.Second)
 
-	from := auth.APIKey{
+	from := admin.APIKey{
 		Name:        "Key 1",
 		Description: "Key 1",
 		Enabled:     true,

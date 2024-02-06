@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/energimind/identity-service/core/api"
 	"github.com/energimind/identity-service/core/api/handler"
-	"github.com/energimind/identity-service/core/appl/service/auth"
+	"github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/appl/service/login"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/cache"
@@ -24,11 +24,11 @@ func setupHandlers(
 	userRepo := repository.NewUserRepository(mongoDB)
 	daemonRepo := repository.NewDaemonRepository(mongoDB)
 
-	applicationService := auth.NewApplicationService(applicationRepo, idGen)
-	providerService := auth.NewProviderService(providerRepo, idGen)
-	userService := auth.NewUserService(userRepo, idGen)
-	daemonService := auth.NewDaemonService(daemonRepo, idGen)
-	providerLookupService := auth.NewProviderLookupService(applicationService, providerService)
+	applicationService := admin.NewApplicationService(applicationRepo, idGen)
+	providerService := admin.NewProviderService(providerRepo, idGen)
+	userService := admin.NewUserService(userRepo, idGen)
+	daemonService := admin.NewDaemonService(daemonRepo, idGen)
+	providerLookupService := admin.NewProviderLookupService(applicationService, providerService)
 	sessionService := login.NewSessionService(providerLookupService, shortIDGen, cache)
 
 	handlers := api.Handlers{

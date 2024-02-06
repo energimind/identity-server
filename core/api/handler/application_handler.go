@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/energimind/identity-service/core/api/dto"
-	service "github.com/energimind/identity-service/core/appl/service/auth"
+	service "github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
@@ -47,7 +47,7 @@ func (h *ApplicationHandler) findByID(c *gin.Context) {
 	id := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	application, err := h.service.GetApplication(c, actor, auth.ID(id))
+	application, err := h.service.GetApplication(c, actor, admin.ID(id))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -106,7 +106,7 @@ func (h *ApplicationHandler) delete(c *gin.Context) {
 	id := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	if err := h.service.DeleteApplication(c, actor, auth.ID(id)); err != nil {
+	if err := h.service.DeleteApplication(c, actor, admin.ID(id)); err != nil {
 		_ = c.Error(err)
 
 		return

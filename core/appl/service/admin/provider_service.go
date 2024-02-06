@@ -1,26 +1,26 @@
-package auth
+package admin
 
 import (
 	"context"
 
 	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 )
 
 // ProviderService is a service for managing providers.
 //
-// It implements the auth.ProviderService interface.
+// It implements the admin.ProviderService interface.
 //
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
 type ProviderService struct {
-	repo  auth.ProviderRepository
+	repo  admin.ProviderRepository
 	idgen domain.IDGenerator
 }
 
 // NewProviderService returns a new ProviderService instance.
 func NewProviderService(
-	repo auth.ProviderRepository,
+	repo admin.ProviderRepository,
 	idgen domain.IDGenerator,
 ) *ProviderService {
 	return &ProviderService{
@@ -29,21 +29,21 @@ func NewProviderService(
 	}
 }
 
-// Ensure service implements the auth.ProviderService interface.
-var _ auth.ProviderService = (*ProviderService)(nil)
+// Ensure service implements the admin.ProviderService interface.
+var _ admin.ProviderService = (*ProviderService)(nil)
 
-// GetProviders implements the auth.ProviderService interface.
+// GetProviders implements the admin.ProviderService interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *ProviderService) GetProviders(
 	ctx context.Context,
-	actor auth.Actor,
-	appID auth.ID,
-) ([]auth.Provider, error) {
+	actor admin.Actor,
+	appID admin.ID,
+) ([]admin.Provider, error) {
 	switch actor.Role {
-	case auth.SystemRoleUser:
+	case admin.SystemRoleUser:
 		return nil, domain.NewAccessDeniedError("user %s cannot get providers", actor.UserID)
-	case auth.SystemRoleManager:
+	case admin.SystemRoleManager:
 		if actor.ApplicationID != appID {
 			return nil, domain.NewAccessDeniedError("manager %s cannot get providers for application %s", actor.UserID, appID)
 		}
@@ -54,140 +54,140 @@ func (s *ProviderService) GetProviders(
 		}
 
 		return providers, nil
-	case auth.SystemRoleAdmin:
+	case admin.SystemRoleAdmin:
 		providers, err := s.repo.GetProviders(ctx, appID)
 		if err != nil {
 			return nil, err
 		}
 
 		return providers, nil
-	case auth.SystemRoleNone:
+	case admin.SystemRoleNone:
 		return nil, domain.NewAccessDeniedError("anonymous user cannot get providers")
 	default:
 		return nil, domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
 	}
 }
 
-// GetProvider implements the auth.ProviderService interface.
+// GetProvider implements the admin.ProviderService interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *ProviderService) GetProvider(
 	ctx context.Context,
-	actor auth.Actor,
-	appID, id auth.ID,
-) (auth.Provider, error) {
+	actor admin.Actor,
+	appID, id admin.ID,
+) (admin.Provider, error) {
 	switch actor.Role {
-	case auth.SystemRoleUser:
-		return auth.Provider{}, domain.NewAccessDeniedError("user %s cannot get provider %s", actor.UserID, id)
-	case auth.SystemRoleManager:
+	case admin.SystemRoleUser:
+		return admin.Provider{}, domain.NewAccessDeniedError("user %s cannot get provider %s", actor.UserID, id)
+	case admin.SystemRoleManager:
 		if actor.ApplicationID != appID {
-			return auth.Provider{}, domain.NewAccessDeniedError("manager %s cannot get provider %s", actor.UserID, id)
+			return admin.Provider{}, domain.NewAccessDeniedError("manager %s cannot get provider %s", actor.UserID, id)
 		}
 
 		provider, err := s.repo.GetProvider(ctx, appID, id)
 		if err != nil {
-			return auth.Provider{}, err
+			return admin.Provider{}, err
 		}
 
 		return provider, nil
-	case auth.SystemRoleAdmin:
+	case admin.SystemRoleAdmin:
 		user, err := s.repo.GetProvider(ctx, appID, id)
 		if err != nil {
-			return auth.Provider{}, err
+			return admin.Provider{}, err
 		}
 
 		return user, nil
-	case auth.SystemRoleNone:
-		return auth.Provider{}, domain.NewAccessDeniedError("anonymous user cannot get provider %s", id)
+	case admin.SystemRoleNone:
+		return admin.Provider{}, domain.NewAccessDeniedError("anonymous user cannot get provider %s", id)
 	default:
-		return auth.Provider{}, domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
+		return admin.Provider{}, domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
 	}
 }
 
-// CreateProvider implements the auth.ProviderService interface.
+// CreateProvider implements the admin.ProviderService interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *ProviderService) CreateProvider(
 	ctx context.Context,
-	actor auth.Actor,
-	provider auth.Provider,
-) (auth.Provider, error) {
+	actor admin.Actor,
+	provider admin.Provider,
+) (admin.Provider, error) {
 	switch actor.Role {
-	case auth.SystemRoleUser:
-		return auth.Provider{}, domain.NewAccessDeniedError("user %s cannot create provider", actor.UserID)
-	case auth.SystemRoleManager:
+	case admin.SystemRoleUser:
+		return admin.Provider{}, domain.NewAccessDeniedError("user %s cannot create provider", actor.UserID)
+	case admin.SystemRoleManager:
 		if actor.ApplicationID != provider.ApplicationID {
-			return auth.Provider{}, domain.NewAccessDeniedError("manager %s cannot create provider", actor.UserID)
+			return admin.Provider{}, domain.NewAccessDeniedError("manager %s cannot create provider", actor.UserID)
 		}
 
-		provider.ID = auth.ID(s.idgen.GenerateID())
+		provider.ID = admin.ID(s.idgen.GenerateID())
 
 		if err := s.repo.CreateProvider(ctx, provider); err != nil {
-			return auth.Provider{}, err
+			return admin.Provider{}, err
 		}
 
 		return provider, nil
-	case auth.SystemRoleAdmin:
-		provider.ID = auth.ID(s.idgen.GenerateID())
+	case admin.SystemRoleAdmin:
+		provider.ID = admin.ID(s.idgen.GenerateID())
 
 		if err := s.repo.CreateProvider(ctx, provider); err != nil {
-			return auth.Provider{}, err
+			return admin.Provider{}, err
 		}
 
 		return provider, nil
-	case auth.SystemRoleNone:
-		return auth.Provider{}, domain.NewAccessDeniedError("anonymous user cannot create provider")
+	case admin.SystemRoleNone:
+		return admin.Provider{}, domain.NewAccessDeniedError("anonymous user cannot create provider")
 	default:
-		return auth.Provider{}, domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
+		return admin.Provider{}, domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
 	}
 }
 
-// UpdateProvider implements the auth.ProviderService interface.
+// UpdateProvider implements the admin.ProviderService interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *ProviderService) UpdateProvider(
 	ctx context.Context,
-	actor auth.Actor,
-	provider auth.Provider,
-) (auth.Provider, error) {
+	actor admin.Actor,
+	provider admin.Provider,
+) (admin.Provider, error) {
 	switch actor.Role {
-	case auth.SystemRoleUser:
-		return auth.Provider{}, domain.NewAccessDeniedError("user %s cannot update provider %s", actor.UserID, provider.ID)
-	case auth.SystemRoleManager:
+	case admin.SystemRoleUser:
+		return admin.Provider{}, domain.NewAccessDeniedError("user %s cannot update provider %s", actor.UserID, provider.ID)
+	case admin.SystemRoleManager:
 		if actor.ApplicationID != provider.ApplicationID {
-			return auth.Provider{}, domain.NewAccessDeniedError("manager %s cannot update provider %s", actor.UserID, provider.ID)
+			return admin.Provider{}, domain.NewAccessDeniedError("manager %s cannot update provider %s", actor.UserID, provider.ID)
 		}
 
 		if err := s.repo.UpdateProvider(ctx, provider); err != nil {
-			return auth.Provider{}, err
+			return admin.Provider{}, err
 		}
 
 		return provider, nil
-	case auth.SystemRoleAdmin:
+	case admin.SystemRoleAdmin:
 		if err := s.repo.UpdateProvider(ctx, provider); err != nil {
-			return auth.Provider{}, err
+			return admin.Provider{}, err
 		}
 
 		return provider, nil
-	case auth.SystemRoleNone:
-		return auth.Provider{}, domain.NewAccessDeniedError("anonymous user cannot update provider %s", provider.ID)
+	case admin.SystemRoleNone:
+		return admin.Provider{}, domain.NewAccessDeniedError("anonymous user cannot update provider %s", provider.ID)
 	default:
-		return auth.Provider{}, domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
+		return admin.Provider{}, domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
 	}
 }
 
-// DeleteProvider implements the auth.ProviderService interface.
+// DeleteProvider implements the admin.ProviderService interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *ProviderService) DeleteProvider(
 	ctx context.Context,
-	actor auth.Actor,
-	appID, id auth.ID,
+	actor admin.Actor,
+	appID, id admin.ID,
 ) error {
 	switch actor.Role {
-	case auth.SystemRoleUser:
+	case admin.SystemRoleUser:
 		return domain.NewAccessDeniedError("user %s cannot delete provider %s", actor.UserID, id)
-	case auth.SystemRoleManager:
+	case admin.SystemRoleManager:
 		if actor.ApplicationID != appID {
 			return domain.NewAccessDeniedError("manager %s cannot delete provider %s", actor.UserID, id)
 		}
@@ -197,13 +197,13 @@ func (s *ProviderService) DeleteProvider(
 		}
 
 		return nil
-	case auth.SystemRoleAdmin:
+	case admin.SystemRoleAdmin:
 		if err := s.repo.DeleteProvider(ctx, appID, id); err != nil {
 			return err
 		}
 
 		return nil
-	case auth.SystemRoleNone:
+	case admin.SystemRoleNone:
 		return domain.NewAccessDeniedError("anonymous user cannot delete provider %s", id)
 	default:
 		return domain.NewAccessDeniedError("unknown actor role %s", actor.Role)

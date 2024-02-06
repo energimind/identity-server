@@ -1,57 +1,57 @@
 package repository
 
 import (
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 )
 
-func toProviderType(t auth.ProviderType) dbProviderType {
+func toProviderType(t admin.ProviderType) dbProviderType {
 	switch t {
-	case auth.ProviderTypeNone:
+	case admin.ProviderTypeNone:
 		return dbProviderTypeNone
-	case auth.ProviderTypeGoogle:
+	case admin.ProviderTypeGoogle:
 		return dbProviderTypeGoogle
 	default:
 		return dbProviderTypeNone
 	}
 }
 
-func fromProviderType(t dbProviderType) auth.ProviderType {
+func fromProviderType(t dbProviderType) admin.ProviderType {
 	switch t {
 	case dbProviderTypeNone:
-		return auth.ProviderTypeNone
+		return admin.ProviderTypeNone
 	case dbProviderTypeGoogle:
-		return auth.ProviderTypeGoogle
+		return admin.ProviderTypeGoogle
 	default:
-		return auth.ProviderTypeNone
+		return admin.ProviderTypeNone
 	}
 }
 
-func toSystemRole(r auth.SystemRole) dbSystemRole {
+func toSystemRole(r admin.SystemRole) dbSystemRole {
 	switch r {
-	case auth.SystemRoleNone:
+	case admin.SystemRoleNone:
 		return dbSystemRoleNone
-	case auth.SystemRoleUser:
+	case admin.SystemRoleUser:
 		return dbSystemRoleUser
-	case auth.SystemRoleManager:
+	case admin.SystemRoleManager:
 		return dbSystemRoleManager
-	case auth.SystemRoleAdmin:
+	case admin.SystemRoleAdmin:
 		return dbSystemRoleAdmin
 	default:
 		return dbSystemRoleNone
 	}
 }
 
-func fromSystemRole(r dbSystemRole) auth.SystemRole {
+func fromSystemRole(r dbSystemRole) admin.SystemRole {
 	switch r {
 	case dbSystemRoleNone:
-		return auth.SystemRoleNone
+		return admin.SystemRoleNone
 	case dbSystemRoleUser:
-		return auth.SystemRoleUser
+		return admin.SystemRoleUser
 	case dbSystemRoleManager:
-		return auth.SystemRoleManager
+		return admin.SystemRoleManager
 	case dbSystemRoleAdmin:
-		return auth.SystemRoleAdmin
+		return admin.SystemRoleAdmin
 	default:
-		return auth.SystemRoleNone
+		return admin.SystemRoleNone
 	}
 }

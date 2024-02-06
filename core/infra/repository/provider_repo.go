@@ -5,12 +5,12 @@ import (
 	"errors"
 
 	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// ProviderRepository is a MongoDB implementation of auth.ProviderRepository.
+// ProviderRepository is a MongoDB implementation of admin.ProviderRepository.
 type ProviderRepository struct {
 	db *mongo.Database
 }
@@ -20,14 +20,14 @@ func NewProviderRepository(db *mongo.Database) *ProviderRepository {
 	return &ProviderRepository{db: db}
 }
 
-// Ensure repository implements the auth.ProviderRepository interface.
-var _ auth.ProviderRepository = (*ProviderRepository)(nil)
+// Ensure repository implements the admin.ProviderRepository interface.
+var _ admin.ProviderRepository = (*ProviderRepository)(nil)
 
-// GetProviders implements the auth.ProviderRepository interface.
+// GetProviders implements the admin.ProviderRepository interface.
 func (r *ProviderRepository) GetProviders(
 	ctx context.Context,
-	appID auth.ID,
-) ([]auth.Provider, error) {
+	appID admin.ID,
+) ([]admin.Provider, error) {
 	coll := r.db.Collection("providers")
 	qFilter := bson.M{"applicationId": appID}
 
@@ -44,30 +44,30 @@ func (r *ProviderRepository) GetProviders(
 	return providers, nil
 }
 
-// GetProvider implements the auth.ProviderRepository interface.
+// GetProvider implements the admin.ProviderRepository interface.
 func (r *ProviderRepository) GetProvider(
 	ctx context.Context,
-	appID, id auth.ID,
-) (auth.Provider, error) {
+	appID, id admin.ID,
+) (admin.Provider, error) {
 	coll := r.db.Collection("providers")
 	qFilter := bson.M{"id": id, "applicationId": appID}
 	provider := dbProvider{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&provider); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return auth.Provider{}, domain.NewNotFoundError("provider %v not found", id)
+			return admin.Provider{}, domain.NewNotFoundError("provider %v not found", id)
 		}
 
-		return auth.Provider{}, domain.NewStoreError("failed to get provider: %v", err)
+		return admin.Provider{}, domain.NewStoreError("failed to get provider: %v", err)
 	}
 
 	return fromProvider(provider), nil
 }
 
-// CreateProvider implements the auth.ProviderRepository interface.
+// CreateProvider implements the admin.ProviderRepository interface.
 func (r *ProviderRepository) CreateProvider(
 	ctx context.Context,
-	provider auth.Provider,
+	provider admin.Provider,
 ) error {
 	coll := r.db.Collection("providers")
 
@@ -78,10 +78,10 @@ func (r *ProviderRepository) CreateProvider(
 	return nil
 }
 
-// UpdateProvider implements the auth.ProviderRepository interface.
+// UpdateProvider implements the admin.ProviderRepository interface.
 func (r *ProviderRepository) UpdateProvider(
 	ctx context.Context,
-	provider auth.Provider,
+	provider admin.Provider,
 ) error {
 	coll := r.db.Collection("providers")
 	qFilter := bson.M{"id": provider.ID}
@@ -99,10 +99,10 @@ func (r *ProviderRepository) UpdateProvider(
 	return nil
 }
 
-// DeleteProvider implements the auth.ProviderRepository interface.
+// DeleteProvider implements the admin.ProviderRepository interface.
 func (r *ProviderRepository) DeleteProvider(
 	ctx context.Context,
-	appID, id auth.ID,
+	appID, id admin.ID,
 ) error {
 	coll := r.db.Collection("providers")
 	qFilter := bson.M{"id": id, "applicationId": appID}

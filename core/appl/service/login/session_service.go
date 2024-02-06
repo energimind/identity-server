@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/domain/cache"
 	"github.com/energimind/identity-service/core/domain/session"
 	"github.com/energimind/identity-service/core/infra/logger"
@@ -20,14 +20,14 @@ const sessionTTL = 24 * 7 * time.Hour
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
 type SessionService struct {
-	providerLookupService auth.ProviderLookupService
+	providerLookupService admin.ProviderLookupService
 	idgen                 domain.IDGenerator
 	cache                 cache.Cache
 }
 
 // NewSessionService returns a new SessionService instance.
 func NewSessionService(
-	providerLookupService auth.ProviderLookupService,
+	providerLookupService admin.ProviderLookupService,
 	idgen domain.IDGenerator,
 	cache cache.Cache,
 ) *SessionService {

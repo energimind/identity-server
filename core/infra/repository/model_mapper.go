@@ -1,16 +1,16 @@
 package repository
 
-import "github.com/energimind/identity-service/core/domain/auth"
+import "github.com/energimind/identity-service/core/domain/admin"
 
-func toID(id auth.ID) string {
+func toID(id admin.ID) string {
 	return id.String()
 }
 
-func fromID(id string) auth.ID {
-	return auth.ID(id)
+func fromID(id string) admin.ID {
+	return admin.ID(id)
 }
 
-func toApplication(app auth.Application) dbApplication {
+func toApplication(app admin.Application) dbApplication {
 	return dbApplication{
 		ID:          toID(app.ID),
 		Code:        app.Code,
@@ -20,8 +20,8 @@ func toApplication(app auth.Application) dbApplication {
 	}
 }
 
-func fromApplication(app dbApplication) auth.Application {
-	return auth.Application{
+func fromApplication(app dbApplication) admin.Application {
+	return admin.Application{
 		ID:          fromID(app.ID),
 		Code:        app.Code,
 		Name:        app.Name,
@@ -30,7 +30,7 @@ func fromApplication(app dbApplication) auth.Application {
 	}
 }
 
-func toProvider(provider auth.Provider) dbProvider {
+func toProvider(provider admin.Provider) dbProvider {
 	return dbProvider{
 		ID:            toID(provider.ID),
 		ApplicationID: toID(provider.ApplicationID),
@@ -45,8 +45,8 @@ func toProvider(provider auth.Provider) dbProvider {
 	}
 }
 
-func fromProvider(provider dbProvider) auth.Provider {
-	return auth.Provider{
+func fromProvider(provider dbProvider) admin.Provider {
+	return admin.Provider{
 		ID:            fromID(provider.ID),
 		ApplicationID: fromID(provider.ApplicationID),
 		Type:          fromProviderType(provider.Type),
@@ -60,7 +60,7 @@ func fromProvider(provider dbProvider) auth.Provider {
 	}
 }
 
-func toUser(user auth.User) dbUser {
+func toUser(user admin.User) dbUser {
 	return dbUser{
 		ID:            toID(user.ID),
 		ApplicationID: toID(user.ApplicationID),
@@ -74,8 +74,8 @@ func toUser(user auth.User) dbUser {
 	}
 }
 
-func fromUser(user dbUser) auth.User {
-	return auth.User{
+func fromUser(user dbUser) admin.User {
+	return admin.User{
 		ID:            fromID(user.ID),
 		ApplicationID: fromID(user.ApplicationID),
 		Username:      user.Username,
@@ -88,7 +88,7 @@ func fromUser(user dbUser) auth.User {
 	}
 }
 
-func toDaemon(daemon auth.Daemon) dbDaemon {
+func toDaemon(daemon admin.Daemon) dbDaemon {
 	return dbDaemon{
 		ID:            toID(daemon.ID),
 		ApplicationID: toID(daemon.ApplicationID),
@@ -100,8 +100,8 @@ func toDaemon(daemon auth.Daemon) dbDaemon {
 	}
 }
 
-func fromDaemon(daemon dbDaemon) auth.Daemon {
-	return auth.Daemon{
+func fromDaemon(daemon dbDaemon) admin.Daemon {
+	return admin.Daemon{
 		ID:            fromID(daemon.ID),
 		ApplicationID: fromID(daemon.ApplicationID),
 		Code:          daemon.Code,
@@ -112,7 +112,7 @@ func fromDaemon(daemon dbDaemon) auth.Daemon {
 	}
 }
 
-func toAPIKey(apiKey auth.APIKey) dbAPIKey {
+func toAPIKey(apiKey admin.APIKey) dbAPIKey {
 	return dbAPIKey{
 		Name:        apiKey.Name,
 		Description: apiKey.Description,
@@ -122,8 +122,8 @@ func toAPIKey(apiKey auth.APIKey) dbAPIKey {
 	}
 }
 
-func fromAPIKey(apiKey dbAPIKey) auth.APIKey {
-	return auth.APIKey{
+func fromAPIKey(apiKey dbAPIKey) admin.APIKey {
+	return admin.APIKey{
 		Name:        apiKey.Name,
 		Description: apiKey.Description,
 		Enabled:     apiKey.Enabled,

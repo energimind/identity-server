@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/infra/repository"
 	"github.com/energimind/identity-service/core/test/utils"
 )
@@ -17,47 +17,47 @@ func TestDaemonRepository_CRUD(t *testing.T) {
 	defer closer()
 
 	repo := repository.NewDaemonRepository(db)
-	appID := auth.ID("1")
+	appID := admin.ID("1")
 
-	utils.RunCRUDTests(t, utils.CRUDSetup[auth.Daemon, auth.ID]{
-		GetAll: func(ctx context.Context) ([]auth.Daemon, error) {
+	utils.RunCRUDTests(t, utils.CRUDSetup[admin.Daemon, admin.ID]{
+		GetAll: func(ctx context.Context) ([]admin.Daemon, error) {
 			return repo.GetDaemons(ctx, appID)
 		},
-		GetByID: func(ctx context.Context, id auth.ID) (auth.Daemon, error) {
+		GetByID: func(ctx context.Context, id admin.ID) (admin.Daemon, error) {
 			return repo.GetDaemon(ctx, appID, id)
 		},
-		Create: func(ctx context.Context, user auth.Daemon) error {
+		Create: func(ctx context.Context, user admin.Daemon) error {
 			return repo.CreateDaemon(ctx, user)
 		},
-		Update: func(ctx context.Context, user auth.Daemon) error {
+		Update: func(ctx context.Context, user admin.Daemon) error {
 			return repo.UpdateDaemon(ctx, user)
 		},
-		Delete: func(ctx context.Context, id auth.ID) error {
+		Delete: func(ctx context.Context, id admin.ID) error {
 			return repo.DeleteDaemon(ctx, appID, id)
 		},
-		NewEntity: func(key int) auth.Daemon {
-			return auth.Daemon{
-				ID:            auth.ID(strconv.Itoa(key)),
+		NewEntity: func(key int) admin.Daemon {
+			return admin.Daemon{
+				ID:            admin.ID(strconv.Itoa(key)),
 				ApplicationID: appID,
 				Code:          "daemon",
 				Name:          "Daemon",
 				Description:   "Daemon description",
 				Enabled:       true,
-				APIKeys:       []auth.APIKey{{}},
+				APIKeys:       []admin.APIKey{{}},
 			}
 		},
-		ModifyEntity: func(user auth.Daemon) auth.Daemon {
+		ModifyEntity: func(user admin.Daemon) admin.Daemon {
 			user.Name = "Daemon 2"
 
 			return user
 		},
-		UnboundEntity: func() auth.Daemon {
-			return auth.Daemon{ID: ""}
+		UnboundEntity: func() admin.Daemon {
+			return admin.Daemon{ID: ""}
 		},
-		ExtractKey: func(user auth.Daemon) auth.ID {
+		ExtractKey: func(user admin.Daemon) admin.ID {
 			return user.ID
 		},
-		MissingKey: func() auth.ID {
+		MissingKey: func() admin.ID {
 			return "missing"
 		},
 	})

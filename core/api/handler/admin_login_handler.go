@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/energimind/identity-service/core/api"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 )
@@ -15,14 +15,14 @@ const cookieName = "sessionKey"
 
 // UserFinder is an interface for finding users.
 type UserFinder interface {
-	GetUserByEmail(ctx context.Context, actor auth.Actor, appID auth.ID, email string) (auth.User, error)
+	GetUserByEmail(ctx context.Context, actor admin.Actor, appID admin.ID, email string) (admin.User, error)
 }
 
 // AdminLoginHandler handles admin login requests.
 type AdminLoginHandler struct {
 	authEndpoint   string
 	userFinder     UserFinder
-	cookieProvider auth.CookieProvider
+	cookieProvider admin.CookieProvider
 	client         *resty.Client
 }
 
@@ -30,7 +30,7 @@ type AdminLoginHandler struct {
 func NewAdminLoginHandler(
 	authEndpoint string,
 	userFinder UserFinder,
-	cookieProvider auth.CookieProvider,
+	cookieProvider admin.CookieProvider,
 ) *AdminLoginHandler {
 	const clientTimeout = 10 * time.Second
 
@@ -103,7 +103,7 @@ func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
 	user, err := h.userFinder.GetUserByEmail(
 		c.Request.Context(),
 		adminActor,
-		auth.ID(completeResult.ApplicationID),
+		admin.ID(completeResult.ApplicationID),
 		completeResult.UserInfo.Email,
 	)
 	if err != nil {
@@ -112,7 +112,7 @@ func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
 		return
 	}
 
-	us := auth.NewUserSession(
+	us := admin.NewUserSession(
 		completeResult.SessionID,
 		completeResult.ApplicationID,
 		user.ID.String(),

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/infra/repository"
 	"github.com/energimind/identity-service/core/test/utils"
 )
@@ -17,29 +17,29 @@ func TestProviderRepository_CRUD(t *testing.T) {
 	defer closer()
 
 	repo := repository.NewProviderRepository(db)
-	appID := auth.ID("1")
+	appID := admin.ID("1")
 
-	utils.RunCRUDTests(t, utils.CRUDSetup[auth.Provider, auth.ID]{
-		GetAll: func(ctx context.Context) ([]auth.Provider, error) {
+	utils.RunCRUDTests(t, utils.CRUDSetup[admin.Provider, admin.ID]{
+		GetAll: func(ctx context.Context) ([]admin.Provider, error) {
 			return repo.GetProviders(ctx, appID)
 		},
-		GetByID: func(ctx context.Context, id auth.ID) (auth.Provider, error) {
+		GetByID: func(ctx context.Context, id admin.ID) (admin.Provider, error) {
 			return repo.GetProvider(ctx, appID, id)
 		},
-		Create: func(ctx context.Context, provider auth.Provider) error {
+		Create: func(ctx context.Context, provider admin.Provider) error {
 			return repo.CreateProvider(ctx, provider)
 		},
-		Update: func(ctx context.Context, provider auth.Provider) error {
+		Update: func(ctx context.Context, provider admin.Provider) error {
 			return repo.UpdateProvider(ctx, provider)
 		},
-		Delete: func(ctx context.Context, id auth.ID) error {
+		Delete: func(ctx context.Context, id admin.ID) error {
 			return repo.DeleteProvider(ctx, appID, id)
 		},
-		NewEntity: func(key int) auth.Provider {
-			return auth.Provider{
-				ID:            auth.ID(strconv.Itoa(key)),
+		NewEntity: func(key int) admin.Provider {
+			return admin.Provider{
+				ID:            admin.ID(strconv.Itoa(key)),
 				ApplicationID: appID,
-				Type:          auth.ProviderTypeGoogle,
+				Type:          admin.ProviderTypeGoogle,
 				Code:          "google",
 				Name:          "Google",
 				Description:   "Google",
@@ -49,21 +49,21 @@ func TestProviderRepository_CRUD(t *testing.T) {
 				RedirectURL:   "https://example.com",
 			}
 		},
-		ModifyEntity: func(provider auth.Provider) auth.Provider {
+		ModifyEntity: func(provider admin.Provider) admin.Provider {
 			provider.Name = "Google 2"
 
 			return provider
 		},
-		UnboundEntity: func() auth.Provider {
-			return auth.Provider{
+		UnboundEntity: func() admin.Provider {
+			return admin.Provider{
 				ID:   "",
-				Type: auth.ProviderTypeGoogle,
+				Type: admin.ProviderTypeGoogle,
 			}
 		},
-		ExtractKey: func(provider auth.Provider) auth.ID {
+		ExtractKey: func(provider admin.Provider) admin.ID {
 			return provider.ID
 		},
-		MissingKey: func() auth.ID {
+		MissingKey: func() admin.ID {
 			return "missing"
 		},
 	})

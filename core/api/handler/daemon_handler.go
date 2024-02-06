@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/energimind/identity-service/core/api/dto"
-	service "github.com/energimind/identity-service/core/appl/service/auth"
+	service "github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/auth"
+	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
@@ -34,7 +34,7 @@ func (h *DaemonHandler) findAll(c *gin.Context) {
 	appID := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	daemonss, err := h.service.GetDaemons(c, actor, auth.ID(appID))
+	daemonss, err := h.service.GetDaemons(c, actor, admin.ID(appID))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -49,7 +49,7 @@ func (h *DaemonHandler) findByID(c *gin.Context) {
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	daemons, err := h.service.GetDaemon(c, actor, auth.ID(appID), auth.ID(id))
+	daemons, err := h.service.GetDaemon(c, actor, admin.ID(appID), admin.ID(id))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -73,7 +73,7 @@ func (h *DaemonHandler) create(c *gin.Context) {
 
 	daemons := dto.ToDaemon(dtoDaemon)
 
-	daemons.ApplicationID = auth.ID(appID)
+	daemons.ApplicationID = admin.ID(appID)
 
 	daemons, err := h.service.CreateDaemon(c, actor, daemons)
 	if err != nil {
@@ -100,8 +100,8 @@ func (h *DaemonHandler) update(c *gin.Context) {
 
 	daemons := dto.ToDaemon(dtoDaemon)
 
-	daemons.ID = auth.ID(id)
-	daemons.ApplicationID = auth.ID(appID)
+	daemons.ID = admin.ID(id)
+	daemons.ApplicationID = admin.ID(appID)
 
 	daemons, err := h.service.UpdateDaemon(c, actor, daemons)
 	if err != nil {
@@ -118,7 +118,7 @@ func (h *DaemonHandler) delete(c *gin.Context) {
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	if err := h.service.DeleteDaemon(c, actor, auth.ID(appID), auth.ID(id)); err != nil {
+	if err := h.service.DeleteDaemon(c, actor, admin.ID(appID), admin.ID(id)); err != nil {
 		_ = c.Error(err)
 
 		return

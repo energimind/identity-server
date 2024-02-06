@@ -1,9 +1,9 @@
 package dto
 
-import "github.com/energimind/identity-service/core/domain/auth"
+import "github.com/energimind/identity-service/core/domain/admin"
 
 // FromApplication converts a domain application to a DTO application.
-func FromApplication(app auth.Application) Application {
+func FromApplication(app admin.Application) Application {
 	return Application{
 		ID:          string(app.ID),
 		Code:        app.Code,
@@ -14,7 +14,7 @@ func FromApplication(app auth.Application) Application {
 }
 
 // FromApplications converts a slice of domain applications to a slice of DTO applications.
-func FromApplications(apps []auth.Application) []Application {
+func FromApplications(apps []admin.Application) []Application {
 	dtos := make([]Application, len(apps))
 
 	for i, app := range apps {
@@ -25,9 +25,9 @@ func FromApplications(apps []auth.Application) []Application {
 }
 
 // ToApplication converts a DTO application to a domain application.
-func ToApplication(app Application) auth.Application {
-	return auth.Application{
-		ID:          auth.ID(app.ID),
+func ToApplication(app Application) admin.Application {
+	return admin.Application{
+		ID:          admin.ID(app.ID),
 		Code:        app.Code,
 		Name:        app.Name,
 		Description: app.Description,
@@ -36,7 +36,7 @@ func ToApplication(app Application) auth.Application {
 }
 
 // FromProvider converts a domain provider to a DTO provider.
-func FromProvider(provider auth.Provider) Provider {
+func FromProvider(provider admin.Provider) Provider {
 	return Provider{
 		ID:           string(provider.ID),
 		Type:         string(provider.Type),
@@ -51,7 +51,7 @@ func FromProvider(provider auth.Provider) Provider {
 }
 
 // FromProviders converts a slice of domain providers to a slice of DTO providers.
-func FromProviders(providers []auth.Provider) []Provider {
+func FromProviders(providers []admin.Provider) []Provider {
 	dtos := make([]Provider, len(providers))
 
 	for i, provider := range providers {
@@ -62,10 +62,10 @@ func FromProviders(providers []auth.Provider) []Provider {
 }
 
 // ToProvider converts a DTO provider to a domain provider.
-func ToProvider(provider Provider) auth.Provider {
-	return auth.Provider{
-		ID:           auth.ID(provider.ID),
-		Type:         auth.ProviderType(provider.Type),
+func ToProvider(provider Provider) admin.Provider {
+	return admin.Provider{
+		ID:           admin.ID(provider.ID),
+		Type:         admin.ProviderType(provider.Type),
 		Code:         provider.Code,
 		Name:         provider.Name,
 		Description:  provider.Description,
@@ -77,7 +77,7 @@ func ToProvider(provider Provider) auth.Provider {
 }
 
 // FromUser converts a domain user to a DTO user.
-func FromUser(user auth.User) User {
+func FromUser(user admin.User) User {
 	return User{
 		ID:          string(user.ID),
 		Username:    user.Username,
@@ -91,7 +91,7 @@ func FromUser(user auth.User) User {
 }
 
 // FromUsers converts a slice of domain users to a slice of DTO users.
-func FromUsers(users []auth.User) []User {
+func FromUsers(users []admin.User) []User {
 	dtos := make([]User, len(users))
 
 	for i, user := range users {
@@ -102,21 +102,21 @@ func FromUsers(users []auth.User) []User {
 }
 
 // ToUser converts a DTO user to a domain user.
-func ToUser(user User) auth.User {
-	return auth.User{
-		ID:          auth.ID(user.ID),
+func ToUser(user User) admin.User {
+	return admin.User{
+		ID:          admin.ID(user.ID),
 		Username:    user.Username,
 		Email:       user.Email,
 		DisplayName: user.DisplayName,
 		Description: user.Description,
 		Enabled:     user.Enabled,
-		Role:        auth.SystemRole(user.Role),
+		Role:        admin.SystemRole(user.Role),
 		APIKeys:     toAPIKeys(user.APIKeys),
 	}
 }
 
 // FromDaemon converts a domain daemon to a DTO daemon.
-func FromDaemon(daemon auth.Daemon) Daemon {
+func FromDaemon(daemon admin.Daemon) Daemon {
 	return Daemon{
 		ID:          string(daemon.ID),
 		Code:        daemon.Code,
@@ -128,7 +128,7 @@ func FromDaemon(daemon auth.Daemon) Daemon {
 }
 
 // FromDaemons converts a slice of domain daemons to a slice of DTO daemons.
-func FromDaemons(daemons []auth.Daemon) []Daemon {
+func FromDaemons(daemons []admin.Daemon) []Daemon {
 	dtos := make([]Daemon, len(daemons))
 
 	for i, daemon := range daemons {
@@ -139,9 +139,9 @@ func FromDaemons(daemons []auth.Daemon) []Daemon {
 }
 
 // ToDaemon converts a DTO daemon to a domain daemon.
-func ToDaemon(daemon Daemon) auth.Daemon {
-	return auth.Daemon{
-		ID:          auth.ID(daemon.ID),
+func ToDaemon(daemon Daemon) admin.Daemon {
+	return admin.Daemon{
+		ID:          admin.ID(daemon.ID),
 		Code:        daemon.Code,
 		Name:        daemon.Name,
 		Description: daemon.Description,
@@ -151,7 +151,7 @@ func ToDaemon(daemon Daemon) auth.Daemon {
 }
 
 // fromAPIKey converts a domain API key to a DTO API key.
-func fromAPIKey(apiKey auth.APIKey) APIKey {
+func fromAPIKey(apiKey admin.APIKey) APIKey {
 	return APIKey{
 		Name:        apiKey.Name,
 		Description: apiKey.Description,
@@ -162,7 +162,7 @@ func fromAPIKey(apiKey auth.APIKey) APIKey {
 }
 
 // fromAPIKeys converts a slice of domain API keys to a slice of DTO API keys.
-func fromAPIKeys(apiKeys []auth.APIKey) []APIKey {
+func fromAPIKeys(apiKeys []admin.APIKey) []APIKey {
 	dtos := make([]APIKey, len(apiKeys))
 
 	for i, apiKey := range apiKeys {
@@ -173,8 +173,8 @@ func fromAPIKeys(apiKeys []auth.APIKey) []APIKey {
 }
 
 // toAPIKey converts a DTO API key to a domain API key.
-func toAPIKey(apiKey APIKey) auth.APIKey {
-	return auth.APIKey{
+func toAPIKey(apiKey APIKey) admin.APIKey {
+	return admin.APIKey{
 		Name:        apiKey.Name,
 		Description: apiKey.Description,
 		Enabled:     apiKey.Enabled,
@@ -184,8 +184,8 @@ func toAPIKey(apiKey APIKey) auth.APIKey {
 }
 
 // toAPIKeys converts a slice of DTO API keys to a slice of domain API keys.
-func toAPIKeys(apiKeys []APIKey) []auth.APIKey {
-	dtos := make([]auth.APIKey, len(apiKeys))
+func toAPIKeys(apiKeys []APIKey) []admin.APIKey {
+	dtos := make([]admin.APIKey, len(apiKeys))
 
 	for i, apiKey := range apiKeys {
 		dtos[i] = toAPIKey(apiKey)
