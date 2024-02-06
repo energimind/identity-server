@@ -13,6 +13,7 @@ import (
 	"github.com/energimind/identity-service/core/appl/service/login"
 	"github.com/energimind/identity-service/core/config"
 	"github.com/energimind/identity-service/core/domain"
+	"github.com/energimind/identity-service/core/infra/cookie"
 	"github.com/energimind/identity-service/core/infra/idgen/shortid"
 	"github.com/energimind/identity-service/core/infra/idgen/xid"
 	"github.com/energimind/identity-service/core/infra/logger"
@@ -38,7 +39,11 @@ func setupServer(cfg *config.Config) (*httpd.Server, context.CancelFunc, error) 
 
 	mongoDB := mongoClient.Database(cfg.Mongo.Database)
 
-	routes := api.NewRoutes(setupHandlers(mongoDB, idGen, shortIDGen, cfg.Auth.Endpoint))
+	cookieProvider := cookie.NewProvider(cfg.Cookie.Secret)
+
+	handlers := setupHandlers(mongoDB, idGen, shortIDGen, cfg.Auth.Endpoint, cookieProvider)
+
+	routes := api.NewRoutes(handlers)
 
 	restRouter := router.New(
 		gin.Recovery(),
@@ -68,7 +73,12 @@ func setupServer(cfg *config.Config) (*httpd.Server, context.CancelFunc, error) 
 	return srv, releaseResources, nil
 }
 
-func setupHandlers(mongoDB *mongo.Database, idGen, shortIDGen domain.IDGenerator, authEndpoint string) api.Handlers {
+func setupHandlers(
+	mongoDB *mongo.Database,
+	idGen, shortIDGen domain.IDGenerator,
+	authEndpoint string,
+	cookieProvider *cookie.Provider,
+) api.Handlers {
 	applicationRepo := repository.NewApplicationRepository(mongoDB)
 	providerRepo := repository.NewProviderRepository(mongoDB)
 	userRepo := repository.NewUserRepository(mongoDB)
@@ -87,7 +97,7 @@ func setupHandlers(mongoDB *mongo.Database, idGen, shortIDGen domain.IDGenerator
 		User:        handler.NewUserHandler(userService),
 		Daemon:      handler.NewDaemonHandler(daemonService),
 		Auth:        handler.NewLoginHandler(sessionService),
-		AdminAuth:   handler.NewAdminLoginHandler(authEndpoint),
+		AdminAuth:   handler.NewAdminLoginHandler(authEndpoint, cookieProvider),
 		Health:      handler.NewHealthHandler(),
 	}
 

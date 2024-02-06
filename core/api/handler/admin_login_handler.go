@@ -4,23 +4,28 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 )
 
+const cookieName = "sessionKey"
+
 // AdminLoginHandler handles admin login requests.
 type AdminLoginHandler struct {
-	authEndpoint string
-	client       *resty.Client
+	authEndpoint   string
+	cookieProvider auth.CookieProvider
+	client         *resty.Client
 }
 
 // NewAdminLoginHandler returns a new instance of AdminLoginHandler.
-func NewAdminLoginHandler(authEndpoint string) *AdminLoginHandler {
+func NewAdminLoginHandler(authEndpoint string, cookieProvider auth.CookieProvider) *AdminLoginHandler {
 	const clientTimeout = 10 * time.Second
 
 	return &AdminLoginHandler{
-		authEndpoint: authEndpoint + "/api/v1/auth",
-		client:       resty.New().SetTimeout(clientTimeout),
+		authEndpoint:   authEndpoint + "/api/v1/auth",
+		cookieProvider: cookieProvider,
+		client:         resty.New().SetTimeout(clientTimeout),
 	}
 }
 
@@ -37,11 +42,14 @@ func (h *AdminLoginHandler) getProviderLink(c *gin.Context) {
 		Link string `json:"link"`
 	}
 
+	appCode := c.Query("appCode")
+	providerCode := c.Query("providerCode")
+
 	_, err := h.client.R().
 		SetContext(c.Request.Context()).
 		SetQueryParams(map[string]string{
-			"appCode":      c.Query("appCode"),
-			"providerCode": c.Query("providerCode"),
+			"appCode":      appCode,
+			"providerCode": providerCode,
 		}).
 		SetResult(&result).
 		Get(h.authEndpoint + "/link")
@@ -59,11 +67,14 @@ func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
 		SessionID string `json:"sessionId"`
 	}
 
+	code := c.Query("code")
+	state := c.Query("state")
+
 	_, err := h.client.R().
 		SetContext(c.Request.Context()).
 		SetQueryParams(map[string]string{
-			"code":  c.Query("code"),
-			"state": c.Query("state"),
+			"code":  code,
+			"state": state,
 		}).
 		SetResult(&result).
 		Post(h.authEndpoint + "/login")
@@ -73,12 +84,15 @@ func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
 		return
 	}
 
-	const cookieMaxAge = 0
+	cookie, err := h.cookieProvider.CreateCookie(c.Request, cookieName, result.SessionID)
+	if err != nil {
+		_ = c.Error(err)
 
-	ck := getCookieSecurityContext(c)
+		return
+	}
 
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie(cookieName, encryptCookie(result.SessionID), cookieMaxAge, "/", ck.domain, ck.secure, true)
+	c.SetSameSite(cookie.SameSite)
+	c.SetCookie(cookieName, cookie.Value, cookie.MaxAge, cookie.Path, cookie.Domain, cookie.Secure, cookie.HttpOnly)
 
 	c.Status(http.StatusOK)
 }
@@ -112,10 +126,15 @@ func (h *AdminLoginHandler) logout(c *gin.Context) {
 		return
 	}
 
-	ck := getCookieSecurityContext(c)
+	cookie, err := h.cookieProvider.ResetCookie(c.Request, cookieName)
+	if err != nil {
+		_ = c.Error(err)
 
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie(cookieName, "", -1, "/", ck.domain, ck.secure, true)
+		return
+	}
+
+	c.SetSameSite(cookie.SameSite)
+	c.SetCookie(cookieName, cookie.Value, cookie.MaxAge, cookie.Path, cookie.Domain, cookie.Secure, cookie.HttpOnly)
 
 	c.Status(http.StatusOK)
 }

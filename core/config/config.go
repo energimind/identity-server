@@ -6,6 +6,7 @@ type Config struct {
 	Router RouterConfig
 	Mongo  MongoConfig
 	Auth   AuthenticatorConfig
+	Cookie CookieConfig
 }
 
 // HTTPConfig contains HTTP server setup.
@@ -30,4 +31,9 @@ type MongoConfig struct {
 // AuthenticatorConfig contains authenticator setup.
 type AuthenticatorConfig struct {
 	Endpoint string `env:"AUTH_ENDPOINT"`
+}
+
+// CookieConfig contains cookie setup.
+type CookieConfig struct {
+	Secret string
 }
