@@ -86,3 +86,21 @@ func NewStoreError(format string, args ...any) StoreError {
 func (e StoreError) Error() string {
 	return e.Message
 }
+
+// GatewayError is the error returned when an error occurs while communicating with
+// an external service.
+type GatewayError struct {
+	Message string
+}
+
+// NewGatewayError returns a new GatewayError.
+func NewGatewayError(format string, args ...any) GatewayError {
+	return GatewayError{
+		Message: fmt.Sprintf(format, args...),
+	}
+}
+
+// Error returns the error message.
+func (e GatewayError) Error() string {
+	return e.Message
+}

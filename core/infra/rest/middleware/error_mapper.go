@@ -28,6 +28,7 @@ func mapError(c *gin.Context) {
 		notFoundError     domain.NotFoundError
 		validationError   domain.ValidationError
 		storeError        domain.StoreError
+		gatewayError      domain.GatewayError
 	)
 
 	err := c.Errors.Last().Err
@@ -58,6 +59,12 @@ func mapError(c *gin.Context) {
 
 	if errors.As(err, &storeError) {
 		c.JSON(http.StatusBadGateway, gin.H{"error": storeError.Error()})
+
+		return
+	}
+
+	if errors.As(err, &gatewayError) {
+		c.JSON(http.StatusBadGateway, gin.H{"error": gatewayError.Error()})
 
 		return
 	}

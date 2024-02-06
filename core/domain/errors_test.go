@@ -19,4 +19,5 @@ func TestErrors(t *testing.T) {
 	tester(t, NewNotFoundError("test:%d", 42), NotFoundError{})
 	tester(t, NewValidationError("test:%d", 42), ValidationError{})
 	tester(t, NewStoreError("test:%d", 42), StoreError{})
+	tester(t, NewGatewayError("test:%d", 42), GatewayError{})
 }
