@@ -1,4 +1,4 @@
-package login
+package auth
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/admin"
+	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/energimind/identity-service/core/domain/cache"
-	"github.com/energimind/identity-service/core/domain/session"
 	"github.com/energimind/identity-service/core/infra/logger"
 )
 
@@ -15,7 +15,7 @@ const sessionTTL = 24 * 7 * time.Hour
 
 // SessionService manages user sessions.
 //
-// It implements the session.Service interface.
+// It implements the auth.Service interface.
 //
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
@@ -38,10 +38,10 @@ func NewSessionService(
 	}
 }
 
-// Ensure service implements the session.Service interface.
-var _ session.Service = (*SessionService)(nil)
+// Ensure service implements the auth.Service interface.
+var _ auth.Service = (*SessionService)(nil)
 
-// GetProviderLink implements the session.Service interface.
+// GetProviderLink implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *SessionService) GetProviderLink(ctx context.Context, applicationCode, providerCode string) (string, error) {
@@ -63,44 +63,44 @@ func (s *SessionService) GetProviderLink(ctx context.Context, applicationCode, p
 	return link, nil
 }
 
-// CompleteLogin implements the session.Service interface.
+// CompleteLogin implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) (session.Info, error) {
+func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) (auth.Info, error) {
 	sessionID := state
 
 	sess := userSession{}
 
 	found, err := s.cache.Get(ctx, sessionID, &sess)
 	if err != nil {
-		return session.Info{}, err
+		return auth.Info{}, err
 	}
 
 	if !found {
-		return session.Info{}, domain.NewAccessDeniedError("invalid state parameter")
+		return auth.Info{}, domain.NewAccessDeniedError("invalid state parameter")
 	}
 
 	token, err := exchangeCodeForAccessToken(ctx, sess.Config, code)
 	if err != nil {
 		s.silentlyDeleteSession(ctx, sessionID)
 
-		return session.Info{}, err
+		return auth.Info{}, err
 	}
 
 	oui, err := getUserInfo(ctx, token)
 	if err != nil {
 		s.silentlyDeleteSession(ctx, sessionID)
 
-		return session.Info{}, err
+		return auth.Info{}, err
 	}
 
 	sess.updateToken(token)
 
 	if pErr := s.cache.Put(ctx, sessionID, sess, sessionTTL); pErr != nil {
-		return session.Info{}, pErr
+		return auth.Info{}, pErr
 	}
 
-	info := session.Info{
+	info := auth.Info{
 		SessionID:     sessionID,
 		ApplicationID: sess.ApplicationID,
 		UserInfo:      toUserInfo(oui),
@@ -109,7 +109,7 @@ func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) 
 	return info, nil
 }
 
-// Refresh implements the session.Service interface.
+// Refresh implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *SessionService) Refresh(ctx context.Context, sessionID string) error {
@@ -138,7 +138,7 @@ func (s *SessionService) Refresh(ctx context.Context, sessionID string) error {
 	return nil
 }
 
-// Logout implements the session.Service interface.
+// Logout implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *SessionService) Logout(ctx context.Context, sessionID string) error {

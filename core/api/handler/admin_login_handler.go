@@ -18,7 +18,7 @@ type UserFinder interface {
 	GetUserByEmail(ctx context.Context, actor admin.Actor, appID admin.ID, email string) (admin.User, error)
 }
 
-// AdminLoginHandler handles admin login requests.
+// AdminLoginHandler handles admin auth requests.
 type AdminLoginHandler struct {
 	authEndpoint   string
 	userFinder     UserFinder

@@ -3,18 +3,18 @@ package handler
 import (
 	"net/http"
 
-	"github.com/energimind/identity-service/core/domain/session"
+	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
 
-// LoginHandler is a handler that handles login requests and sessions.
+// LoginHandler is a handler that handles auth requests and sessions.
 type LoginHandler struct {
-	service session.Service
+	service auth.Service
 }
 
 // NewLoginHandler returns a new LoginHandler.
-func NewLoginHandler(service session.Service) *LoginHandler {
+func NewLoginHandler(service auth.Service) *LoginHandler {
 	return &LoginHandler{
 		service: service,
 	}

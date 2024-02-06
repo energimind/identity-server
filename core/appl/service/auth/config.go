@@ -1,4 +1,4 @@
-package login
+package auth
 
 import "github.com/energimind/identity-service/core/domain/admin"
 

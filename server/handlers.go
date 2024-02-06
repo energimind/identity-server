@@ -4,7 +4,7 @@ import (
 	"github.com/energimind/identity-service/core/api"
 	"github.com/energimind/identity-service/core/api/handler"
 	"github.com/energimind/identity-service/core/appl/service/admin"
-	"github.com/energimind/identity-service/core/appl/service/login"
+	"github.com/energimind/identity-service/core/appl/service/auth"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/cache"
 	"github.com/energimind/identity-service/core/infra/cookie"
@@ -29,7 +29,7 @@ func setupHandlers(
 	userService := admin.NewUserService(userRepo, idGen)
 	daemonService := admin.NewDaemonService(daemonRepo, idGen)
 	providerLookupService := admin.NewProviderLookupService(applicationService, providerService)
-	sessionService := login.NewSessionService(providerLookupService, shortIDGen, cache)
+	sessionService := auth.NewSessionService(providerLookupService, shortIDGen, cache)
 
 	handlers := api.Handlers{
 		Application: handler.NewApplicationHandler(applicationService),
