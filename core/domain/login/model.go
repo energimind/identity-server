@@ -9,3 +9,10 @@ type UserInfo struct {
 	FamilyName string
 	Email      string
 }
+
+// Info is a struct that contains login information.
+type Info struct {
+	SessionID     string
+	ApplicationID string
+	UserInfo      UserInfo
+}

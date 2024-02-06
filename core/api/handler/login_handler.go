@@ -43,20 +43,24 @@ func (h *LoginHandler) getProviderLink(c *gin.Context) {
 }
 
 func (h *LoginHandler) completeLogin(c *gin.Context) {
-	sessionID, userInfo, err := h.service.CompleteLogin(c, c.Query("code"), c.Query("state"))
+	info, err := h.service.CompleteLogin(c, c.Query("code"), c.Query("state"))
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
+	userInfo := info.UserInfo
+
 	reqctx.Logger(c).Debug().
-		Str("sessionID", sessionID).
+		Str("sessionId", info.SessionID).
+		Str("applicationId", info.ApplicationID).
 		Any("userInfo", userInfo).
 		Msg("Login completed")
 
 	c.JSON(http.StatusOK, gin.H{
-		"sessionId": sessionID,
+		"sessionId":     info.SessionID,
+		"applicationId": info.ApplicationID,
 		"userInfo": map[string]any{
 			"id":         userInfo.ID,
 			"name":       userInfo.Name,

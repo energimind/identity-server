@@ -48,37 +48,43 @@ func (s *SessionService) GetProviderLink(ctx context.Context, applicationCode, p
 	sessionID := s.idgen.GenerateID()
 	link := getAuthCodeURL(ctx, cfg, sessionID)
 
-	s.sessions.put(sessionID, newSession(cfg))
+	s.sessions.put(sessionID, newSession(provider.ApplicationID.String(), cfg))
 
 	return link, nil
 }
 
 // CompleteLogin implements the login.SessionService interface.
-func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) (string, login.UserInfo, error) {
+func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) (login.Info, error) {
 	sessionID := state
 
 	sess, found := s.sessions.get(sessionID)
 	if !found {
-		return "", login.UserInfo{}, domain.NewAccessDeniedError("invalid state parameter")
+		return login.Info{}, domain.NewAccessDeniedError("invalid state parameter")
 	}
 
 	token, err := exchangeCodeForAccessToken(ctx, sess.Config, code)
 	if err != nil {
 		s.sessions.delete(sessionID)
 
-		return "", login.UserInfo{}, err
+		return login.Info{}, err
 	}
 
 	oui, err := getUserInfo(ctx, token)
 	if err != nil {
 		s.sessions.delete(sessionID)
 
-		return "", login.UserInfo{}, err
+		return login.Info{}, err
 	}
 
 	sess.updateToken(token)
 
-	return sessionID, toUserInfo(oui), nil
+	info := login.Info{
+		SessionID:     sessionID,
+		ApplicationID: sess.ApplicationID,
+		UserInfo:      toUserInfo(oui),
+	}
+
+	return info, nil
 }
 
 // Refresh implements the login.SessionService interface.

@@ -7,15 +7,17 @@ import (
 )
 
 type session struct {
-	Config    *config       `json:"config"`
-	Token     *oauth2.Token `json:"token"`
-	Timestamp time.Time     `json:"timestamp"`
+	ApplicationID string        `json:"applicationId"`
+	Config        *config       `json:"config"`
+	Token         *oauth2.Token `json:"token"`
+	Timestamp     time.Time     `json:"timestamp"`
 }
 
-func newSession(config *config) *session {
+func newSession(applicationID string, config *config) *session {
 	return &session{
-		Config:    config,
-		Timestamp: time.Now(),
+		ApplicationID: applicationID,
+		Config:        config,
+		Timestamp:     time.Now(),
 	}
 }
 
