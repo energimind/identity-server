@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/energimind/identity-service/core/api"
 	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/energimind/identity-service/core/domain/session"
 	"github.com/gin-gonic/gin"
@@ -42,12 +43,12 @@ func NewAdminLoginHandler(
 	}
 }
 
-// Bind binds the LoginHandler to a root provided by a router.
-func (h *AdminLoginHandler) Bind(root gin.IRoutes) {
+// BindWithMiddlewares binds the LoginHandler to a root provided by a router.
+func (h *AdminLoginHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares) {
 	root.GET("/link", h.getProviderLink)
 	root.POST("/login", h.completeLogin)
-	root.PUT("/refresh", h.refreshSession)
-	root.DELETE("/logout", h.logout)
+	root.PUT("/refresh", mws.RequireActor, h.refreshSession)
+	root.DELETE("/logout", mws.RequireActor, h.logout)
 }
 
 func (h *AdminLoginHandler) getProviderLink(c *gin.Context) {

@@ -2,6 +2,7 @@ package cookie
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/energimind/identity-service/core/domain/auth"
 )
@@ -76,21 +77,13 @@ func (p *Provider) ResetCookie(r *http.Request, name string) (*http.Cookie, erro
 }
 
 // VerifyCookie verifies a cookie.
-func (p *Provider) VerifyCookie(r *http.Request, cookie *http.Cookie) (string, error) {
-	sc, err := getSecurityContext(r)
+func (p *Provider) VerifyCookie(cookie *http.Cookie) (string, error) {
+	decodedValue, err := url.QueryUnescape(cookie.Value)
 	if err != nil {
-		return "", NewError("get security context error: %s", err)
+		return "", NewError("cookie decode error: %s", err)
 	}
 
-	if cookie.Domain != sc.domain {
-		return "", NewError("invalid cookie domain: %s", cookie.Domain)
-	}
-
-	if cookie.Secure != sc.secure {
-		return "", NewError("invalid cookie secure flag: %t", cookie.Secure)
-	}
-
-	decryptedValue, err := decryptCookie(cookie.Value, p.secret)
+	decryptedValue, err := decryptCookie(decodedValue, p.secret)
 	if err != nil {
 		return "", NewError("decrypt cookie error: %s", err)
 	}

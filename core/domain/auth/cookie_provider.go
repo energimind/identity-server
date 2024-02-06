@@ -12,5 +12,5 @@ type CookieProvider interface {
 
 // CookieVerifier defines a method for verifying cookies.
 type CookieVerifier interface {
-	VerifyCookie(r *http.Request, cookie *http.Cookie) (string, error)
+	VerifyCookie(cookie *http.Cookie) (string, error)
 }
