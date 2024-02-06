@@ -13,25 +13,25 @@ import (
 
 const sessionTTL = 24 * 7 * time.Hour
 
-// SessionService manages user sessions.
+// Service manages user sessions.
 //
 // It implements the auth.Service interface.
 //
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
-type SessionService struct {
+type Service struct {
 	providerLookupService admin.ProviderLookupService
 	idgen                 domain.IDGenerator
 	cache                 cache.Cache
 }
 
-// NewSessionService returns a new SessionService instance.
-func NewSessionService(
+// NewService returns a new Service instance.
+func NewService(
 	providerLookupService admin.ProviderLookupService,
 	idgen domain.IDGenerator,
 	cache cache.Cache,
-) *SessionService {
-	return &SessionService{
+) *Service {
+	return &Service{
 		providerLookupService: providerLookupService,
 		idgen:                 idgen,
 		cache:                 cache,
@@ -39,12 +39,12 @@ func NewSessionService(
 }
 
 // Ensure service implements the auth.Service interface.
-var _ auth.Service = (*SessionService)(nil)
+var _ auth.Service = (*Service)(nil)
 
 // GetProviderLink implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *SessionService) GetProviderLink(ctx context.Context, applicationCode, providerCode string) (string, error) {
+func (s *Service) GetProviderLink(ctx context.Context, applicationCode, providerCode string) (string, error) {
 	provider, err := s.providerLookupService.LookupProvider(ctx, applicationCode, providerCode)
 	if err != nil {
 		return "", err
@@ -66,7 +66,7 @@ func (s *SessionService) GetProviderLink(ctx context.Context, applicationCode, p
 // CompleteLogin implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) (auth.Info, error) {
+func (s *Service) CompleteLogin(ctx context.Context, code, state string) (auth.Info, error) {
 	sessionID := state
 
 	sess := userSession{}
@@ -112,7 +112,7 @@ func (s *SessionService) CompleteLogin(ctx context.Context, code, state string) 
 // Refresh implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *SessionService) Refresh(ctx context.Context, sessionID string) error {
+func (s *Service) Refresh(ctx context.Context, sessionID string) error {
 	sess := userSession{}
 
 	found, err := s.cache.Get(ctx, sessionID, &sess)
@@ -141,7 +141,7 @@ func (s *SessionService) Refresh(ctx context.Context, sessionID string) error {
 // Logout implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *SessionService) Logout(ctx context.Context, sessionID string) error {
+func (s *Service) Logout(ctx context.Context, sessionID string) error {
 	sess := userSession{}
 
 	found, err := s.cache.Get(ctx, sessionID, &sess)
@@ -162,7 +162,7 @@ func (s *SessionService) Logout(ctx context.Context, sessionID string) error {
 	return nil
 }
 
-func (s *SessionService) silentlyDeleteSession(ctx context.Context, sessionID string) {
+func (s *Service) silentlyDeleteSession(ctx context.Context, sessionID string) {
 	if err := s.cache.Delete(ctx, sessionID); err != nil {
 		logger.FromContext(ctx).Info().Err(err).Msg("failed to delete userSession")
 	}

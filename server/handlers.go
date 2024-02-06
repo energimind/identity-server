@@ -31,7 +31,7 @@ func setupHandlers(
 	userService := admin.NewUserService(userRepo, idGen)
 	daemonService := admin.NewDaemonService(daemonRepo, idGen)
 	providerLookupService := admin.NewProviderLookupService(applicationService, providerService)
-	sessionService := auth.NewSessionService(providerLookupService, shortIDGen, cache)
+	authService := auth.NewService(providerLookupService, shortIDGen, cache)
 
 	handlers := api.Handlers{
 		Application: adminapi.NewApplicationHandler(applicationService),
@@ -39,7 +39,7 @@ func setupHandlers(
 		User:        adminapi.NewUserHandler(userService),
 		Daemon:      adminapi.NewDaemonHandler(daemonService),
 		AdminAuth:   adminapi.NewAuthHandler(authEndpoint, userService, cookieProvider),
-		Auth:        authapi.NewHandler(sessionService),
+		Auth:        authapi.NewHandler(authService),
 		Health:      healthapi.NewHandler(),
 	}
 
