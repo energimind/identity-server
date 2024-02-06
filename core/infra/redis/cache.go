@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/energimind/identity-service/core/domain/cache"
+	"github.com/energimind/identity-service/core/domain"
 	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 )
@@ -17,16 +17,16 @@ const ioTimeout = 10 * time.Second
 //
 // It uses Redis as the underlying storage.
 //
-// It implements the cache.Cache interface.
+// It implements the domain.Cache interface.
 type Cache struct {
 	conn      connection
 	namespace string
 }
 
-// Ensure service implements the cache.Cache interface.
-var _ cache.Cache = (*Cache)(nil)
+// Ensure service implements the domain.Cache interface.
+var _ domain.Cache = (*Cache)(nil)
 
-// NewCache creates a new cache. The cache is in the connected state.
+// NewCache creates a new domain. The cache is in the connected state.
 func NewCache(config Config) (*Cache, error) {
 	if config.Namespace == "" {
 		return nil, errors.New("missing redis namespace")
@@ -56,12 +56,12 @@ func NewCache(config Config) (*Cache, error) {
 	}, nil
 }
 
-// Stop stops the cache.
+// Stop stops the domain.
 func (c *Cache) Stop() {
 	_ = c.conn.close()
 }
 
-// Put implements the cache.Cache interface.
+// Put implements the domain.Cache interface.
 func (c *Cache) Put(ctx context.Context, key string, value any, ttl time.Duration) error {
 	b, err := json.Marshal(value)
 	if err != nil {
@@ -75,7 +75,7 @@ func (c *Cache) Put(ctx context.Context, key string, value any, ttl time.Duratio
 	return nil
 }
 
-// Get implements the cache.Cache interface.
+// Get implements the domain.Cache interface.
 func (c *Cache) Get(ctx context.Context, key string, receiver any) (bool, error) {
 	cmd := c.conn.get(ctx, c.fqn(key))
 
@@ -99,7 +99,7 @@ func (c *Cache) Get(ctx context.Context, key string, receiver any) (bool, error)
 	return true, nil
 }
 
-// Delete implements the cache.Cache interface.
+// Delete implements the domain.Cache interface.
 func (c *Cache) Delete(ctx context.Context, key string) error {
 	if sErr := c.conn.delete(ctx, c.fqn(key)).Err(); sErr != nil {
 		return NewCacheError("failed to delete key: %v", sErr)

@@ -7,7 +7,6 @@ import (
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/domain/auth"
-	"github.com/energimind/identity-service/core/domain/cache"
 	"github.com/energimind/identity-service/core/infra/logger"
 )
 
@@ -22,14 +21,14 @@ const sessionTTL = 24 * 7 * time.Hour
 type Service struct {
 	providerLookupService admin.ProviderLookupService
 	idgen                 domain.IDGenerator
-	cache                 cache.Cache
+	cache                 domain.Cache
 }
 
 // NewService returns a new Service instance.
 func NewService(
 	providerLookupService admin.ProviderLookupService,
 	idgen domain.IDGenerator,
-	cache cache.Cache,
+	cache domain.Cache,
 ) *Service {
 	return &Service{
 		providerLookupService: providerLookupService,
