@@ -7,7 +7,6 @@ import (
 
 	"github.com/energimind/identity-service/core/api"
 	"github.com/energimind/identity-service/core/domain/auth"
-	"github.com/energimind/identity-service/core/domain/session"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 )
@@ -113,7 +112,7 @@ func (h *AdminLoginHandler) completeLogin(c *gin.Context) {
 		return
 	}
 
-	us := session.NewUserSession(
+	us := auth.NewUserSession(
 		completeResult.SessionID,
 		completeResult.ApplicationID,
 		user.ID.String(),

@@ -5,7 +5,6 @@ import (
 
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/auth"
-	"github.com/energimind/identity-service/core/domain/session"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
@@ -36,7 +35,7 @@ func RequireActor(verifier auth.CookieVerifier) gin.HandlerFunc {
 			return
 		}
 
-		us, err := session.DeserializeUserSession(serialized)
+		us, err := auth.DeserializeUserSession(serialized)
 		if err != nil {
 			_ = c.Error(domain.NewAccessDeniedError(fmt.Sprintf("invalid sessionKey cookie value: %s", err)))
 
