@@ -145,10 +145,12 @@ func (h *AuthHandler) completeLogin(c *gin.Context) {
 	c.SetCookie(cookieName, cookie.Value, cookie.MaxAge, cookie.Path, cookie.Domain, cookie.Secure, cookie.HttpOnly)
 
 	c.JSON(http.StatusOK, gin.H{
-		"username":    user.Username,
-		"email":       user.Email,
-		"displayName": user.DisplayName,
-		"role":        user.Role,
+		"username":      user.Username,
+		"email":         user.Email,
+		"displayName":   user.DisplayName,
+		"applicationId": completeResult.ApplicationID,
+		"userId":        user.ID,
+		"role":          user.Role,
 	})
 }
 
