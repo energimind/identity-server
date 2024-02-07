@@ -19,7 +19,7 @@ func RequireActor(verifier admin.CookieVerifier) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cookie, err := c.Request.Cookie("sessionKey")
 		if err != nil {
-			_ = c.Error(domain.NewAccessDeniedError("sessionKey cookie not found"))
+			_ = c.Error(domain.NewSessionError("sessionKey cookie not found"))
 
 			c.Abort()
 
@@ -28,7 +28,7 @@ func RequireActor(verifier admin.CookieVerifier) gin.HandlerFunc {
 
 		serialized, err := verifier.VerifyCookie(cookie)
 		if err != nil {
-			_ = c.Error(domain.NewAccessDeniedError(fmt.Sprintf("invalid sessionKey cookie: %s", err)))
+			_ = c.Error(domain.NewSessionError(fmt.Sprintf("invalid sessionKey cookie: %s", err)))
 
 			c.Abort()
 
@@ -37,7 +37,7 @@ func RequireActor(verifier admin.CookieVerifier) gin.HandlerFunc {
 
 		us, err := admin.DeserializeUserSession(serialized)
 		if err != nil {
-			_ = c.Error(domain.NewAccessDeniedError(fmt.Sprintf("invalid sessionKey cookie value: %s", err)))
+			_ = c.Error(domain.NewSessionError(fmt.Sprintf("invalid sessionKey cookie value: %s", err)))
 
 			c.Abort()
 

@@ -29,6 +29,7 @@ func mapError(c *gin.Context) {
 		validationError   domain.ValidationError
 		storeError        domain.StoreError
 		gatewayError      domain.GatewayError
+		sessionError      domain.SessionError
 	)
 
 	err := c.Errors.Last().Err
@@ -65,6 +66,12 @@ func mapError(c *gin.Context) {
 
 	if errors.As(err, &gatewayError) {
 		c.JSON(http.StatusBadGateway, gin.H{"error": gatewayError.Error()})
+
+		return
+	}
+
+	if errors.As(err, &sessionError) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "session expired"})
 
 		return
 	}

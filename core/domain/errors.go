@@ -104,3 +104,20 @@ func NewGatewayError(format string, args ...any) GatewayError {
 func (e GatewayError) Error() string {
 	return e.Message
 }
+
+// SessionError is the error returned when an error occurs while handling a session.
+type SessionError struct {
+	Message string
+}
+
+// NewSessionError returns a new SessionError.
+func NewSessionError(format string, args ...any) SessionError {
+	return SessionError{
+		Message: fmt.Sprintf(format, args...),
+	}
+}
+
+// Error returns the error message.
+func (e SessionError) Error() string {
+	return e.Message
+}
