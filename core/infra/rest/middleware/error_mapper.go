@@ -17,6 +17,12 @@ func ErrorMapper() gin.HandlerFunc {
 			return
 		}
 
+		// do not map errors if the request has been aborted;
+		// assuming the error has already been mapped and the response has been sent
+		if c.IsAborted() {
+			return
+		}
+
 		mapError(c)
 	}
 }

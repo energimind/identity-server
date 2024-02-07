@@ -2,10 +2,12 @@ package admin
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/energimind/identity-service/core/api"
+	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
@@ -62,7 +64,7 @@ func (h *AuthHandler) getProviderLink(c *gin.Context) {
 	appCode := c.Query("appCode")
 	providerCode := c.Query("providerCode")
 
-	_, err := h.client.R().
+	rsp, err := h.client.R().
 		SetContext(c.Request.Context()).
 		SetQueryParams(map[string]string{
 			"appCode":      appCode,
@@ -71,8 +73,12 @@ func (h *AuthHandler) getProviderLink(c *gin.Context) {
 		SetResult(&result).
 		Get(h.authEndpoint + "/link")
 	if err != nil {
-		_ = c.Error(err)
+		_ = c.Error(domain.NewGatewayError("failed to get provider link: %v", err))
 
+		return
+	}
+
+	if h.processErrorResponse(c, rsp) {
 		return
 	}
 
@@ -91,7 +97,7 @@ func (h *AuthHandler) completeLogin(c *gin.Context) {
 	code := c.Query("code")
 	state := c.Query("state")
 
-	_, err := h.client.R().
+	rsp, err := h.client.R().
 		SetContext(c.Request.Context()).
 		SetQueryParams(map[string]string{
 			"code":  code,
@@ -100,8 +106,12 @@ func (h *AuthHandler) completeLogin(c *gin.Context) {
 		SetResult(&completeResult).
 		Post(h.authEndpoint + "/login")
 	if err != nil {
-		_ = c.Error(err)
+		_ = c.Error(domain.NewGatewayError("failed to complete login: %v", err))
 
+		return
+	}
+
+	if h.processErrorResponse(c, rsp) {
 		return
 	}
 
@@ -156,15 +166,44 @@ func (h *AuthHandler) logout(c *gin.Context) {
 
 	sessionID := c.GetString("sessionId")
 
-	_, dErr := h.client.R().
+	rsp, dErr := h.client.R().
 		SetContext(c.Request.Context()).
 		SetHeader("X-IS-SessionID", sessionID).
 		Delete(h.authEndpoint + "/logout")
 	if dErr != nil {
-		_ = c.Error(dErr)
+		_ = c.Error(domain.NewGatewayError("failed to logout: %v", dErr))
 
 		return
 	}
 
+	if h.processErrorResponse(c, rsp) {
+		return
+	}
+
 	c.Status(http.StatusOK)
+}
+
+func (h *AuthHandler) processErrorResponse(c *gin.Context, rsp *resty.Response) bool {
+	if rsp.StatusCode() == http.StatusOK {
+		return false
+	}
+
+	var result struct {
+		Error string `json:"error"`
+	}
+
+	// ignore error if the response is not JSON
+	_ = json.Unmarshal(rsp.Body(), &result)
+
+	if result.Error == "" {
+		result.Error = "unspecified"
+	}
+
+	// log this
+	_ = c.Error(domain.NewGatewayError("%s (%d)", result.Error, rsp.StatusCode()))
+
+	// send the error to the client, without mapping in the error_mapper middleware
+	c.AbortWithStatusJSON(rsp.StatusCode(), gin.H{"error": result.Error})
+
+	return true
 }
