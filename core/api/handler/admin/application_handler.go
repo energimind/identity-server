@@ -3,7 +3,6 @@ package admin
 import (
 	"net/http"
 
-	service "github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
@@ -12,11 +11,11 @@ import (
 
 // ApplicationHandler is a REST API handler for managing applications.
 type ApplicationHandler struct {
-	service *service.ApplicationService
+	service admin.ApplicationService
 }
 
 // NewApplicationHandler creates a new ApplicationHandler.
-func NewApplicationHandler(service *service.ApplicationService) *ApplicationHandler {
+func NewApplicationHandler(service admin.ApplicationService) *ApplicationHandler {
 	return &ApplicationHandler{service: service}
 }
 

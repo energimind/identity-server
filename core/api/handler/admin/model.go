@@ -1,7 +1,5 @@
 package admin
 
-import "time"
-
 // Application represents an application.
 type Application struct {
 	ID          string `json:"id"`
@@ -49,10 +47,10 @@ type Daemon struct {
 // APIKey represents an API key that can be used to authenticate a daemon.
 // It can also be used to authenticate a user.
 type APIKey struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Enabled     bool      `json:"enabled"`
-	Key         string    `json:"key"`
-	ExpiresAt   time.Time `json:"expiresAt"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Enabled     bool    `json:"enabled"`
+	Key         string  `json:"key"`
+	ExpiresAt   *string `json:"expiresAt"`
 }

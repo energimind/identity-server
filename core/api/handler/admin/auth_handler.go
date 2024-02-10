@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -20,15 +19,10 @@ const cookieName = "sessionKey"
 //nolint:gochecknoglobals // it is a constant
 var adminActor = admin.Actor{Role: admin.SystemRoleAdmin}
 
-// UserFinder is an interface for finding users.
-type UserFinder interface {
-	GetUserByEmail(ctx context.Context, actor admin.Actor, appID admin.ID, email string) (admin.User, error)
-}
-
 // AuthHandler handles admin auth requests.
 type AuthHandler struct {
 	authEndpoint   string
-	userFinder     UserFinder
+	userFinder     admin.UserFinder
 	cookieProvider admin.CookieProvider
 	client         *resty.Client
 }
@@ -36,7 +30,7 @@ type AuthHandler struct {
 // NewAuthHandler returns a new instance of AuthHandler.
 func NewAuthHandler(
 	authEndpoint string,
-	userFinder UserFinder,
+	userFinder admin.UserFinder,
 	cookieProvider admin.CookieProvider,
 ) *AuthHandler {
 	const clientTimeout = 10 * time.Second
@@ -85,7 +79,7 @@ func (h *AuthHandler) getProviderLink(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"link": result.Link})
 }
 
-func (h *AuthHandler) completeLogin(c *gin.Context) {
+func (h *AuthHandler) completeLogin(c *gin.Context) { //nolint:funlen
 	var completeResult struct {
 		SessionID     string `json:"sessionId"`
 		ApplicationID string `json:"applicationId"`

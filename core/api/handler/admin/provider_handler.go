@@ -3,7 +3,6 @@ package admin
 import (
 	"net/http"
 
-	service "github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/infra/rest/reqctx"
@@ -12,11 +11,11 @@ import (
 
 // ProviderHandler is an HTTP API handler for managing authentication providers.
 type ProviderHandler struct {
-	service *service.ProviderService
+	service admin.ProviderService
 }
 
 // NewProviderHandler creates a new ProviderHandler.
-func NewProviderHandler(service *service.ProviderService) *ProviderHandler {
+func NewProviderHandler(service admin.ProviderService) *ProviderHandler {
 	return &ProviderHandler{service: service}
 }
 
@@ -65,7 +64,7 @@ func (h *ProviderHandler) create(c *gin.Context) {
 	dtoProvider := Provider{}
 
 	if err := c.ShouldBindJSON(&dtoProvider); err != nil {
-		_ = c.Error(domain.NewBadRequestError("invalid request body"))
+		_ = c.Error(domain.NewBadRequestError("invalid request body: %v", err))
 
 		return
 	}
@@ -92,7 +91,7 @@ func (h *ProviderHandler) update(c *gin.Context) {
 	dtoProvider := Provider{}
 
 	if err := c.ShouldBindJSON(&dtoProvider); err != nil {
-		_ = c.Error(domain.NewBadRequestError("invalid request body"))
+		_ = c.Error(domain.NewBadRequestError("invalid request body: %v", err))
 
 		return
 	}

@@ -27,6 +27,15 @@ type UserService interface {
 	CreateUser(ctx context.Context, actor Actor, user User) (User, error)
 	UpdateUser(ctx context.Context, actor Actor, user User) (User, error)
 	DeleteUser(ctx context.Context, actor Actor, appID, id ID) error
+	GetAPIKeys(ctx context.Context, actor Actor, appID, userID ID) ([]APIKey, error)
+	GetAPIKey(ctx context.Context, actor Actor, appID, userID, id ID) (APIKey, error)
+	CreateAPIKey(ctx context.Context, actor Actor, appID, userID ID, apiKey APIKey) (APIKey, error)
+	UpdateAPIKey(ctx context.Context, actor Actor, appID, userID, id ID, apiKey APIKey) (APIKey, error)
+	DeleteAPIKey(ctx context.Context, actor Actor, appID, userID, id ID) error
+}
+
+// UserFinder defines the user finder interface.
+type UserFinder interface {
 	GetUserByEmail(ctx context.Context, actor Actor, appID ID, email string) (User, error)
 }
 
@@ -37,6 +46,11 @@ type DaemonService interface {
 	CreateDaemon(ctx context.Context, actor Actor, daemon Daemon) (Daemon, error)
 	UpdateDaemon(ctx context.Context, actor Actor, daemon Daemon) (Daemon, error)
 	DeleteDaemon(ctx context.Context, actor Actor, appID, id ID) error
+	GetAPIKeys(ctx context.Context, actor Actor, appID, daemonID ID) ([]APIKey, error)
+	GetAPIKey(ctx context.Context, actor Actor, appID, daemonID, id ID) (APIKey, error)
+	CreateAPIKey(ctx context.Context, actor Actor, appID, daemonID ID, apiKey APIKey) (APIKey, error)
+	UpdateAPIKey(ctx context.Context, actor Actor, appID, daemonID, id ID, apiKey APIKey) (APIKey, error)
+	DeleteAPIKey(ctx context.Context, actor Actor, appID, daemonID, id ID) error
 }
 
 // ProviderLookupService defines the provider lookup service interface.

@@ -209,3 +209,126 @@ func (s *DaemonService) DeleteDaemon(
 		return domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
 	}
 }
+
+// GetAPIKeys implements the admin.DaemonService interface.
+func (s *DaemonService) GetAPIKeys(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, daemonID admin.ID,
+) ([]admin.APIKey, error) {
+	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
+	if err != nil {
+		return nil, err
+	}
+
+	return daemon.APIKeys, nil
+}
+
+// GetAPIKey implements the admin.DaemonService interface.
+func (s *DaemonService) GetAPIKey(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, daemonID, id admin.ID,
+) (admin.APIKey, error) {
+	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
+	if err != nil {
+		return admin.APIKey{}, err
+	}
+
+	for _, apiKey := range daemon.APIKeys {
+		if apiKey.ID == id {
+			return apiKey, nil
+		}
+	}
+
+	return admin.APIKey{}, domain.NewNotFoundError("API key %s not found", id)
+}
+
+// CreateAPIKey implements the admin.DaemonService interface.
+//
+//nolint:wrapcheck // see comment in the header
+func (s *DaemonService) CreateAPIKey(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, daemonID admin.ID,
+	apiKey admin.APIKey,
+) (admin.APIKey, error) {
+	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
+	if err != nil {
+		return admin.APIKey{}, err
+	}
+
+	apiKey.ID = admin.ID(s.idgen.GenerateID())
+
+	daemon.APIKeys = append(daemon.APIKeys, apiKey)
+
+	if uErr := s.repo.UpdateDaemon(ctx, daemon); uErr != nil {
+		return admin.APIKey{}, uErr
+	}
+
+	return apiKey, nil
+}
+
+// UpdateAPIKey implements the admin.DaemonService interface.
+//
+//nolint:wrapcheck // see comment in the header
+func (s *DaemonService) UpdateAPIKey(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, daemonID, id admin.ID,
+	apiKey admin.APIKey,
+) (admin.APIKey, error) {
+	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
+	if err != nil {
+		return admin.APIKey{}, err
+	}
+
+	for i, ak := range daemon.APIKeys {
+		if ak.ID == id {
+			daemon.APIKeys[i] = apiKey
+
+			if uErr := s.repo.UpdateDaemon(ctx, daemon); uErr != nil {
+				return admin.APIKey{}, uErr
+			}
+
+			return apiKey, nil
+		}
+	}
+
+	return admin.APIKey{}, domain.NewNotFoundError("API key %s not found", id)
+}
+
+// DeleteAPIKey implements the admin.DaemonService interface.
+//
+//nolint:wrapcheck // see comment in the header
+func (s *DaemonService) DeleteAPIKey(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, daemonID, id admin.ID,
+) error {
+	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
+	if err != nil {
+		return err
+	}
+
+	var found bool
+
+	for i, apiKey := range daemon.APIKeys {
+		if apiKey.ID == id {
+			daemon.APIKeys = append(daemon.APIKeys[:i], daemon.APIKeys[i+1:]...)
+			found = true
+
+			break
+		}
+	}
+
+	if !found {
+		return domain.NewNotFoundError("API key %s not found", id)
+	}
+
+	if uErr := s.repo.UpdateDaemon(ctx, daemon); uErr != nil {
+		return uErr
+	}
+
+	return nil
+}

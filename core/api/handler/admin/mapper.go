@@ -1,6 +1,10 @@
 package admin
 
-import "github.com/energimind/identity-service/core/domain/admin"
+import (
+	"time"
+
+	"github.com/energimind/identity-service/core/domain/admin"
+)
 
 // fromApplication converts a domain application to a DTO application.
 func fromApplication(app admin.Application) Application {
@@ -86,7 +90,6 @@ func fromUser(user admin.User) User {
 		Description: user.Description,
 		Enabled:     user.Enabled,
 		Role:        string(user.Role),
-		APIKeys:     fromAPIKeys(user.APIKeys),
 	}
 }
 
@@ -111,7 +114,6 @@ func toUser(user User) admin.User {
 		Description: user.Description,
 		Enabled:     user.Enabled,
 		Role:        admin.SystemRole(user.Role),
-		APIKeys:     toAPIKeys(user.APIKeys),
 	}
 }
 
@@ -123,7 +125,6 @@ func fromDaemon(daemon admin.Daemon) Daemon {
 		Name:        daemon.Name,
 		Description: daemon.Description,
 		Enabled:     daemon.Enabled,
-		APIKeys:     fromAPIKeys(daemon.APIKeys),
 	}
 }
 
@@ -146,7 +147,6 @@ func toDaemon(daemon Daemon) admin.Daemon {
 		Name:        daemon.Name,
 		Description: daemon.Description,
 		Enabled:     daemon.Enabled,
-		APIKeys:     toAPIKeys(daemon.APIKeys),
 	}
 }
 
@@ -158,7 +158,7 @@ func fromAPIKey(apiKey admin.APIKey) APIKey {
 		Description: apiKey.Description,
 		Enabled:     apiKey.Enabled,
 		Key:         apiKey.Key,
-		ExpiresAt:   apiKey.ExpiresAt,
+		ExpiresAt:   fromDate(apiKey.ExpiresAt),
 	}
 }
 
@@ -181,17 +181,29 @@ func toAPIKey(apiKey APIKey) admin.APIKey {
 		Description: apiKey.Description,
 		Enabled:     apiKey.Enabled,
 		Key:         apiKey.Key,
-		ExpiresAt:   apiKey.ExpiresAt,
+		ExpiresAt:   toDate(apiKey.ExpiresAt),
 	}
 }
 
-// toAPIKeys converts a slice of DTO API keys to a slice of domain API keys.
-func toAPIKeys(apiKeys []APIKey) []admin.APIKey {
-	dtos := make([]admin.APIKey, len(apiKeys))
-
-	for i, apiKey := range apiKeys {
-		dtos[i] = toAPIKey(apiKey)
+func fromDate(t time.Time) *string {
+	if t.IsZero() {
+		return nil
 	}
 
-	return dtos
+	value := t.Format(time.DateOnly)
+
+	return &value
+}
+
+func toDate(s *string) time.Time {
+	if s == nil || *s == "" {
+		return time.Time{}
+	}
+
+	t, err := time.Parse(time.DateOnly, *s)
+	if err != nil {
+		return time.Time{}
+	}
+
+	return t
 }

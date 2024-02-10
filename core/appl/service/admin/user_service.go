@@ -9,7 +9,7 @@ import (
 
 // UserService is a service for managing users.
 //
-// It implements the admin.UserService interface.
+// It implements the admin.UserService and the admin.UserFinder interfaces.
 //
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
@@ -35,10 +35,17 @@ func NewUserService(
 // Ensure service implements the admin.UserService interface.
 var _ admin.UserService = (*UserService)(nil)
 
+// Ensure service implements the admin.UserFinder interface.
+var _ admin.UserFinder = (*UserService)(nil)
+
 // GetUsers implements the admin.UserService interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *UserService) GetUsers(ctx context.Context, actor admin.Actor, appID admin.ID) ([]admin.User, error) {
+func (s *UserService) GetUsers(
+	ctx context.Context,
+	actor admin.Actor,
+	appID admin.ID,
+) ([]admin.User, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return nil, domain.NewAccessDeniedError("user %s cannot get users", actor.UserID)
@@ -70,7 +77,11 @@ func (s *UserService) GetUsers(ctx context.Context, actor admin.Actor, appID adm
 // GetUser implements the admin.UserService interface.
 //
 //nolint:wrapcheck,cyclop // see comment in the header
-func (s *UserService) GetUser(ctx context.Context, actor admin.Actor, appID, id admin.ID) (admin.User, error) {
+func (s *UserService) GetUser(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, id admin.ID,
+) (admin.User, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		if actor.ApplicationID != appID {
@@ -116,7 +127,11 @@ func (s *UserService) GetUser(ctx context.Context, actor admin.Actor, appID, id 
 // CreateUser implements the admin.UserService interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *UserService) CreateUser(ctx context.Context, actor admin.Actor, user admin.User) (admin.User, error) {
+func (s *UserService) CreateUser(
+	ctx context.Context,
+	actor admin.Actor,
+	user admin.User,
+) (admin.User, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.User{}, domain.NewAccessDeniedError("user %s cannot create user", actor.UserID)
@@ -150,7 +165,11 @@ func (s *UserService) CreateUser(ctx context.Context, actor admin.Actor, user ad
 // UpdateUser implements the admin.UserService interface.
 //
 //nolint:wrapcheck,cyclop // see comment in the header
-func (s *UserService) UpdateUser(ctx context.Context, actor admin.Actor, user admin.User) (admin.User, error) {
+func (s *UserService) UpdateUser(
+	ctx context.Context,
+	actor admin.Actor,
+	user admin.User,
+) (admin.User, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		if actor.ApplicationID != user.ApplicationID {
@@ -193,7 +212,11 @@ func (s *UserService) UpdateUser(ctx context.Context, actor admin.Actor, user ad
 // DeleteUser implements the admin.UserService interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *UserService) DeleteUser(ctx context.Context, actor admin.Actor, appID, id admin.ID) error {
+func (s *UserService) DeleteUser(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, id admin.ID,
+) error {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return domain.NewAccessDeniedError("user %s cannot delete user %s", actor.UserID, id)
@@ -220,10 +243,131 @@ func (s *UserService) DeleteUser(ctx context.Context, actor admin.Actor, appID, 
 	}
 }
 
-// GetUserByEmail implements the admin.UserService interface.
+// GetAPIKeys implements the admin.UserService interface.
+func (s *UserService) GetAPIKeys(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, userID admin.ID,
+) ([]admin.APIKey, error) {
+	user, err := s.GetUser(ctx, actor, appID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return user.APIKeys, nil
+}
+
+// GetAPIKey implements the admin.UserService interface.
+func (s *UserService) GetAPIKey(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, userID, id admin.ID,
+) (admin.APIKey, error) {
+	user, err := s.GetUser(ctx, actor, appID, userID)
+	if err != nil {
+		return admin.APIKey{}, err
+	}
+
+	for _, apiKey := range user.APIKeys {
+		if apiKey.ID == id {
+			return apiKey, nil
+		}
+	}
+
+	return admin.APIKey{}, domain.NewNotFoundError("API key %s not found", id)
+}
+
+// CreateAPIKey implements the admin.UserService interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *UserService) GetUserByEmail(ctx context.Context, actor admin.Actor, appID admin.ID, email string) (admin.User, error) {
+func (s *UserService) CreateAPIKey(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, userID admin.ID,
+	apiKey admin.APIKey,
+) (admin.APIKey, error) {
+	user, err := s.GetUser(ctx, actor, appID, userID)
+	if err != nil {
+		return admin.APIKey{}, err
+	}
+
+	apiKey.ID = admin.ID(s.idgen.GenerateID())
+
+	user.APIKeys = append(user.APIKeys, apiKey)
+
+	if uErr := s.repo.UpdateUser(ctx, user); uErr != nil {
+		return admin.APIKey{}, uErr
+	}
+
+	return apiKey, nil
+}
+
+// UpdateAPIKey implements the admin.UserService interface.
+//
+//nolint:wrapcheck // see comment in the header
+func (s *UserService) UpdateAPIKey(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, userID, id admin.ID,
+	apiKey admin.APIKey,
+) (admin.APIKey, error) {
+	user, err := s.GetUser(ctx, actor, appID, userID)
+	if err != nil {
+		return admin.APIKey{}, err
+	}
+
+	for i, ak := range user.APIKeys {
+		if ak.ID == id {
+			user.APIKeys[i] = apiKey
+
+			if uErr := s.repo.UpdateUser(ctx, user); uErr != nil {
+				return admin.APIKey{}, uErr
+			}
+
+			return apiKey, nil
+		}
+	}
+
+	return admin.APIKey{}, domain.NewNotFoundError("API key %s not found", id)
+}
+
+// DeleteAPIKey implements the admin.UserService interface.
+//
+//nolint:wrapcheck // see comment in the header
+func (s *UserService) DeleteAPIKey(
+	ctx context.Context,
+	actor admin.Actor,
+	appID, userID, id admin.ID,
+) error {
+	user, err := s.GetUser(ctx, actor, appID, userID)
+	if err != nil {
+		return err
+	}
+
+	for i, apiKey := range user.APIKeys {
+		if apiKey.ID == id {
+			user.APIKeys = append(user.APIKeys[:i], user.APIKeys[i+1:]...)
+
+			if uErr := s.repo.UpdateUser(ctx, user); uErr != nil {
+				return uErr
+			}
+
+			return nil
+		}
+	}
+
+	return domain.NewNotFoundError("API key %s not found", id)
+}
+
+// GetUserByEmail implements the admin.UserFinder interface.
+//
+//nolint:wrapcheck // see comment in the header
+func (s *UserService) GetUserByEmail(
+	ctx context.Context,
+	actor admin.Actor,
+	appID admin.ID,
+	email string,
+) (admin.User, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.User{}, domain.NewAccessDeniedError("user %s cannot get user by email", actor.UserID)
