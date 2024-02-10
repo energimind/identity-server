@@ -90,6 +90,7 @@ type Daemon struct {
 // APIKey represents an API key that can be used to authenticate a daemon.
 // It can also be used to authenticate a user.
 type APIKey struct {
+	ID          ID
 	Name        string
 	Description string
 	Enabled     bool

@@ -153,6 +153,7 @@ func toDaemon(daemon Daemon) admin.Daemon {
 // fromAPIKey converts a domain API key to a DTO API key.
 func fromAPIKey(apiKey admin.APIKey) APIKey {
 	return APIKey{
+		ID:          string(apiKey.ID),
 		Name:        apiKey.Name,
 		Description: apiKey.Description,
 		Enabled:     apiKey.Enabled,
@@ -175,6 +176,7 @@ func fromAPIKeys(apiKeys []admin.APIKey) []APIKey {
 // toAPIKey converts a DTO API key to a domain API key.
 func toAPIKey(apiKey APIKey) admin.APIKey {
 	return admin.APIKey{
+		ID:          admin.ID(apiKey.ID),
 		Name:        apiKey.Name,
 		Description: apiKey.Description,
 		Enabled:     apiKey.Enabled,

@@ -51,6 +51,7 @@ type dbDaemon struct {
 
 // dbAPIKey is the database model for an API key.
 type dbAPIKey struct {
+	ID          string    `bson:"id"`
 	Name        string    `bson:"name,omitempty"`
 	Description string    `bson:"description,omitempty"`
 	Enabled     bool      `bson:"enabled"`

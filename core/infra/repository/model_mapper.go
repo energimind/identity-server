@@ -114,6 +114,7 @@ func fromDaemon(daemon dbDaemon) admin.Daemon {
 
 func toAPIKey(apiKey admin.APIKey) dbAPIKey {
 	return dbAPIKey{
+		ID:          toID(apiKey.ID),
 		Name:        apiKey.Name,
 		Description: apiKey.Description,
 		Enabled:     apiKey.Enabled,
@@ -124,6 +125,7 @@ func toAPIKey(apiKey admin.APIKey) dbAPIKey {
 
 func fromAPIKey(apiKey dbAPIKey) admin.APIKey {
 	return admin.APIKey{
+		ID:          fromID(apiKey.ID),
 		Name:        apiKey.Name,
 		Description: apiKey.Description,
 		Enabled:     apiKey.Enabled,
