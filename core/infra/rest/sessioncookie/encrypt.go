@@ -1,4 +1,4 @@
-package cookie
+package sessioncookie
 
 import (
 	"crypto/aes"

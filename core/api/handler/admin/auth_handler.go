@@ -12,8 +12,6 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-const cookieName = "sessionKey"
-
 // adminActor is the actor for the admin role.
 //
 //nolint:gochecknoglobals // it is a constant
@@ -23,7 +21,7 @@ var adminActor = admin.Actor{Role: admin.SystemRoleAdmin}
 type AuthHandler struct {
 	authEndpoint   string
 	userFinder     admin.UserFinder
-	cookieProvider admin.CookieProvider
+	cookieOperator admin.CookieOperator
 	client         *resty.Client
 }
 
@@ -31,14 +29,14 @@ type AuthHandler struct {
 func NewAuthHandler(
 	authEndpoint string,
 	userFinder admin.UserFinder,
-	cookieProvider admin.CookieProvider,
+	cookieOperator admin.CookieOperator,
 ) *AuthHandler {
 	const clientTimeout = 10 * time.Second
 
 	return &AuthHandler{
 		authEndpoint:   authEndpoint + "/api/v1/auth",
 		userFinder:     userFinder,
-		cookieProvider: cookieProvider,
+		cookieOperator: cookieOperator,
 		client:         resty.New().SetTimeout(clientTimeout),
 	}
 }
@@ -121,22 +119,18 @@ func (h *AuthHandler) completeLogin(c *gin.Context) { //nolint:funlen
 		return
 	}
 
-	us := admin.NewUserSession(
+	us := domain.NewUserSession(
 		completeResult.SessionID,
 		completeResult.ApplicationID,
 		user.ID.String(),
 		user.Role.String(),
 	)
 
-	cookie, err := h.cookieProvider.CreateCookie(c.Request, cookieName, us.Serialize())
-	if err != nil {
-		_ = c.Error(err)
+	if cErr := h.cookieOperator.CreateCookie(c, us); cErr != nil {
+		_ = c.Error(cErr)
 
 		return
 	}
-
-	c.SetSameSite(cookie.SameSite)
-	c.SetCookie(cookieName, cookie.Value, cookie.MaxAge, cookie.Path, cookie.Domain, cookie.Secure, cookie.HttpOnly)
 
 	c.JSON(http.StatusOK, gin.H{
 		"username":      user.Username,
@@ -150,15 +144,11 @@ func (h *AuthHandler) completeLogin(c *gin.Context) { //nolint:funlen
 
 func (h *AuthHandler) logout(c *gin.Context) {
 	// reset the cookie even if the logout fails
-	cookie, err := h.cookieProvider.ResetCookie(c.Request, cookieName)
-	if err != nil {
+	if err := h.cookieOperator.ResetCookie(c); err != nil {
 		_ = c.Error(err)
 
 		return
 	}
-
-	c.SetSameSite(cookie.SameSite)
-	c.SetCookie(cookieName, cookie.Value, cookie.MaxAge, cookie.Path, cookie.Domain, cookie.Secure, cookie.HttpOnly)
 
 	sessionID := c.GetString("sessionId")
 

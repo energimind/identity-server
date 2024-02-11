@@ -7,12 +7,12 @@ import (
 
 	"github.com/energimind/identity-service/core/api"
 	"github.com/energimind/identity-service/core/config"
-	"github.com/energimind/identity-service/core/infra/cookie"
 	"github.com/energimind/identity-service/core/infra/idgen/shortid"
 	"github.com/energimind/identity-service/core/infra/idgen/xid"
 	"github.com/energimind/identity-service/core/infra/logger"
 	"github.com/energimind/identity-service/core/infra/rest/middleware"
 	"github.com/energimind/identity-service/core/infra/rest/router"
+	"github.com/energimind/identity-service/core/infra/rest/sessioncookie"
 	"github.com/energimind/identity-service/pkg/httpd"
 	"github.com/gin-gonic/gin"
 )
@@ -45,10 +45,10 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) {
 		disconnectFromRedis(redisCache)
 	})
 
-	cookieProvider := cookie.NewProvider(cfg.Cookie.Secret)
+	cookieOperator := sessioncookie.NewProvider("sessionKey", cfg.Cookie.Secret)
 
-	handlers := setupHandlers(mongoDB, idGen, shortIDGen, cfg.Auth.Endpoint, cookieProvider, redisCache)
-	middlewares := setupMiddlewares(cookieProvider)
+	handlers := setupHandlers(mongoDB, idGen, shortIDGen, cfg.Auth.Endpoint, cookieOperator, redisCache)
+	middlewares := setupMiddlewares(cookieOperator)
 
 	routes := api.NewRoutes(handlers, middlewares)
 

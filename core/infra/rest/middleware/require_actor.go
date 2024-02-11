@@ -17,27 +17,9 @@ import (
 // If the actor can not be found, the request is aborted with a 401 Unauthorized error.
 func RequireActor(verifier admin.CookieVerifier) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		cookie, err := c.Request.Cookie("sessionKey")
-		if err != nil {
-			_ = c.Error(domain.NewSessionError("sessionKey cookie not found"))
-
-			c.Abort()
-
-			return
-		}
-
-		serialized, err := verifier.VerifyCookie(cookie)
+		us, err := verifier.VerifyCookie(c)
 		if err != nil {
 			_ = c.Error(domain.NewSessionError(fmt.Sprintf("invalid sessionKey cookie: %s", err)))
-
-			c.Abort()
-
-			return
-		}
-
-		us, err := admin.DeserializeUserSession(serialized)
-		if err != nil {
-			_ = c.Error(domain.NewSessionError(fmt.Sprintf("invalid sessionKey cookie value: %s", err)))
 
 			c.Abort()
 
