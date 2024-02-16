@@ -97,6 +97,11 @@ func (s *ApplicationService) CreateApplication(
 	actor admin.Actor,
 	app admin.Application,
 ) (admin.Application, error) {
+	app, err := validateApplication(app)
+	if err != nil {
+		return admin.Application{}, err
+	}
+
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.Application{}, domain.NewAccessDeniedError("user %s cannot create application", actor.UserID)
@@ -125,6 +130,11 @@ func (s *ApplicationService) UpdateApplication(
 	actor admin.Actor,
 	app admin.Application,
 ) (admin.Application, error) {
+	app, err := validateApplication(app)
+	if err != nil {
+		return admin.Application{}, err
+	}
+
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.Application{}, domain.NewAccessDeniedError("user %s cannot update application %s", actor.UserID, app.ID)

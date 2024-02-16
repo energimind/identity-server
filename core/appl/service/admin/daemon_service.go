@@ -112,6 +112,11 @@ func (s *DaemonService) CreateDaemon(
 	actor admin.Actor,
 	daemon admin.Daemon,
 ) (admin.Daemon, error) {
+	daemon, err := validateDaemon(daemon)
+	if err != nil {
+		return admin.Daemon{}, err
+	}
+
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.Daemon{}, domain.NewAccessDeniedError("user %s cannot create daemon", actor.UserID)
@@ -150,6 +155,11 @@ func (s *DaemonService) UpdateDaemon(
 	actor admin.Actor,
 	daemon admin.Daemon,
 ) (admin.Daemon, error) {
+	daemon, err := validateDaemon(daemon)
+	if err != nil {
+		return admin.Daemon{}, err
+	}
+
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.Daemon{}, domain.NewAccessDeniedError("user %s cannot update daemon %s", actor.UserID, daemon.ID)
@@ -253,6 +263,11 @@ func (s *DaemonService) CreateAPIKey(
 	appID, daemonID admin.ID,
 	apiKey admin.APIKey,
 ) (admin.APIKey, error) {
+	apiKey, err := validateAPIKey(apiKey)
+	if err != nil {
+		return admin.APIKey{}, err
+	}
+
 	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
 	if err != nil {
 		return admin.APIKey{}, err
@@ -278,6 +293,11 @@ func (s *DaemonService) UpdateAPIKey(
 	appID, daemonID, id admin.ID,
 	apiKey admin.APIKey,
 ) (admin.APIKey, error) {
+	apiKey, err := validateAPIKey(apiKey)
+	if err != nil {
+		return admin.APIKey{}, err
+	}
+
 	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
 	if err != nil {
 		return admin.APIKey{}, err

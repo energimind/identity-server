@@ -132,6 +132,11 @@ func (s *UserService) CreateUser(
 	actor admin.Actor,
 	user admin.User,
 ) (admin.User, error) {
+	user, err := validateUser(user)
+	if err != nil {
+		return admin.User{}, err
+	}
+
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.User{}, domain.NewAccessDeniedError("user %s cannot create user", actor.UserID)
@@ -170,6 +175,11 @@ func (s *UserService) UpdateUser(
 	actor admin.Actor,
 	user admin.User,
 ) (admin.User, error) {
+	user, err := validateUser(user)
+	if err != nil {
+		return admin.User{}, err
+	}
+
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		if actor.ApplicationID != user.ApplicationID {
@@ -286,6 +296,11 @@ func (s *UserService) CreateAPIKey(
 	appID, userID admin.ID,
 	apiKey admin.APIKey,
 ) (admin.APIKey, error) {
+	apiKey, err := validateAPIKey(apiKey)
+	if err != nil {
+		return admin.APIKey{}, err
+	}
+
 	user, err := s.GetUser(ctx, actor, appID, userID)
 	if err != nil {
 		return admin.APIKey{}, err
@@ -311,6 +326,11 @@ func (s *UserService) UpdateAPIKey(
 	appID, userID, id admin.ID,
 	apiKey admin.APIKey,
 ) (admin.APIKey, error) {
+	apiKey, err := validateAPIKey(apiKey)
+	if err != nil {
+		return admin.APIKey{}, err
+	}
+
 	user, err := s.GetUser(ctx, actor, appID, userID)
 	if err != nil {
 		return admin.APIKey{}, err

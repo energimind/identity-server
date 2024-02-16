@@ -112,6 +112,11 @@ func (s *ProviderService) CreateProvider(
 	actor admin.Actor,
 	provider admin.Provider,
 ) (admin.Provider, error) {
+	provider, err := validateProvider(provider)
+	if err != nil {
+		return admin.Provider{}, err
+	}
+
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.Provider{}, domain.NewAccessDeniedError("user %s cannot create provider", actor.UserID)
@@ -150,6 +155,11 @@ func (s *ProviderService) UpdateProvider(
 	actor admin.Actor,
 	provider admin.Provider,
 ) (admin.Provider, error) {
+	provider, err := validateProvider(provider)
+	if err != nil {
+		return admin.Provider{}, err
+	}
+
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.Provider{}, domain.NewAccessDeniedError("user %s cannot update provider %s", actor.UserID, provider.ID)
