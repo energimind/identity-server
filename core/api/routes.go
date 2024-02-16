@@ -38,6 +38,11 @@ func (r *Routes) RegisterRoutes(root gin.IRouter) {
 		{
 			r.bind(adminAuthEndpoint, r.handlers.AdminAuth)
 		}
+
+		utilsEndpoint := adminEndpoint.Group("/utils")
+		{
+			r.bind(utilsEndpoint, r.handlers.Util)
+		}
 	}
 
 	authEndpoint := api.Group("/auth")

@@ -8,6 +8,7 @@ import (
 	"github.com/energimind/identity-service/core/api"
 	"github.com/energimind/identity-service/core/config"
 	"github.com/energimind/identity-service/core/infra/idgen/shortid"
+	"github.com/energimind/identity-service/core/infra/idgen/uuid"
 	"github.com/energimind/identity-service/core/infra/idgen/xid"
 	"github.com/energimind/identity-service/core/infra/logger"
 	"github.com/energimind/identity-service/core/infra/rest/middleware"
@@ -24,6 +25,7 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) {
 
 	idGen := xid.NewGenerator()
 	shortIDGen := shortid.NewGenerator()
+	keyGen := uuid.NewGenerator()
 
 	mongoClient, err := connectToMongoDB(&cfg.Mongo)
 	if err != nil {
@@ -47,7 +49,7 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) {
 
 	cookieOperator := sessioncookie.NewProvider("sessionKey", cfg.Cookie.Secret)
 
-	handlers := setupHandlers(mongoDB, idGen, shortIDGen, cfg.Auth.Endpoint, cookieOperator, redisCache)
+	handlers := setupHandlers(mongoDB, idGen, shortIDGen, keyGen, cfg.Auth.Endpoint, cookieOperator, redisCache)
 	middlewares := setupMiddlewares(cookieOperator)
 
 	routes := api.NewRoutes(handlers, middlewares)

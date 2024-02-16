@@ -23,5 +23,6 @@ type Handlers struct {
 	Daemon      anyHandler
 	AdminAuth   anyHandler
 	Auth        anyHandler
+	Util        anyHandler
 	Health      anyHandler
 }

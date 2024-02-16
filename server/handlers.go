@@ -5,6 +5,7 @@ import (
 	adminapi "github.com/energimind/identity-service/core/api/handler/admin"
 	authapi "github.com/energimind/identity-service/core/api/handler/auth"
 	healthapi "github.com/energimind/identity-service/core/api/handler/health"
+	utilapi "github.com/energimind/identity-service/core/api/handler/util"
 	"github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/appl/service/auth"
 	"github.com/energimind/identity-service/core/domain"
@@ -15,7 +16,7 @@ import (
 
 func setupHandlers(
 	mongoDB *mongo.Database,
-	idGen, shortIDGen domain.IDGenerator,
+	idGen, shortIDGen, keyGen domain.IDGenerator,
 	authEndpoint string,
 	cookieOperator *sessioncookie.Provider,
 	cache domain.Cache,
@@ -39,6 +40,7 @@ func setupHandlers(
 		Daemon:      adminapi.NewDaemonHandler(daemonService),
 		AdminAuth:   adminapi.NewAuthHandler(authEndpoint, userService, cookieOperator),
 		Auth:        authapi.NewHandler(authService),
+		Util:        utilapi.NewHandler(keyGen),
 		Health:      healthapi.NewHandler(),
 	}
 
