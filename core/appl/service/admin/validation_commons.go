@@ -7,7 +7,7 @@ import (
 	"github.com/energimind/identity-service/core/domain"
 )
 
-var codeRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]*$`)
+var codeRegex = regexp.MustCompile(`^[a-zA-Z0-9_.-]*$`)
 
 func checkEmpty(name, value string) error {
 	if value == "" {
