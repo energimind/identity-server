@@ -54,6 +54,7 @@ func validateProvider(provider admin.Provider) (admin.Provider, error) {
 func validateUser(user admin.User) (admin.User, error) {
 	user.Username = strings.TrimSpace(user.Username)
 	user.Email = strings.TrimSpace(user.Email)
+	user.DisplayName = strings.TrimSpace(user.DisplayName)
 
 	if err := checkEmpty("username", user.Username); err != nil {
 		return user, err
@@ -68,6 +69,7 @@ func validateUser(user admin.User) (admin.User, error) {
 
 func validateAPIKey(apiKey admin.APIKey) (admin.APIKey, error) {
 	apiKey.Name = strings.TrimSpace(apiKey.Name)
+	apiKey.Key = strings.TrimSpace(apiKey.Key)
 
 	if err := checkName(apiKey.Name); err != nil {
 		return apiKey, err
