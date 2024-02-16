@@ -8,6 +8,7 @@ import (
 	"github.com/energimind/identity-service/core/domain/admin"
 	"github.com/energimind/identity-service/core/domain/auth"
 	"github.com/energimind/identity-service/core/infra/logger"
+	"github.com/energimind/identity-service/core/infra/oauth/providers"
 )
 
 const sessionTTL = 24 * 7 * time.Hour
@@ -19,21 +20,21 @@ const sessionTTL = 24 * 7 * time.Hour
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
 type Service struct {
-	providerLookupService admin.ProviderLookupService
-	idgen                 domain.IDGenerator
-	cache                 domain.Cache
+	providerFinder admin.ProviderLookupService
+	idGenerator    domain.IDGenerator
+	sessionCache   domain.Cache
 }
 
 // NewService returns a new Service instance.
 func NewService(
-	providerLookupService admin.ProviderLookupService,
+	providerFinder admin.ProviderLookupService,
 	idgen domain.IDGenerator,
 	cache domain.Cache,
 ) *Service {
 	return &Service{
-		providerLookupService: providerLookupService,
-		idgen:                 idgen,
-		cache:                 cache,
+		providerFinder: providerFinder,
+		idGenerator:    idgen,
+		sessionCache:   cache,
 	}
 }
 
@@ -44,22 +45,28 @@ var _ auth.Service = (*Service)(nil)
 //
 //nolint:wrapcheck // see comment in the header
 func (s *Service) GetProviderLink(ctx context.Context, applicationCode, providerCode string) (string, error) {
-	provider, err := s.providerLookupService.LookupProvider(ctx, applicationCode, providerCode)
+	provider, err := s.providerFinder.LookupProvider(ctx, applicationCode, providerCode)
 	if err != nil {
 		return "", err
 	}
 
-	cfg := newConfig(provider)
-	sessionID := s.idgen.GenerateID()
-	link := getAuthCodeURL(ctx, cfg, sessionID)
+	sessionID := s.idGenerator.GenerateID()
+	oauthCfg := newOauthConfig(provider)
 
-	sess := newUserSession(provider.ApplicationID.String(), cfg)
+	oauthProvider, err := providers.NewProvider(oauthCfg)
+	if err != nil {
+		return "", domain.NewAccessDeniedError("failed to create oauth provider: %v", err)
+	}
 
-	if pErr := s.cache.Put(ctx, sessionID, sess, sessionTTL); pErr != nil {
+	// save oauthCfg in the session
+	session := newUserSession(provider.ApplicationID.String(), oauthCfg)
+
+	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL); pErr != nil {
 		return "", pErr
 	}
 
-	return link, nil
+	// return the auth URL with the session ID embedded in the state parameter
+	return oauthProvider.GetAuthURL(ctx, sessionID), nil
 }
 
 // CompleteLogin implements the auth.Service interface.
@@ -68,9 +75,9 @@ func (s *Service) GetProviderLink(ctx context.Context, applicationCode, provider
 func (s *Service) CompleteLogin(ctx context.Context, code, state string) (auth.Info, error) {
 	sessionID := state
 
-	sess := userSession{}
+	session := userSession{}
 
-	found, err := s.cache.Get(ctx, sessionID, &sess)
+	found, err := s.sessionCache.Get(ctx, sessionID, &session)
 	if err != nil {
 		return auth.Info{}, err
 	}
@@ -79,30 +86,37 @@ func (s *Service) CompleteLogin(ctx context.Context, code, state string) (auth.I
 		return auth.Info{}, domain.NewAccessDeniedError("invalid state parameter")
 	}
 
-	token, err := exchangeCodeForAccessToken(ctx, sess.Config, code)
+	oauthProvider, err := providers.NewProvider(session.Config)
 	if err != nil {
 		s.silentlyDeleteSession(ctx, sessionID)
 
-		return auth.Info{}, err
+		return auth.Info{}, domain.NewAccessDeniedError("failed to create oauth provider: %v", err)
 	}
 
-	oui, err := getUserInfo(ctx, token)
+	token, err := oauthProvider.Authorize(ctx, code)
 	if err != nil {
 		s.silentlyDeleteSession(ctx, sessionID)
 
-		return auth.Info{}, err
+		return auth.Info{}, domain.NewAccessDeniedError("failed to authorize: %v", err)
 	}
 
-	sess.updateToken(token)
+	ui, err := oauthProvider.GetUserInfo(ctx, token)
+	if err != nil {
+		s.silentlyDeleteSession(ctx, sessionID)
 
-	if pErr := s.cache.Put(ctx, sessionID, sess, sessionTTL); pErr != nil {
+		return auth.Info{}, domain.NewAccessDeniedError("failed to get user info: %v", err)
+	}
+
+	session.updateToken(token)
+
+	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL); pErr != nil {
 		return auth.Info{}, pErr
 	}
 
 	info := auth.Info{
 		SessionID:     sessionID,
-		ApplicationID: sess.ApplicationID,
-		UserInfo:      toUserInfo(oui),
+		ApplicationID: session.ApplicationID,
+		UserInfo:      toUserInfo(ui),
 	}
 
 	return info, nil
@@ -112,9 +126,9 @@ func (s *Service) CompleteLogin(ctx context.Context, code, state string) (auth.I
 //
 //nolint:wrapcheck // see comment in the header
 func (s *Service) Refresh(ctx context.Context, sessionID string) error {
-	sess := userSession{}
+	session := userSession{}
 
-	found, err := s.cache.Get(ctx, sessionID, &sess)
+	found, err := s.sessionCache.Get(ctx, sessionID, &session)
 	if err != nil {
 		return err
 	}
@@ -123,14 +137,23 @@ func (s *Service) Refresh(ctx context.Context, sessionID string) error {
 		return domain.NewAccessDeniedError("invalid userSession ID")
 	}
 
-	token, err := refreshAccessToken(ctx, sess.Config, sess.Token)
+	oauthProvider, err := providers.NewProvider(session.Config)
 	if err != nil {
-		return err
+		s.silentlyDeleteSession(ctx, sessionID)
+
+		return domain.NewAccessDeniedError("failed to create oauth provider: %v", err)
 	}
 
-	sess.updateToken(token)
+	token, err := oauthProvider.RefreshAccessToken(ctx, session.Token)
+	if err != nil {
+		s.silentlyDeleteSession(ctx, sessionID)
 
-	if pErr := s.cache.Put(ctx, sessionID, sess, sessionTTL); pErr != nil {
+		return domain.NewAccessDeniedError("failed to refresh token: %v", err)
+	}
+
+	session.updateToken(token)
+
+	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL); pErr != nil {
 		return pErr
 	}
 
@@ -141,9 +164,9 @@ func (s *Service) Refresh(ctx context.Context, sessionID string) error {
 //
 //nolint:wrapcheck // see comment in the header
 func (s *Service) Logout(ctx context.Context, sessionID string) error {
-	sess := userSession{}
+	session := userSession{}
 
-	found, err := s.cache.Get(ctx, sessionID, &sess)
+	found, err := s.sessionCache.Get(ctx, sessionID, &session)
 	if err != nil {
 		return err
 	}
@@ -154,15 +177,20 @@ func (s *Service) Logout(ctx context.Context, sessionID string) error {
 
 	s.silentlyDeleteSession(ctx, sessionID)
 
-	if rErr := revokeAccessToken(ctx, sess.Token); rErr != nil {
-		return rErr
+	oauthProvider, err := providers.NewProvider(session.Config)
+	if err != nil {
+		return domain.NewAccessDeniedError("failed to create oauth provider: %v", err)
+	}
+
+	if rErr := oauthProvider.RevokeAccessToken(ctx, session.Token); rErr != nil {
+		return domain.NewAccessDeniedError("failed to revoke token: %v", rErr)
 	}
 
 	return nil
 }
 
 func (s *Service) silentlyDeleteSession(ctx context.Context, sessionID string) {
-	if err := s.cache.Delete(ctx, sessionID); err != nil {
+	if err := s.sessionCache.Delete(ctx, sessionID); err != nil {
 		logger.FromContext(ctx).Info().Err(err).Msg("failed to delete userSession")
 	}
 }
