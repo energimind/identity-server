@@ -207,7 +207,11 @@ func TestDaemonService_CreateDaemon(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			user := admin.Daemon{ApplicationID: appID}
+			user := admin.Daemon{
+				ApplicationID: appID,
+				Code:          "code",
+				Name:          "name",
+			}
 
 			res, err := svc.CreateDaemon(context.Background(), test.actor, user)
 
@@ -281,7 +285,13 @@ func TestDaemonService_UpdateDaemon(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			user := admin.Daemon{ID: userID, ApplicationID: appID}
+			user := admin.Daemon{
+				ID:            userID,
+				ApplicationID: appID,
+				Code:          "newCode",
+				Name:          "newName",
+			}
+
 			res, err := svc.UpdateDaemon(context.Background(), test.actor, user)
 
 			if test.wantResult {

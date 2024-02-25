@@ -195,7 +195,10 @@ func TestApplicationService_CreateApplication(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.CreateApplication(context.Background(), test.actor, admin.Application{})
+			res, err := svc.CreateApplication(context.Background(), test.actor, admin.Application{
+				Code: "code",
+				Name: "name",
+			})
 
 			if test.wantResult {
 				require.NotEmpty(t, res)
@@ -265,7 +268,12 @@ func TestApplicationService_UpdateApplication(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			app := admin.Application{ID: appID}
+			app := admin.Application{
+				ID:   appID,
+				Code: "newCode",
+				Name: "newName",
+			}
+
 			res, err := svc.UpdateApplication(context.Background(), test.actor, app)
 
 			if test.wantResult {

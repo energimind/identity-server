@@ -219,7 +219,11 @@ func TestUserService_CreateUser(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			user := admin.User{ApplicationID: appID}
+			user := admin.User{
+				ApplicationID: appID,
+				Username:      "testUser",
+				Email:         "email@domain.com",
+			}
 
 			res, err := svc.CreateUser(context.Background(), test.actor, user)
 
@@ -305,7 +309,13 @@ func TestUserService_UpdateUser(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			user := admin.User{ID: userID, ApplicationID: appID}
+			user := admin.User{
+				ID:            userID,
+				ApplicationID: appID,
+				Username:      "newUsername",
+				Email:         "newMail@domain.com",
+			}
+
 			res, err := svc.UpdateUser(context.Background(), test.actor, user)
 
 			if test.wantResult {

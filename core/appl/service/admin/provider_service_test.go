@@ -207,7 +207,11 @@ func TestProviderService_CreateProvider(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			user := admin.Provider{ApplicationID: appID}
+			user := admin.Provider{
+				ApplicationID: appID,
+				Code:          "code",
+				Name:          "name",
+			}
 
 			res, err := svc.CreateProvider(context.Background(), test.actor, user)
 
@@ -281,7 +285,13 @@ func TestProviderService_UpdateProvider(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			user := admin.Provider{ID: userID, ApplicationID: appID}
+			user := admin.Provider{
+				ID:            userID,
+				ApplicationID: appID,
+				Code:          "newCode",
+				Name:          "newName",
+			}
+
 			res, err := svc.UpdateProvider(context.Background(), test.actor, user)
 
 			if test.wantResult {
