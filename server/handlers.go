@@ -9,6 +9,7 @@ import (
 	"github.com/energimind/identity-service/core/appl/service/admin"
 	"github.com/energimind/identity-service/core/appl/service/auth"
 	"github.com/energimind/identity-service/core/domain"
+	"github.com/energimind/identity-service/core/infra/identity"
 	"github.com/energimind/identity-service/core/infra/repository"
 	"github.com/energimind/identity-service/core/infra/rest/sessioncookie"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -33,12 +34,14 @@ func setupHandlers(
 	providerLookupService := admin.NewProviderLookupService(applicationService, providerService)
 	authService := auth.NewService(providerLookupService, shortIDGen, cache)
 
+	identityClient := identity.NewClient(authEndpoint, userService)
+
 	handlers := api.Handlers{
 		Application: adminapi.NewApplicationHandler(applicationService),
 		Provider:    adminapi.NewProviderHandler(providerService),
 		User:        adminapi.NewUserHandler(userService),
 		Daemon:      adminapi.NewDaemonHandler(daemonService),
-		AdminAuth:   adminapi.NewAuthHandler(authEndpoint, userService, cookieOperator),
+		AdminAuth:   adminapi.NewAuthHandler(identityClient, cookieOperator),
 		Auth:        authapi.NewHandler(authService),
 		Util:        utilapi.NewHandler(keyGen),
 		Health:      healthapi.NewHandler(),
