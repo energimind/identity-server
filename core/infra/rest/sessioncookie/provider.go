@@ -7,10 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Provider defines methods for creating, resetting cookies and verifying cookies.
+// Provider defines methods for creating, resetting cookies and parsing cookies.
 //
-// It is used to create and verify user sessions.
-// The user session is stored in a cookie.
+// It is used to create and parse user sessions stored in cookies.
 type Provider struct {
 	cookieName string
 	secret     string
@@ -50,8 +49,8 @@ func (p *Provider) ResetCookie(c *gin.Context) error {
 	return nil
 }
 
-// VerifyCookie verifies the cookie and returns the user session.
-func (p *Provider) VerifyCookie(c *gin.Context) (domain.UserSession, error) {
+// ParseCookie parses the cookie and returns the user session.
+func (p *Provider) ParseCookie(c *gin.Context) (domain.UserSession, error) {
 	cookie, err := c.Request.Cookie(p.cookieName)
 	if err != nil {
 		return domain.UserSession{}, NewError("cookie not found: %s", err)

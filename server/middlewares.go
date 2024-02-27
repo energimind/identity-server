@@ -6,8 +6,8 @@ import (
 	"github.com/energimind/identity-service/core/infra/rest/middleware"
 )
 
-func setupMiddlewares(cookieVerifier admin.CookieVerifier) api.Middlewares {
+func setupMiddlewares(cookieParser admin.CookieParser) api.Middlewares {
 	return api.Middlewares{
-		RequireActor: middleware.RequireActor(cookieVerifier),
+		RequireActor: middleware.RequireActor(cookieParser),
 	}
 }

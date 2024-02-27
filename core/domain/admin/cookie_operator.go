@@ -11,7 +11,7 @@ type CookieOperator interface {
 	ResetCookie(c *gin.Context) error
 }
 
-// CookieVerifier defines a method for verifying cookies.
-type CookieVerifier interface {
-	VerifyCookie(c *gin.Context) (domain.UserSession, error)
+// CookieParser defines a method for parsing cookies.
+type CookieParser interface {
+	ParseCookie(c *gin.Context) (domain.UserSession, error)
 }

@@ -15,9 +15,9 @@ import (
 // The actor can be retrieved from the request context using the reqctx.Actor function.
 //
 // If the actor can not be found, the request is aborted with a 401 Unauthorized error.
-func RequireActor(verifier admin.CookieVerifier) gin.HandlerFunc {
+func RequireActor(cookieParser admin.CookieParser) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		us, err := verifier.VerifyCookie(c)
+		us, err := cookieParser.ParseCookie(c)
 		if err != nil {
 			_ = c.Error(domain.NewSessionError(fmt.Sprintf("invalid sessionKey cookie: %s", err)))
 
