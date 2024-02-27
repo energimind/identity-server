@@ -81,6 +81,12 @@ func (h *Handler) refreshSession(c *gin.Context) {
 		return
 	}
 
+	if refreshed {
+		reqctx.Logger(c).Debug().
+			Str("sessionId", sessionID).
+			Msg("Session refreshed")
+	}
+
 	c.JSON(http.StatusOK, gin.H{"refreshed": refreshed})
 }
 
@@ -93,6 +99,10 @@ func (h *Handler) logout(c *gin.Context) {
 
 		return
 	}
+
+	reqctx.Logger(c).Debug().
+		Str("sessionId", sessionID).
+		Msg("Logout completed")
 
 	c.Status(http.StatusOK)
 }

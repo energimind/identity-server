@@ -11,17 +11,18 @@ import (
 	"github.com/energimind/identity-service/core/domain"
 	"github.com/energimind/identity-service/core/infra/identity"
 	"github.com/energimind/identity-service/core/infra/repository"
+	"github.com/energimind/identity-service/core/infra/rest/middleware"
 	"github.com/energimind/identity-service/core/infra/rest/sessioncookie"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func setupHandlers(
+func setupHandlersAndMiddlewares(
 	mongoDB *mongo.Database,
 	idGen, shortIDGen, keyGen domain.IDGenerator,
 	authEndpoint string,
 	cookieOperator *sessioncookie.Provider,
 	cache domain.Cache,
-) api.Handlers {
+) (api.Handlers, api.Middlewares) {
 	applicationRepo := repository.NewApplicationRepository(mongoDB)
 	providerRepo := repository.NewProviderRepository(mongoDB)
 	userRepo := repository.NewUserRepository(mongoDB)
@@ -47,5 +48,9 @@ func setupHandlers(
 		Health:      healthapi.NewHandler(),
 	}
 
-	return handlers
+	middlewares := api.Middlewares{
+		RequireActor: middleware.RequireActor(cookieOperator, identityClient),
+	}
+
+	return handlers, middlewares
 }

@@ -205,7 +205,7 @@ func sessionTTL(expiry time.Time) time.Duration {
 	// the token is still valid when used
 	const extraTime = time.Minute * 5
 
-	ttl := expiry.Sub(time.Now())
+	ttl := time.Until(expiry)
 
 	if ttl <= 0 {
 		return defaultSessionTTL

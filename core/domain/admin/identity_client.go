@@ -8,6 +8,7 @@ import (
 type IdentityClient interface {
 	ProviderLink(ctx context.Context, appCode, providerCode string) (string, error)
 	Login(ctx context.Context, code, state string) (Session, User, error)
+	Refresh(ctx context.Context, sessionID string) (bool, error)
 	Logout(ctx context.Context, sessionID string) error
 }
 

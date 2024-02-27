@@ -106,6 +106,28 @@ func (c *Client) Login(ctx context.Context, code, state string) (admin.Session, 
 	return session, user, nil
 }
 
+// Refresh implements admin.IdentityClient.
+func (c *Client) Refresh(ctx context.Context, sessionID string) (bool, error) {
+	var result struct {
+		Refreshed bool `json:"refreshed"`
+	}
+
+	rsp, err := c.rest.R().
+		SetContext(ctx).
+		SetHeader("X-IS-SessionID", sessionID).
+		SetResult(&result).
+		Put(c.authEndpoint + "/refresh")
+	if err != nil {
+		return false, domain.NewGatewayError("failed to refresh session: %v", err)
+	}
+
+	if err := processErrorResponse(rsp); err != nil {
+		return false, err
+	}
+
+	return result.Refreshed, nil
+}
+
 // Logout implements admin.IdentityClient.
 func (c *Client) Logout(ctx context.Context, sessionID string) error {
 	rsp, err := c.rest.R().

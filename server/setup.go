@@ -49,8 +49,15 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) {
 
 	cookieOperator := sessioncookie.NewProvider("sessionKey", cfg.Cookie.Secret)
 
-	handlers := setupHandlers(mongoDB, idGen, shortIDGen, keyGen, cfg.Auth.Endpoint, cookieOperator, redisCache)
-	middlewares := setupMiddlewares(cookieOperator)
+	handlers, middlewares := setupHandlersAndMiddlewares(
+		mongoDB,
+		idGen,
+		shortIDGen,
+		keyGen,
+		cfg.Auth.Endpoint,
+		cookieOperator,
+		redisCache,
+	)
 
 	routes := api.NewRoutes(handlers, middlewares)
 
