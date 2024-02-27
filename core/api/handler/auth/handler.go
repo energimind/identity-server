@@ -61,7 +61,7 @@ func (h *Handler) completeLogin(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"sessionId":     info.SessionID,
 		"applicationId": info.ApplicationID,
-		"userInfo": map[string]any{
+		"userInfo": gin.H{
 			"id":         userInfo.ID,
 			"name":       userInfo.Name,
 			"given":      userInfo.GivenName,
@@ -74,14 +74,14 @@ func (h *Handler) completeLogin(c *gin.Context) {
 func (h *Handler) refreshSession(c *gin.Context) {
 	sessionID := c.GetHeader("X-IS-SessionID")
 
-	err := h.service.Refresh(c, sessionID)
+	refreshed, err := h.service.Refresh(c, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"refreshed": refreshed})
 }
 
 func (h *Handler) logout(c *gin.Context) {

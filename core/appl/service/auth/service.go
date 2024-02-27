@@ -11,7 +11,7 @@ import (
 	"github.com/energimind/identity-service/core/infra/oauth/providers"
 )
 
-const sessionTTL = 24 * 7 * time.Hour
+const defaultSessionTTL = 24 * 7 * time.Hour
 
 // Service manages user sessions.
 //
@@ -61,7 +61,7 @@ func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCod
 	// save oauthCfg in the session
 	session := newUserSession(provider.ApplicationID.String(), oauthCfg)
 
-	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL); pErr != nil {
+	if pErr := s.sessionCache.Put(ctx, sessionID, session, defaultSessionTTL); pErr != nil {
 		return "", pErr
 	}
 
@@ -109,7 +109,7 @@ func (s *Service) Login(ctx context.Context, code, state string) (auth.Info, err
 
 	session.updateToken(token)
 
-	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL); pErr != nil {
+	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL(token.Expiry)); pErr != nil {
 		return auth.Info{}, pErr
 	}
 
@@ -123,41 +123,46 @@ func (s *Service) Login(ctx context.Context, code, state string) (auth.Info, err
 }
 
 // Refresh implements the auth.Service interface.
+// It returns true if the token was refreshed, false otherwise.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *Service) Refresh(ctx context.Context, sessionID string) error {
+func (s *Service) Refresh(ctx context.Context, sessionID string) (bool, error) {
 	session := userSession{}
 
 	found, err := s.sessionCache.Get(ctx, sessionID, &session)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	if !found {
-		return domain.NewAccessDeniedError("invalid userSession ID")
+		return false, domain.NewAccessDeniedError("invalid userSession ID")
 	}
 
 	oauthProvider, err := providers.NewProvider(session.Config)
 	if err != nil {
 		s.silentlyDeleteSession(ctx, sessionID)
 
-		return domain.NewAccessDeniedError("failed to create oauth provider: %v", err)
+		return false, domain.NewAccessDeniedError("failed to create oauth provider: %v", err)
 	}
 
 	token, err := oauthProvider.RefreshAccessToken(ctx, session.Token)
 	if err != nil {
 		s.silentlyDeleteSession(ctx, sessionID)
 
-		return domain.NewAccessDeniedError("failed to refresh token: %v", err)
+		return false, domain.NewAccessDeniedError("failed to refresh token: %v", err)
+	}
+
+	if token.AccessToken == session.Token.AccessToken {
+		return false, nil
 	}
 
 	session.updateToken(token)
 
-	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL); pErr != nil {
-		return pErr
+	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL(token.Expiry)); pErr != nil {
+		return false, pErr
 	}
 
-	return nil
+	return true, nil
 }
 
 // Logout implements the auth.Service interface.
@@ -193,4 +198,18 @@ func (s *Service) silentlyDeleteSession(ctx context.Context, sessionID string) {
 	if err := s.sessionCache.Delete(ctx, sessionID); err != nil {
 		logger.FromContext(ctx).Info().Err(err).Msg("failed to delete userSession")
 	}
+}
+
+func sessionTTL(expiry time.Time) time.Duration {
+	// extraTime is added to the token expiry to ensure that
+	// the token is still valid when used
+	const extraTime = time.Minute * 5
+
+	ttl := expiry.Sub(time.Now())
+
+	if ttl <= 0 {
+		return defaultSessionTTL
+	}
+
+	return ttl + extraTime
 }
