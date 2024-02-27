@@ -41,10 +41,10 @@ func NewService(
 // Ensure service implements the auth.Service interface.
 var _ auth.Service = (*Service)(nil)
 
-// GetProviderLink implements the auth.Service interface.
+// ProviderLink implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *Service) GetProviderLink(ctx context.Context, applicationCode, providerCode string) (string, error) {
+func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCode string) (string, error) {
 	provider, err := s.providerFinder.LookupProvider(ctx, applicationCode, providerCode)
 	if err != nil {
 		return "", err
@@ -69,10 +69,10 @@ func (s *Service) GetProviderLink(ctx context.Context, applicationCode, provider
 	return oauthProvider.GetAuthURL(ctx, sessionID), nil
 }
 
-// CompleteLogin implements the auth.Service interface.
+// Login implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *Service) CompleteLogin(ctx context.Context, code, state string) (auth.Info, error) {
+func (s *Service) Login(ctx context.Context, code, state string) (auth.Info, error) {
 	sessionID := state
 
 	session := userSession{}

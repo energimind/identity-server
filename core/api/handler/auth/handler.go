@@ -32,7 +32,7 @@ func (h *Handler) getProviderLink(c *gin.Context) {
 	appCode := c.Query("appCode")
 	providerCode := c.Query("providerCode")
 
-	link, err := h.service.GetProviderLink(c, appCode, providerCode)
+	link, err := h.service.ProviderLink(c, appCode, providerCode)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -43,7 +43,7 @@ func (h *Handler) getProviderLink(c *gin.Context) {
 }
 
 func (h *Handler) completeLogin(c *gin.Context) {
-	info, err := h.service.CompleteLogin(c, c.Query("code"), c.Query("state"))
+	info, err := h.service.Login(c, c.Query("code"), c.Query("state"))
 	if err != nil {
 		_ = c.Error(err)
 
