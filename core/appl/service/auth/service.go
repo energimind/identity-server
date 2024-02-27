@@ -11,7 +11,7 @@ import (
 	"github.com/energimind/identity-service/core/infra/oauth/providers"
 )
 
-const defaultSessionTTL = 24 * 7 * time.Hour
+const sessionTTL = 24 * time.Hour
 
 // Service manages user sessions.
 //
@@ -61,7 +61,7 @@ func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCod
 	// save oauthCfg in the session
 	session := newUserSession(provider.ApplicationID.String(), oauthCfg)
 
-	if pErr := s.sessionCache.Put(ctx, sessionID, session, defaultSessionTTL); pErr != nil {
+	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL); pErr != nil {
 		return "", pErr
 	}
 
@@ -109,7 +109,7 @@ func (s *Service) Login(ctx context.Context, code, state string) (auth.Info, err
 
 	session.updateToken(token)
 
-	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL(token.Expiry)); pErr != nil {
+	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL); pErr != nil {
 		return auth.Info{}, pErr
 	}
 
@@ -158,7 +158,7 @@ func (s *Service) Refresh(ctx context.Context, sessionID string) (bool, error) {
 
 	session.updateToken(token)
 
-	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL(token.Expiry)); pErr != nil {
+	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL); pErr != nil {
 		return false, pErr
 	}
 
@@ -198,18 +198,4 @@ func (s *Service) silentlyDeleteSession(ctx context.Context, sessionID string) {
 	if err := s.sessionCache.Delete(ctx, sessionID); err != nil {
 		logger.FromContext(ctx).Info().Err(err).Msg("failed to delete userSession")
 	}
-}
-
-func sessionTTL(expiry time.Time) time.Duration {
-	// extraTime is added to the token expiry to ensure that
-	// the token is still valid when used
-	const extraTime = time.Minute * 5
-
-	ttl := time.Until(expiry)
-
-	if ttl <= 0 {
-		return defaultSessionTTL
-	}
-
-	return ttl + extraTime
 }
