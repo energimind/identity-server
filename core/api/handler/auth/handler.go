@@ -22,13 +22,13 @@ func NewHandler(service auth.Service) *Handler {
 
 // Bind binds the Handler to a root provided by a router.
 func (h *Handler) Bind(root gin.IRoutes) {
-	root.GET("/link", h.getProviderLink)
-	root.POST("/login", h.completeLogin)
+	root.GET("/link", h.providerLink)
+	root.POST("/login", h.login)
 	root.PUT("/refresh", h.refreshSession)
 	root.DELETE("/logout", h.logout)
 }
 
-func (h *Handler) getProviderLink(c *gin.Context) {
+func (h *Handler) providerLink(c *gin.Context) {
 	appCode := c.Query("appCode")
 	providerCode := c.Query("providerCode")
 
@@ -42,7 +42,7 @@ func (h *Handler) getProviderLink(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"link": link})
 }
 
-func (h *Handler) completeLogin(c *gin.Context) {
+func (h *Handler) login(c *gin.Context) {
 	info, err := h.service.Login(c, c.Query("code"), c.Query("state"))
 	if err != nil {
 		_ = c.Error(err)

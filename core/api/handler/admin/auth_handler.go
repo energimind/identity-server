@@ -34,12 +34,12 @@ func NewAuthHandler(
 
 // BindWithMiddlewares binds the LoginHandler to a root provided by a router.
 func (h *AuthHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares) {
-	root.GET("/link", h.getProviderLink)
+	root.GET("/link", h.providerLink)
 	root.POST("/login", h.login)
 	root.DELETE("/logout", mws.RequireActor, h.logout)
 }
 
-func (h *AuthHandler) getProviderLink(c *gin.Context) {
+func (h *AuthHandler) providerLink(c *gin.Context) {
 	appCode := c.Query("appCode")
 	providerCode := c.Query("providerCode")
 
