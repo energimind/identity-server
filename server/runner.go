@@ -6,8 +6,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/energimind/identity-service/core/infra/logger"
-	"github.com/energimind/identity-service/pkg/httpd"
+	"github.com/energimind/identity-server/core/infra/logger"
+	"github.com/energimind/identity-server/pkg/httpd"
 )
 
 // Run runs the server. This method blocks until the server is stopped.

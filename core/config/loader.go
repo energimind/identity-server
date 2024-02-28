@@ -3,9 +3,9 @@ package config
 import (
 	"fmt"
 
-	root "github.com/energimind/identity-service"
-	"github.com/energimind/identity-service/pkg/env"
-	"github.com/energimind/identity-service/pkg/envconf"
+	root "github.com/energimind/identity-server"
+	"github.com/energimind/identity-server/pkg/env"
+	"github.com/energimind/identity-server/pkg/envconf"
 )
 
 // Load loads configuration from the environment.

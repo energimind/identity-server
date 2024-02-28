@@ -1,4 +1,4 @@
-module github.com/energimind/identity-service
+module github.com/energimind/identity-server
 
 go 1.21
 

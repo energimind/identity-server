@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/admin"
+	"github.com/energimind/identity-server/core/domain"
+	"github.com/energimind/identity-server/core/domain/admin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )

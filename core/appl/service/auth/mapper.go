@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"github.com/energimind/identity-service/core/domain/auth"
-	"github.com/energimind/identity-service/core/infra/oauth"
+	"github.com/energimind/identity-server/core/domain/auth"
+	"github.com/energimind/identity-server/core/infra/oauth"
 )
 
 func toUserInfo(ui oauth.UserInfo) auth.UserInfo {

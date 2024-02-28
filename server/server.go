@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/energimind/identity-service/core/config"
-	"github.com/energimind/identity-service/core/infra/logger"
+	"github.com/energimind/identity-server/core/config"
+	"github.com/energimind/identity-server/core/infra/logger"
 )
 
 // Run runs the server.

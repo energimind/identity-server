@@ -5,7 +5,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/energimind/identity-service/core/infra/oauth"
+	"github.com/energimind/identity-server/core/infra/oauth"
 	"github.com/go-resty/resty/v2"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"

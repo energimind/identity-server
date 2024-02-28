@@ -3,8 +3,8 @@ package server
 import (
 	"fmt"
 
-	"github.com/energimind/identity-service/core/config"
-	"github.com/energimind/identity-service/core/infra/redis"
+	"github.com/energimind/identity-server/core/config"
+	"github.com/energimind/identity-server/core/infra/redis"
 )
 
 func connectToRedis(cfg *config.RedisConfig) (*redis.Cache, error) {

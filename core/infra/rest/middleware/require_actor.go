@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/admin"
-	"github.com/energimind/identity-service/core/infra/rest/reqctx"
+	"github.com/energimind/identity-server/core/domain"
+	"github.com/energimind/identity-server/core/domain/admin"
+	"github.com/energimind/identity-server/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 )

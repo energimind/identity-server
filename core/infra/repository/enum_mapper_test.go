@@ -3,8 +3,8 @@ package repository
 import (
 	"testing"
 
-	"github.com/energimind/identity-service/core/domain/admin"
-	"github.com/energimind/identity-service/core/test/utils"
+	"github.com/energimind/identity-server/core/domain/admin"
+	"github.com/energimind/identity-server/core/test/utils"
 	"github.com/stretchr/testify/require"
 )
 

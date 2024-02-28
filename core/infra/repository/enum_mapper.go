@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/energimind/identity-service/core/domain/admin"
+	"github.com/energimind/identity-server/core/domain/admin"
 )
 
 func toProviderType(t admin.ProviderType) dbProviderType {

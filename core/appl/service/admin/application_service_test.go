@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/admin"
+	"github.com/energimind/identity-server/core/domain"
+	"github.com/energimind/identity-server/core/domain/admin"
 	"github.com/stretchr/testify/require"
 )
 

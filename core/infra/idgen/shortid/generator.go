@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/energimind/identity-service/core/domain"
+	"github.com/energimind/identity-server/core/domain"
 	"github.com/teris-io/shortid"
 )
 

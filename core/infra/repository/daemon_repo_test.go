@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/energimind/identity-service/core/domain/admin"
-	"github.com/energimind/identity-service/core/infra/repository"
-	"github.com/energimind/identity-service/core/test/utils"
+	"github.com/energimind/identity-server/core/domain/admin"
+	"github.com/energimind/identity-server/core/infra/repository"
+	"github.com/energimind/identity-server/core/test/utils"
 )
 
 func TestDaemonRepository_CRUD(t *testing.T) {

@@ -1,7 +1,7 @@
 package reqctx
 
 import (
-	"github.com/energimind/identity-service/core/infra/logger"
+	"github.com/energimind/identity-server/core/infra/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 )

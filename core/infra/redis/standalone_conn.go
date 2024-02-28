@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/energimind/identity-service/pkg/hostutil"
+	"github.com/energimind/identity-server/pkg/hostutil"
 	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 )

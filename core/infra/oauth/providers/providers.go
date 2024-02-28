@@ -3,8 +3,8 @@
 package providers
 
 import (
-	"github.com/energimind/identity-service/core/infra/oauth"
-	"github.com/energimind/identity-service/core/infra/oauth/providers/google"
+	"github.com/energimind/identity-server/core/infra/oauth"
+	"github.com/energimind/identity-server/core/infra/oauth/providers/google"
 )
 
 // NewProvider returns a new OAuth provider based on the provider type.

@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/energimind/identity-service/core/domain/admin"
+import "github.com/energimind/identity-server/core/domain/admin"
 
 func toID(id admin.ID) string {
 	return id.String()

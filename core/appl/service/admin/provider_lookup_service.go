@@ -3,8 +3,8 @@ package admin
 import (
 	"context"
 
-	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/admin"
+	"github.com/energimind/identity-server/core/domain"
+	"github.com/energimind/identity-server/core/domain/admin"
 )
 
 // ProviderLookupService provides a service to lookup a provider

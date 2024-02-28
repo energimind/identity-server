@@ -3,7 +3,7 @@ package admin
 import (
 	"time"
 
-	"github.com/energimind/identity-service/core/domain/admin"
+	"github.com/energimind/identity-server/core/domain/admin"
 )
 
 // fromApplication converts a domain application to a DTO application.

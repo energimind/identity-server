@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"github.com/energimind/identity-service/core/domain/admin"
-	"github.com/energimind/identity-service/core/infra/oauth"
+	"github.com/energimind/identity-server/core/domain/admin"
+	"github.com/energimind/identity-server/core/infra/oauth"
 )
 
 func newOauthConfig(provider admin.Provider) *oauth.Config {

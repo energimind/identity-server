@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/admin"
-	"github.com/energimind/identity-service/core/domain/auth"
-	"github.com/energimind/identity-service/core/infra/logger"
-	"github.com/energimind/identity-service/core/infra/oauth/providers"
+	"github.com/energimind/identity-server/core/domain"
+	"github.com/energimind/identity-server/core/domain/admin"
+	"github.com/energimind/identity-server/core/domain/auth"
+	"github.com/energimind/identity-server/core/infra/logger"
+	"github.com/energimind/identity-server/core/infra/oauth/providers"
 )
 
 const sessionTTL = 24 * time.Hour

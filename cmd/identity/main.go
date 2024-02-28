@@ -2,8 +2,8 @@
 package main
 
 import (
-	"github.com/energimind/identity-service/core/config"
-	"github.com/energimind/identity-service/server"
+	"github.com/energimind/identity-server/core/config"
+	"github.com/energimind/identity-server/server"
 )
 
 func main() {

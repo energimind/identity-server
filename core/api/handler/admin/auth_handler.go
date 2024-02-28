@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/energimind/identity-service/core/api"
-	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/domain/admin"
+	"github.com/energimind/identity-server/core/api"
+	"github.com/energimind/identity-server/core/domain"
+	"github.com/energimind/identity-server/core/domain/admin"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 )

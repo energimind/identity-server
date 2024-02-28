@@ -3,7 +3,7 @@ package admin
 import (
 	"strings"
 
-	"github.com/energimind/identity-service/core/domain/admin"
+	"github.com/energimind/identity-server/core/domain/admin"
 )
 
 func validateApplication(app admin.Application) (admin.Application, error) {

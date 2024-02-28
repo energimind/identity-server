@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/energimind/identity-service/core/config"
-	"github.com/energimind/identity-service/core/infra/logger"
+	"github.com/energimind/identity-server/core/config"
+	"github.com/energimind/identity-server/core/infra/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

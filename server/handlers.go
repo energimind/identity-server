@@ -1,18 +1,18 @@
 package server
 
 import (
-	"github.com/energimind/identity-service/core/api"
-	adminapi "github.com/energimind/identity-service/core/api/handler/admin"
-	authapi "github.com/energimind/identity-service/core/api/handler/auth"
-	healthapi "github.com/energimind/identity-service/core/api/handler/health"
-	utilapi "github.com/energimind/identity-service/core/api/handler/util"
-	"github.com/energimind/identity-service/core/appl/service/admin"
-	"github.com/energimind/identity-service/core/appl/service/auth"
-	"github.com/energimind/identity-service/core/domain"
-	"github.com/energimind/identity-service/core/infra/identity"
-	"github.com/energimind/identity-service/core/infra/repository"
-	"github.com/energimind/identity-service/core/infra/rest/middleware"
-	"github.com/energimind/identity-service/core/infra/rest/sessioncookie"
+	"github.com/energimind/identity-server/core/api"
+	adminapi "github.com/energimind/identity-server/core/api/handler/admin"
+	authapi "github.com/energimind/identity-server/core/api/handler/auth"
+	healthapi "github.com/energimind/identity-server/core/api/handler/health"
+	utilapi "github.com/energimind/identity-server/core/api/handler/util"
+	"github.com/energimind/identity-server/core/appl/service/admin"
+	"github.com/energimind/identity-server/core/appl/service/auth"
+	"github.com/energimind/identity-server/core/domain"
+	"github.com/energimind/identity-server/core/infra/identity"
+	"github.com/energimind/identity-server/core/infra/repository"
+	"github.com/energimind/identity-server/core/infra/rest/middleware"
+	"github.com/energimind/identity-server/core/infra/rest/sessioncookie"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

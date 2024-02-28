@@ -3,7 +3,7 @@ package sessioncookie
 import (
 	"strings"
 
-	"github.com/energimind/identity-service/core/domain"
+	"github.com/energimind/identity-server/core/domain"
 )
 
 const fieldSeparator = ":"

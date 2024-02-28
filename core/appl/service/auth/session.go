@@ -3,7 +3,7 @@ package auth
 import (
 	"time"
 
-	"github.com/energimind/identity-service/core/infra/oauth"
+	"github.com/energimind/identity-server/core/infra/oauth"
 	"golang.org/x/oauth2"
 )
 

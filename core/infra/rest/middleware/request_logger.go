@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/energimind/identity-service/core/infra/rest/reqctx"
+	"github.com/energimind/identity-server/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
 

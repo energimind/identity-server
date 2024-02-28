@@ -4,7 +4,7 @@ import (
 	"net/mail"
 	"regexp"
 
-	"github.com/energimind/identity-service/core/domain"
+	"github.com/energimind/identity-server/core/domain"
 )
 
 var codeRegex = regexp.MustCompile(`^[a-zA-Z0-9_.-]*$`)
