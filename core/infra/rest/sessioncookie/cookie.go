@@ -5,10 +5,7 @@ import (
 )
 
 func createCookie(r *http.Request, name, value, secret string) (*http.Cookie, error) {
-	sc, err := getSecurityContext(r)
-	if err != nil {
-		return nil, NewError("get security context error: %s", err)
-	}
+	sc := getSecurityContext(r)
 
 	encryptedValue, err := encryptCookie(value, secret)
 	if err != nil {
@@ -32,11 +29,8 @@ func createCookie(r *http.Request, name, value, secret string) (*http.Cookie, er
 	}, nil
 }
 
-func resetCookie(r *http.Request, name string) (*http.Cookie, error) {
-	sc, err := getSecurityContext(r)
-	if err != nil {
-		return nil, NewError("get security context error: %s", err)
-	}
+func resetCookie(r *http.Request, name string) *http.Cookie {
+	sc := getSecurityContext(r)
 
 	const deleteCookieNow = -1
 
@@ -49,5 +43,5 @@ func resetCookie(r *http.Request, name string) (*http.Cookie, error) {
 		Secure:   sc.secure,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
-	}, nil
+	}
 }

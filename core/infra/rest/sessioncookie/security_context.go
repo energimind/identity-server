@@ -1,9 +1,8 @@
 package sessioncookie
 
 import (
-	"fmt"
-	"net"
 	"net/http"
+	"strings"
 )
 
 type securityContext struct {
@@ -11,14 +10,9 @@ type securityContext struct {
 	secure bool
 }
 
-func getSecurityContext(r *http.Request) (securityContext, error) {
-	domain, _, err := net.SplitHostPort(r.Host)
-	if err != nil {
-		return securityContext{}, fmt.Errorf("split host port error: %w", err)
-	}
-
+func getSecurityContext(r *http.Request) securityContext {
 	return securityContext{
-		domain: domain,
+		domain: strings.Split(r.Host, ":")[0],
 		secure: r.URL.Scheme == "https",
-	}, nil
+	}
 }

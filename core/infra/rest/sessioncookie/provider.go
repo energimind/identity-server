@@ -38,10 +38,7 @@ func (p *Provider) CreateCookie(c *gin.Context, us domain.UserSession) error {
 
 // ResetCookie resets the cookie.
 func (p *Provider) ResetCookie(c *gin.Context) error {
-	cookie, err := resetCookie(c.Request, p.cookieName)
-	if err != nil {
-		return err
-	}
+	cookie := resetCookie(c.Request, p.cookieName)
 
 	c.SetSameSite(cookie.SameSite)
 	c.SetCookie(p.cookieName, cookie.Value, cookie.MaxAge, cookie.Path, cookie.Domain, cookie.Secure, cookie.HttpOnly)
