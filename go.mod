@@ -1,6 +1,6 @@
 module github.com/energimind/identity-server
 
-go 1.21
+go 1.22
 
 require (
 	github.com/caarlos0/env/v7 v7.1.0
@@ -9,11 +9,11 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.5.1
-	github.com/rs/xid v1.5.0
 	github.com/rs/zerolog v1.32.0
 	github.com/stretchr/testify v1.8.4
 	github.com/teris-io/shortid v0.0.0-20220617161101-71ec9f2aa569
 	github.com/testcontainers/testcontainers-go v0.28.0
+	github.com/urfave/cli/v2 v2.25.6
 	go.mongodb.org/mongo-driver v1.14.0
 	golang.org/x/oauth2 v0.17.0
 )
@@ -83,7 +83,6 @@ require (
 	github.com/tklauser/numcpus v0.7.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
-	github.com/urfave/cli/v2 v2.25.6 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect

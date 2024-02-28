@@ -7,9 +7,9 @@ import (
 
 	"github.com/energimind/identity-server/core/api"
 	"github.com/energimind/identity-server/core/config"
+	"github.com/energimind/identity-server/core/infra/idgen/cuuid"
 	"github.com/energimind/identity-server/core/infra/idgen/shortid"
 	"github.com/energimind/identity-server/core/infra/idgen/uuid"
-	"github.com/energimind/identity-server/core/infra/idgen/xid"
 	"github.com/energimind/identity-server/core/infra/logger"
 	"github.com/energimind/identity-server/core/infra/rest/middleware"
 	"github.com/energimind/identity-server/core/infra/rest/router"
@@ -23,7 +23,7 @@ import (
 func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) {
 	clr := &closer{}
 
-	idGen := xid.NewGenerator()
+	idGen := cuuid.NewGenerator()
 	shortIDGen := shortid.NewGenerator()
 	keyGen := uuid.NewGenerator()
 
