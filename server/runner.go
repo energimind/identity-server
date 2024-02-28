@@ -8,7 +8,6 @@ import (
 
 	"github.com/energimind/identity-server/core/infra/logger"
 	"github.com/energimind/identity-server/pkg/httpd"
-	"github.com/energimind/identity-server/server/version"
 )
 
 // Run runs the server. This method blocks until the server is stopped.
@@ -24,7 +23,7 @@ func run(srv *httpd.Server) error {
 	}()
 
 	logger.Info().Str("address", srv.Address()).Msg("Server listening")
-	logger.Info().Msgf("%s open for business", version.Get().Signature)
+	logger.Info().Msgf("%s open for business", Version.Signature)
 
 	select {
 	case err := <-errorCh:
