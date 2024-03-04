@@ -437,6 +437,18 @@ func (r *mockDaemonRepository) DeleteDaemon(_ context.Context, appID, id admin.I
 	return r.forcedError
 }
 
+func (r *mockDaemonRepository) GetAPIKey(_ context.Context, appID admin.ID, key string) (admin.APIKey, error) {
+	if appID == "" {
+		return admin.APIKey{}, errors.New("test-precondition: empty appID")
+	}
+
+	if key == "" {
+		return admin.APIKey{}, errors.New("test-precondition: empty key")
+	}
+
+	return admin.APIKey{}, nil
+}
+
 func (r *mockDaemonRepository) mockDaemon() admin.Daemon {
 	return admin.Daemon{
 		ID:            "u1",

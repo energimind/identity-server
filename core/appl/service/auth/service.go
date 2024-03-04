@@ -21,6 +21,7 @@ const sessionTTL = 24 * time.Hour
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
 type Service struct {
 	providerFinder admin.ProviderLookupService
+	apiKeyFinder   admin.APIKeyLookupService
 	idGenerator    domain.IDGenerator
 	sessionCache   domain.Cache
 }
@@ -28,11 +29,13 @@ type Service struct {
 // NewService returns a new Service instance.
 func NewService(
 	providerFinder admin.ProviderLookupService,
+	apiKeyFinder admin.APIKeyLookupService,
 	idgen domain.IDGenerator,
 	cache domain.Cache,
 ) *Service {
 	return &Service{
 		providerFinder: providerFinder,
+		apiKeyFinder:   apiKeyFinder,
 		idGenerator:    idgen,
 		sessionCache:   cache,
 	}
@@ -192,6 +195,15 @@ func (s *Service) Logout(ctx context.Context, sessionID string) error {
 	}
 
 	return nil
+}
+
+// VerifyAPIKey implements the auth.Service interface.
+//
+//nolint:wrapcheck // see comment in the header
+func (s *Service) VerifyAPIKey(ctx context.Context, appID admin.ID, apiKey string) error {
+	_, err := s.apiKeyFinder.LookupAPIKey(ctx, appID, apiKey)
+
+	return err
 }
 
 func (s *Service) silentlyDeleteSession(ctx context.Context, sessionID string) {

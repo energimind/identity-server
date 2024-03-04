@@ -28,6 +28,7 @@ type UserRepository interface {
 	UpdateUser(ctx context.Context, user User) error
 	DeleteUser(ctx context.Context, appID, id ID) error
 	GetUserByEmail(ctx context.Context, appID ID, email string) (User, error)
+	GetAPIKey(ctx context.Context, appID ID, key string) (APIKey, error)
 }
 
 // DaemonRepository defines the daemon repository interface.
@@ -37,4 +38,5 @@ type DaemonRepository interface {
 	CreateDaemon(ctx context.Context, daemon Daemon) error
 	UpdateDaemon(ctx context.Context, daemon Daemon) error
 	DeleteDaemon(ctx context.Context, appID, id ID) error
+	GetAPIKey(ctx context.Context, appID ID, key string) (APIKey, error)
 }

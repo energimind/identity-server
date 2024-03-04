@@ -473,6 +473,18 @@ func (r *mockUserRepository) GetUserByEmail(_ context.Context, appID admin.ID, e
 	return r.mockUser(), r.forcedError
 }
 
+func (r *mockUserRepository) GetAPIKey(_ context.Context, appID admin.ID, key string) (admin.APIKey, error) {
+	if appID == "" {
+		return admin.APIKey{}, errors.New("test-precondition: empty appID")
+	}
+
+	if key == "" {
+		return admin.APIKey{}, errors.New("test-precondition: empty key")
+	}
+
+	return admin.APIKey{}, r.forcedError
+}
+
 func (r *mockUserRepository) mockUser() admin.User {
 	return admin.User{
 		ID:            "u1",

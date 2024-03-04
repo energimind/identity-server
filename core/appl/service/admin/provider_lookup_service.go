@@ -7,7 +7,7 @@ import (
 	"github.com/energimind/identity-server/core/domain/admin"
 )
 
-// ProviderLookupService provides a service to lookup a provider
+// ProviderLookupService provides a service to look up a provider
 // from an application.
 //
 // It implements the admin.ProviderLookupService interface.

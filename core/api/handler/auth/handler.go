@@ -1,8 +1,13 @@
 package auth
 
 import (
+	"encoding/base64"
+	"fmt"
 	"net/http"
+	"strings"
 
+	"github.com/energimind/identity-server/core/domain"
+	"github.com/energimind/identity-server/core/domain/admin"
 	"github.com/energimind/identity-server/core/domain/auth"
 	"github.com/energimind/identity-server/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
@@ -26,6 +31,7 @@ func (h *Handler) Bind(root gin.IRoutes) {
 	root.POST("/login", h.login)
 	root.PUT("/refresh", h.refreshSession)
 	root.DELETE("/logout", h.logout)
+	root.GET("/verify", h.verifyAPIKey)
 }
 
 func (h *Handler) providerLink(c *gin.Context) {
@@ -105,4 +111,58 @@ func (h *Handler) logout(c *gin.Context) {
 		Msg("Logout completed")
 
 	c.Status(http.StatusOK)
+}
+
+func (h *Handler) verifyAPIKey(c *gin.Context) {
+	appID, apiKey, err := decodeAuthHeader(c.GetHeader("Authorization"))
+	if err != nil {
+		_ = c.Error(domain.NewBadRequestError("invalid authorization header: %v", err))
+
+		return
+	}
+
+	err = h.service.VerifyAPIKey(c, admin.ID(appID), apiKey)
+	if err != nil {
+		_ = c.Error(domain.NewUnauthorizedError("invalid API key: %v", err))
+
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+//nolint:goerr113 // no need to wrap this internal error
+func decodeAuthHeader(header string) (string, string, error) {
+	if header == "" {
+		return "", "", fmt.Errorf("authorization header must not be empty")
+	}
+
+	const partCount = 2 // Bearer token
+
+	parts := strings.SplitN(header, " ", partCount)
+	if len(parts) != partCount || strings.ToLower(parts[0]) != "bearer" {
+		return "", "", fmt.Errorf("invalid authorization header format")
+	}
+
+	return decodeAPIKeyToken(parts[1])
+}
+
+//nolint:goerr113 // no need to wrap this internal error
+func decodeAPIKeyToken(token string) (string, string, error) {
+	decoded, err := base64.StdEncoding.DecodeString(token)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to decode API key token: %w", err)
+	}
+
+	const partCount = 2 // appID:apiKey
+
+	parts := strings.Split(string(decoded), ":")
+	if len(parts) != partCount {
+		return "", "", fmt.Errorf("invalid API key token format")
+	}
+
+	appID := parts[0]
+	apiKey := parts[1]
+
+	return appID, apiKey, nil
 }

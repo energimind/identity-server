@@ -57,3 +57,8 @@ type DaemonService interface {
 type ProviderLookupService interface {
 	LookupProvider(ctx context.Context, applicationCode, providerCode string) (Provider, error)
 }
+
+// APIKeyLookupService defines the API key lookup service interface.
+type APIKeyLookupService interface {
+	LookupAPIKey(ctx context.Context, appID ID, key string) (APIKey, error)
+}

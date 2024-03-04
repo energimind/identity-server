@@ -118,3 +118,39 @@ func (r *DaemonRepository) DeleteDaemon(
 
 	return nil
 }
+
+// GetAPIKey implements the admin.UserRepository interface.
+//
+// This method takes in account the enabled field of the user and the API key.
+func (r *DaemonRepository) GetAPIKey(
+	ctx context.Context,
+	appID admin.ID,
+	key string,
+) (admin.APIKey, error) {
+	coll := r.db.Collection("daemons")
+	qFilter := bson.M{
+		"applicationId": appID,
+		"enabled":       true,
+		"apiKeys": bson.M{"$elemMatch": bson.M{
+			"key":     key,
+			"enabled": true,
+		}},
+	}
+	daemon := dbDaemon{}
+
+	if err := coll.FindOne(ctx, qFilter).Decode(&daemon); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return admin.APIKey{}, domain.NewNotFoundError("API key not found")
+		}
+
+		return admin.APIKey{}, domain.NewStoreError("failed to API api key: %v", err)
+	}
+
+	for _, apiKey := range daemon.APIKeys {
+		if apiKey.Key == key {
+			return fromAPIKey(apiKey), nil
+		}
+	}
+
+	return admin.APIKey{}, domain.NewNotFoundError("API key not found")
+}

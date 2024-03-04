@@ -33,7 +33,8 @@ func setupHandlersAndMiddlewares(
 	userService := admin.NewUserService(userRepo, idGen)
 	daemonService := admin.NewDaemonService(daemonRepo, idGen)
 	providerLookupService := admin.NewProviderLookupService(applicationService, providerService)
-	authService := auth.NewService(providerLookupService, shortIDGen, cache)
+	apiKeyLookupService := admin.NewAPIKeyLookupService(userRepo, daemonRepo)
+	authService := auth.NewService(providerLookupService, apiKeyLookupService, shortIDGen, cache)
 
 	identityClient := identity.NewClient(authEndpoint, userService)
 
