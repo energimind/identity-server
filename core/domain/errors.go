@@ -121,3 +121,20 @@ func NewSessionError(format string, args ...any) SessionError {
 func (e SessionError) Error() string {
 	return e.Message
 }
+
+// UnauthorizedError is the error returned when a user is not authorized to perform an action.
+type UnauthorizedError struct {
+	Message string
+}
+
+// NewUnauthorizedError returns a new UnauthorizedError.
+func NewUnauthorizedError(format string, args ...any) UnauthorizedError {
+	return UnauthorizedError{
+		Message: fmt.Sprintf(format, args...),
+	}
+}
+
+// Error returns the error message.
+func (e UnauthorizedError) Error() string {
+	return e.Message
+}

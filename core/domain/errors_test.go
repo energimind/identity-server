@@ -21,4 +21,5 @@ func TestErrors(t *testing.T) {
 	tester(t, NewStoreError("test:%d", 42), StoreError{})
 	tester(t, NewGatewayError("test:%d", 42), GatewayError{})
 	tester(t, NewSessionError("test:%d", 42), SessionError{})
+	tester(t, NewUnauthorizedError("test:%d", 42), UnauthorizedError{})
 }

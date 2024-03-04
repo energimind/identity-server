@@ -26,7 +26,7 @@ func ErrorMapper() gin.HandlerFunc {
 	}
 }
 
-func mapError(c *gin.Context) {
+func mapError(c *gin.Context) { //nolint:funlen
 	var (
 		badRequestError   domain.BadRequestError
 		accessDeniedError domain.AccessDeniedError
@@ -35,6 +35,7 @@ func mapError(c *gin.Context) {
 		storeError        domain.StoreError
 		gatewayError      domain.GatewayError
 		sessionError      domain.SessionError
+		unauthorizedError domain.UnauthorizedError
 	)
 
 	err := c.Errors.Last().Err
@@ -77,6 +78,12 @@ func mapError(c *gin.Context) {
 
 	if errors.As(err, &sessionError) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "session expired"})
+
+		return
+	}
+
+	if errors.As(err, &unauthorizedError) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": unauthorizedError.Error()})
 
 		return
 	}
