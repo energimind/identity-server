@@ -6,8 +6,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/energimind/go-kit/httpd"
 	"github.com/energimind/identity-server/core/infra/logger"
-	"github.com/energimind/identity-server/pkg/httpd"
 )
 
 // Run runs the server. This method blocks until the server is stopped.

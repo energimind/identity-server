@@ -3,9 +3,9 @@ package config
 import (
 	"fmt"
 
+	"github.com/energimind/go-kit/env"
+	"github.com/energimind/go-kit/envconf"
 	root "github.com/energimind/identity-server"
-	"github.com/energimind/identity-server/pkg/env"
-	"github.com/energimind/identity-server/pkg/envconf"
 )
 
 // Load loads configuration from the environment.

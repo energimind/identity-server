@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/energimind/go-kit/httpd"
 	"github.com/energimind/identity-server/core/api"
 	"github.com/energimind/identity-server/core/config"
 	"github.com/energimind/identity-server/core/infra/idgen/cuuid"
@@ -14,7 +15,6 @@ import (
 	"github.com/energimind/identity-server/core/infra/rest/middleware"
 	"github.com/energimind/identity-server/core/infra/rest/router"
 	"github.com/energimind/identity-server/core/infra/rest/sessioncookie"
-	"github.com/energimind/identity-server/pkg/httpd"
 	"github.com/gin-gonic/gin"
 )
 
