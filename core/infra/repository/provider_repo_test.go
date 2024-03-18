@@ -5,9 +5,10 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/energimind/go-kit/testutil/crud"
+	"github.com/energimind/identity-server/core/domain"
 	"github.com/energimind/identity-server/core/domain/admin"
 	"github.com/energimind/identity-server/core/infra/repository"
-	"github.com/energimind/identity-server/core/testutil/crud"
 )
 
 func TestProviderRepository_CRUD(t *testing.T) {
@@ -20,51 +21,58 @@ func TestProviderRepository_CRUD(t *testing.T) {
 	appID := admin.ID("1")
 
 	crud.RunTests(t, crud.Setup[admin.Provider, admin.ID]{
-		GetAll: func(ctx context.Context) ([]admin.Provider, error) {
-			return repo.GetProviders(ctx, appID)
+		RepoOps: crud.RepoOps[admin.Provider, admin.ID]{
+			GetAll: func(ctx context.Context) ([]admin.Provider, error) {
+				return repo.GetProviders(ctx, appID)
+			},
+			GetByID: func(ctx context.Context, id admin.ID) (admin.Provider, error) {
+				return repo.GetProvider(ctx, appID, id)
+			},
+			Create: func(ctx context.Context, provider admin.Provider) error {
+				return repo.CreateProvider(ctx, provider)
+			},
+			Update: func(ctx context.Context, provider admin.Provider) error {
+				return repo.UpdateProvider(ctx, provider)
+			},
+			Delete: func(ctx context.Context, id admin.ID) error {
+				return repo.DeleteProvider(ctx, appID, id)
+			},
 		},
-		GetByID: func(ctx context.Context, id admin.ID) (admin.Provider, error) {
-			return repo.GetProvider(ctx, appID, id)
-		},
-		Create: func(ctx context.Context, provider admin.Provider) error {
-			return repo.CreateProvider(ctx, provider)
-		},
-		Update: func(ctx context.Context, provider admin.Provider) error {
-			return repo.UpdateProvider(ctx, provider)
-		},
-		Delete: func(ctx context.Context, id admin.ID) error {
-			return repo.DeleteProvider(ctx, appID, id)
-		},
-		NewEntity: func(key int) admin.Provider {
-			return admin.Provider{
-				ID:            admin.ID(strconv.Itoa(key)),
-				ApplicationID: appID,
-				Type:          admin.ProviderTypeGoogle,
-				Code:          "google",
-				Name:          "Google",
-				Description:   "Google",
-				Enabled:       true,
-				ClientID:      "client-id",
-				ClientSecret:  "client-secret",
-				RedirectURL:   "https://example.com",
-			}
-		},
-		ModifyEntity: func(provider admin.Provider) admin.Provider {
-			provider.Name = "Google 2"
+		EntityOps: crud.EntityOps[admin.Provider, admin.ID]{
+			NewEntity: func(key int) admin.Provider {
+				return admin.Provider{
+					ID:            admin.ID(strconv.Itoa(key)),
+					ApplicationID: appID,
+					Type:          admin.ProviderTypeGoogle,
+					Code:          "google",
+					Name:          "Google",
+					Description:   "Google",
+					Enabled:       true,
+					ClientID:      "client-id",
+					ClientSecret:  "client-secret",
+					RedirectURL:   "https://example.com",
+				}
+			},
+			ModifyEntity: func(provider admin.Provider) admin.Provider {
+				provider.Name = "Google 2"
 
-			return provider
+				return provider
+			},
+			UnboundEntity: func() admin.Provider {
+				return admin.Provider{
+					ID:   "",
+					Type: admin.ProviderTypeGoogle,
+				}
+			},
+			ExtractKey: func(provider admin.Provider) admin.ID {
+				return provider.ID
+			},
+			MissingKey: func() admin.ID {
+				return "missing"
+			},
 		},
-		UnboundEntity: func() admin.Provider {
-			return admin.Provider{
-				ID:   "",
-				Type: admin.ProviderTypeGoogle,
-			}
-		},
-		ExtractKey: func(provider admin.Provider) admin.ID {
-			return provider.ID
-		},
-		MissingKey: func() admin.ID {
-			return "missing"
+		NotFoundErr: func() any {
+			return domain.NotFoundError{}
 		},
 	})
 }

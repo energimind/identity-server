@@ -3,7 +3,7 @@ module github.com/energimind/identity-server
 go 1.22
 
 require (
-	github.com/energimind/go-kit v0.4.0
+	github.com/energimind/go-kit v0.5.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-resty/resty/v2 v2.11.0
 	github.com/pkg/errors v0.9.1

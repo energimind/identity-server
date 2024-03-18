@@ -5,9 +5,10 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/energimind/go-kit/testutil/crud"
+	"github.com/energimind/identity-server/core/domain"
 	"github.com/energimind/identity-server/core/domain/admin"
 	"github.com/energimind/identity-server/core/infra/repository"
-	"github.com/energimind/identity-server/core/testutil/crud"
 	"github.com/stretchr/testify/require"
 )
 
@@ -21,48 +22,55 @@ func TestUserRepository_CRUD(t *testing.T) {
 	appID := admin.ID("1")
 
 	crud.RunTests(t, crud.Setup[admin.User, admin.ID]{
-		GetAll: func(ctx context.Context) ([]admin.User, error) {
-			return repo.GetUsers(ctx, appID)
+		RepoOps: crud.RepoOps[admin.User, admin.ID]{
+			GetAll: func(ctx context.Context) ([]admin.User, error) {
+				return repo.GetUsers(ctx, appID)
+			},
+			GetByID: func(ctx context.Context, id admin.ID) (admin.User, error) {
+				return repo.GetUser(ctx, appID, id)
+			},
+			Create: func(ctx context.Context, user admin.User) error {
+				return repo.CreateUser(ctx, user)
+			},
+			Update: func(ctx context.Context, user admin.User) error {
+				return repo.UpdateUser(ctx, user)
+			},
+			Delete: func(ctx context.Context, id admin.ID) error {
+				return repo.DeleteUser(ctx, appID, id)
+			},
 		},
-		GetByID: func(ctx context.Context, id admin.ID) (admin.User, error) {
-			return repo.GetUser(ctx, appID, id)
-		},
-		Create: func(ctx context.Context, user admin.User) error {
-			return repo.CreateUser(ctx, user)
-		},
-		Update: func(ctx context.Context, user admin.User) error {
-			return repo.UpdateUser(ctx, user)
-		},
-		Delete: func(ctx context.Context, id admin.ID) error {
-			return repo.DeleteUser(ctx, appID, id)
-		},
-		NewEntity: func(key int) admin.User {
-			return admin.User{
-				ID:            admin.ID(strconv.Itoa(key)),
-				ApplicationID: appID,
-				Username:      "user1",
-				Description:   "description",
-				Enabled:       true,
-				Role:          admin.SystemRoleAdmin,
-				APIKeys:       []admin.APIKey{{}},
-			}
-		},
-		ModifyEntity: func(user admin.User) admin.User {
-			user.Username = "user2"
+		EntityOps: crud.EntityOps[admin.User, admin.ID]{
+			NewEntity: func(key int) admin.User {
+				return admin.User{
+					ID:            admin.ID(strconv.Itoa(key)),
+					ApplicationID: appID,
+					Username:      "user1",
+					Description:   "description",
+					Enabled:       true,
+					Role:          admin.SystemRoleAdmin,
+					APIKeys:       []admin.APIKey{{}},
+				}
+			},
+			ModifyEntity: func(user admin.User) admin.User {
+				user.Username = "user2"
 
-			return user
+				return user
+			},
+			UnboundEntity: func() admin.User {
+				return admin.User{
+					ID:   "",
+					Role: admin.SystemRoleAdmin,
+				}
+			},
+			ExtractKey: func(user admin.User) admin.ID {
+				return user.ID
+			},
+			MissingKey: func() admin.ID {
+				return "missing"
+			},
 		},
-		UnboundEntity: func() admin.User {
-			return admin.User{
-				ID:   "",
-				Role: admin.SystemRoleAdmin,
-			}
-		},
-		ExtractKey: func(user admin.User) admin.ID {
-			return user.ID
-		},
-		MissingKey: func() admin.ID {
-			return "missing"
+		NotFoundErr: func() any {
+			return domain.NotFoundError{}
 		},
 	})
 }
