@@ -3,15 +3,20 @@ package repository_test
 import (
 	"testing"
 
-	"github.com/energimind/identity-server/core/testutil"
+	"github.com/energimind/go-kit/testutil/mongodb"
 )
 
-var mongoEnv testutil.MongoEnvironment
+var mongoEnv mongodb.MongoEnvironment
 
 // TestMain sets up the MongoDB test environment for all blackbox
 // tests in the repository_test package.
 func TestMain(m *testing.M) {
-	defer mongoEnv.Start()()
+	cleanUp, err := mongoEnv.Start()
+	defer cleanUp()
+
+	if err != nil {
+		panic(err)
+	}
 
 	m.Run()
 }

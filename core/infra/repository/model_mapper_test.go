@@ -4,23 +4,23 @@ import (
 	"testing"
 	"time"
 
+	"github.com/energimind/go-kit/testutil/mapping"
 	"github.com/energimind/identity-server/core/domain/admin"
-	"github.com/energimind/identity-server/core/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_allUserFieldsAreMapped(t *testing.T) {
-	testutil.CheckAllFieldsAreMapped(t, admin.Application{}, dbApplication{})
-	testutil.CheckAllFieldsAreMapped(t, admin.Provider{}, dbProvider{})
-	testutil.CheckAllFieldsAreMapped(t, admin.User{}, dbUser{})
-	testutil.CheckAllFieldsAreMapped(t, admin.Daemon{}, dbDaemon{})
-	testutil.CheckAllFieldsAreMapped(t, admin.APIKey{}, dbAPIKey{})
+	mapping.CheckAllFieldsAreMapped(t, admin.Application{}, dbApplication{})
+	mapping.CheckAllFieldsAreMapped(t, admin.Provider{}, dbProvider{})
+	mapping.CheckAllFieldsAreMapped(t, admin.User{}, dbUser{})
+	mapping.CheckAllFieldsAreMapped(t, admin.Daemon{}, dbDaemon{})
+	mapping.CheckAllFieldsAreMapped(t, admin.APIKey{}, dbAPIKey{})
 
-	testutil.CheckAllFieldsAreMapped(t, dbApplication{}, admin.Application{})
-	testutil.CheckAllFieldsAreMapped(t, dbProvider{}, admin.Provider{})
-	testutil.CheckAllFieldsAreMapped(t, dbUser{}, admin.User{})
-	testutil.CheckAllFieldsAreMapped(t, dbDaemon{}, admin.Daemon{})
-	testutil.CheckAllFieldsAreMapped(t, dbAPIKey{}, admin.APIKey{})
+	mapping.CheckAllFieldsAreMapped(t, dbApplication{}, admin.Application{})
+	mapping.CheckAllFieldsAreMapped(t, dbProvider{}, admin.Provider{})
+	mapping.CheckAllFieldsAreMapped(t, dbUser{}, admin.User{})
+	mapping.CheckAllFieldsAreMapped(t, dbDaemon{}, admin.Daemon{})
+	mapping.CheckAllFieldsAreMapped(t, dbAPIKey{}, admin.APIKey{})
 }
 
 func Test_mapApplication(t *testing.T) {
