@@ -1,4 +1,5 @@
-package testutil
+// Package crud provides a set of tests for CRUD operations.
+package crud
 
 import (
 	"context"
@@ -8,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// CRUDSetup is the setup for the CRUD tests.
-type CRUDSetup[T, K any] struct {
+// Setup is the setup for the CRUD tests.
+type Setup[T, K any] struct {
 	GetAll        func(ctx context.Context) ([]T, error)
 	GetByID       func(ctx context.Context, id K) (T, error)
 	Create        func(ctx context.Context, model T) error
@@ -22,8 +23,8 @@ type CRUDSetup[T, K any] struct {
 	MissingKey    func() K
 }
 
-// RunCRUDTests runs the CRUD tests for the given type.
-func RunCRUDTests[T, K any](t *testing.T, setup CRUDSetup[T, K]) { //nolint:funlen
+// RunTests runs the CRUD tests for the given type.
+func RunTests[T, K any](t *testing.T, setup Setup[T, K]) { //nolint:funlen
 	t.Helper()
 
 	ctx, cancel := context.WithCancel(context.Background())

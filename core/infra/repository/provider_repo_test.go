@@ -7,7 +7,7 @@ import (
 
 	"github.com/energimind/identity-server/core/domain/admin"
 	"github.com/energimind/identity-server/core/infra/repository"
-	"github.com/energimind/identity-server/core/testutil"
+	"github.com/energimind/identity-server/core/testutil/crud"
 )
 
 func TestProviderRepository_CRUD(t *testing.T) {
@@ -19,7 +19,7 @@ func TestProviderRepository_CRUD(t *testing.T) {
 	repo := repository.NewProviderRepository(db)
 	appID := admin.ID("1")
 
-	testutil.RunCRUDTests(t, testutil.CRUDSetup[admin.Provider, admin.ID]{
+	crud.RunTests(t, crud.Setup[admin.Provider, admin.ID]{
 		GetAll: func(ctx context.Context) ([]admin.Provider, error) {
 			return repo.GetProviders(ctx, appID)
 		},
