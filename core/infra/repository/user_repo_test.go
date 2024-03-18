@@ -7,7 +7,7 @@ import (
 
 	"github.com/energimind/identity-server/core/domain/admin"
 	"github.com/energimind/identity-server/core/infra/repository"
-	"github.com/energimind/identity-server/core/test/utils"
+	"github.com/energimind/identity-server/core/testutil"
 	"github.com/stretchr/testify/require"
 )
 
@@ -20,7 +20,7 @@ func TestUserRepository_CRUD(t *testing.T) {
 	repo := repository.NewUserRepository(db)
 	appID := admin.ID("1")
 
-	utils.RunCRUDTests(t, utils.CRUDSetup[admin.User, admin.ID]{
+	testutil.RunCRUDTests(t, testutil.CRUDSetup[admin.User, admin.ID]{
 		GetAll: func(ctx context.Context) ([]admin.User, error) {
 			return repo.GetUsers(ctx, appID)
 		},

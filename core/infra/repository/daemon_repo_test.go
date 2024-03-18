@@ -7,7 +7,7 @@ import (
 
 	"github.com/energimind/identity-server/core/domain/admin"
 	"github.com/energimind/identity-server/core/infra/repository"
-	"github.com/energimind/identity-server/core/test/utils"
+	"github.com/energimind/identity-server/core/testutil"
 )
 
 func TestDaemonRepository_CRUD(t *testing.T) {
@@ -19,7 +19,7 @@ func TestDaemonRepository_CRUD(t *testing.T) {
 	repo := repository.NewDaemonRepository(db)
 	appID := admin.ID("1")
 
-	utils.RunCRUDTests(t, utils.CRUDSetup[admin.Daemon, admin.ID]{
+	testutil.RunCRUDTests(t, testutil.CRUDSetup[admin.Daemon, admin.ID]{
 		GetAll: func(ctx context.Context) ([]admin.Daemon, error) {
 			return repo.GetDaemons(ctx, appID)
 		},

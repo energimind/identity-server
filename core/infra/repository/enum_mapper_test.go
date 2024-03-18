@@ -4,18 +4,18 @@ import (
 	"testing"
 
 	"github.com/energimind/identity-server/core/domain/admin"
-	"github.com/energimind/identity-server/core/test/utils"
+	"github.com/energimind/identity-server/core/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_allEnumValuesAreMapped(t *testing.T) {
 	t.Parallel()
 
-	utils.CheckAllEnumValuesAreMapped(t, admin.AllProviderTypes, allProviderTypes, toProviderType)
-	utils.CheckAllEnumValuesAreMapped(t, admin.AllSystemRoles, allSystemRoles, toSystemRole)
+	testutil.CheckAllEnumValuesAreMapped(t, admin.AllProviderTypes, allProviderTypes, toProviderType)
+	testutil.CheckAllEnumValuesAreMapped(t, admin.AllSystemRoles, allSystemRoles, toSystemRole)
 
-	utils.CheckAllEnumValuesAreMapped(t, allProviderTypes, admin.AllProviderTypes, fromProviderType)
-	utils.CheckAllEnumValuesAreMapped(t, allSystemRoles, admin.AllSystemRoles, fromSystemRole)
+	testutil.CheckAllEnumValuesAreMapped(t, allProviderTypes, admin.AllProviderTypes, fromProviderType)
+	testutil.CheckAllEnumValuesAreMapped(t, allSystemRoles, admin.AllSystemRoles, fromSystemRole)
 }
 
 func Test_enumMapperDefaultsOnInvalidEnum(t *testing.T) {

@@ -1,2 +1,2 @@
 // Package utils contains utilities for testing.
-package utils
+package testutil

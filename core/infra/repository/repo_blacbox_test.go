@@ -3,10 +3,10 @@ package repository_test
 import (
 	"testing"
 
-	"github.com/energimind/identity-server/core/test/utils"
+	"github.com/energimind/identity-server/core/testutil"
 )
 
-var mongoEnv utils.MongoEnvironment
+var mongoEnv testutil.MongoEnvironment
 
 // TestMain sets up the MongoDB test environment for all blackbox
 // tests in the repository_test package.
