@@ -21,7 +21,7 @@ func Sections(cfg *Config) []Section {
 	sectionType := reflect.TypeOf(*cfg)
 	sectionValue := reflect.ValueOf(*cfg)
 
-	for i := 0; i < sectionType.NumField(); i++ {
+	for i := range sectionType.NumField() {
 		sectionName := sectionType.Field(i).Name
 		fieldValue := sectionValues(sectionValue.Field(i).Interface())
 
@@ -40,7 +40,7 @@ func sectionValues(section any) []string {
 
 	values := make([]string, 0, t.NumField())
 
-	for i := 0; i < t.NumField(); i++ {
+	for i := range t.NumField() {
 		fieldName := t.Field(i).Name
 		fieldValue := v.Field(i).Interface()
 
