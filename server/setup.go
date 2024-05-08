@@ -9,9 +9,9 @@ import (
 	"github.com/energimind/go-kit/idgen/cuuid"
 	"github.com/energimind/go-kit/idgen/shortid"
 	"github.com/energimind/go-kit/idgen/uuid"
+	"github.com/energimind/go-kit/slog"
 	"github.com/energimind/identity-server/core/api"
 	"github.com/energimind/identity-server/core/config"
-	"github.com/energimind/identity-server/core/infra/logger"
 	"github.com/energimind/identity-server/core/infra/rest/middleware"
 	"github.com/energimind/identity-server/core/infra/rest/router"
 	"github.com/energimind/identity-server/core/infra/rest/sessioncookie"
@@ -78,7 +78,7 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) {
 		return nil, clr, fmt.Errorf("failed to create server: %w", err)
 	}
 
-	logger.Debug().Msgf("Routes:\n%s", formatRoutes(restRouter.GetRoutes()))
+	slog.Debug().Msgf("Routes:\n%s", formatRoutes(restRouter.GetRoutes()))
 
 	return srv, clr, nil
 }

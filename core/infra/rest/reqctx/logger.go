@@ -1,7 +1,9 @@
 package reqctx
 
 import (
-	"github.com/energimind/identity-server/core/infra/logger"
+	"context"
+
+	"github.com/energimind/go-kit/slog"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 )
@@ -18,7 +20,7 @@ func SetLogger(c *gin.Context, logger zerolog.Logger) {
 // Logger returns the logger from the given context.
 // If the logger was not found in the context, it returns a disabled logger.
 func Logger(c *gin.Context) *zerolog.Logger {
-	return logger.FromContext(c.Request.Context())
+	return slog.FromContext(c.Request.Context())
 }
 
 // UpdateLogger updates the logger in the given context.
@@ -26,8 +28,15 @@ func Logger(c *gin.Context) *zerolog.Logger {
 func UpdateLogger(c *gin.Context, update func(current *zerolog.Logger) zerolog.Logger) {
 	// update the logger in the request context
 	// propagate the update callback to the logger package
-	ctx := logger.UpdateContext(c.Request.Context(), update)
+	ctx := updateContextLogger(c.Request.Context(), update)
 
 	// update the request context with the new logger
 	c.Request = c.Request.WithContext(ctx)
+}
+
+func updateContextLogger(ctx context.Context, cb func(logger *zerolog.Logger) zerolog.Logger) context.Context {
+	existing := slog.FromContext(ctx)
+	updated := cb(existing)
+
+	return updated.WithContext(ctx)
 }

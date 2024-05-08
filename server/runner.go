@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/energimind/go-kit/httpd"
-	"github.com/energimind/identity-server/core/infra/logger"
+	"github.com/energimind/go-kit/slog"
 )
 
 // Run runs the server. This method blocks until the server is stopped.
@@ -22,21 +22,21 @@ func run(srv *httpd.Server) error {
 		}
 	}()
 
-	logger.Info().Str("address", srv.Address()).Msg("Server listening")
-	logger.Info().Msgf("%s open for business", Version.Signature)
+	slog.Info().Str("address", srv.Address()).Msg("Server listening")
+	slog.Info().Msgf("%s open for business", Version.Signature)
 
 	select {
 	case err := <-errorCh:
 		return err
 	case sig := <-interrupted():
-		logger.Info().Any("signal", sig.String()).Msg("Server interrupted")
+		slog.Info().Any("signal", sig.String()).Msg("Server interrupted")
 
 		if err := srv.Unbind(); err != nil {
-			logger.Warn().Err(err).Msg("Failed to unbind server")
+			slog.Warn().Err(err).Msg("Failed to unbind server")
 		}
 
 		if err := srv.Stop(); err != nil {
-			logger.Warn().Err(err).Msg("Failed to stop server gracefully")
+			slog.Warn().Err(err).Msg("Failed to stop server gracefully")
 		}
 	}
 
@@ -49,7 +49,7 @@ func logRunTime() func() {
 	return func() {
 		runTime := time.Since(startTime).Round(time.Second)
 
-		logger.Info().Str("runTime", runTime.String()).Msg("Server stopped")
+		slog.Info().Str("runTime", runTime.String()).Msg("Server stopped")
 	}
 }
 

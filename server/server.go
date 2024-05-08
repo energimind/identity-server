@@ -1,13 +1,13 @@
 package server
 
 import (
+	"github.com/energimind/go-kit/slog"
 	"github.com/energimind/identity-server/core/config"
-	"github.com/energimind/identity-server/core/infra/logger"
 )
 
 // Run runs the server.
 func Run(cfg *config.Config) error {
-	logger.Debug().Msgf("Loaded config:\n%+v", formatConfigs(config.Sections(cfg)))
+	slog.Debug().Msgf("Loaded config:\n%+v", formatConfigs(config.Sections(cfg)))
 
 	srv, clr, err := setupServer(cfg)
 	if err != nil {

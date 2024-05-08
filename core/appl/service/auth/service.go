@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/energimind/go-kit/slog"
 	"github.com/energimind/identity-server/core/domain"
 	"github.com/energimind/identity-server/core/domain/admin"
 	"github.com/energimind/identity-server/core/domain/auth"
-	"github.com/energimind/identity-server/core/infra/logger"
 	"github.com/energimind/identity-server/core/infra/oauth/providers"
 )
 
@@ -208,6 +208,6 @@ func (s *Service) VerifyAPIKey(ctx context.Context, appID admin.ID, apiKey strin
 
 func (s *Service) silentlyDeleteSession(ctx context.Context, sessionID string) {
 	if err := s.sessionCache.Delete(ctx, sessionID); err != nil {
-		logger.FromContext(ctx).Info().Err(err).Msg("failed to delete userSession")
+		slog.FromContext(ctx).Info().Err(err).Msg("failed to delete userSession")
 	}
 }

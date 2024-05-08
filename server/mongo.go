@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/energimind/go-kit/slog"
 	"github.com/energimind/identity-server/core/config"
-	"github.com/energimind/identity-server/core/infra/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -33,7 +33,7 @@ func connectToMongoDB(cfg *config.MongoConfig) (*mongo.Client, error) {
 		return nil, fmt.Errorf("failed to ping MongoDB: %w", pErr)
 	}
 
-	logger.Info().Str("address", cfg.Address).Str("database", cfg.Database).Msg("Connected to MongoDB")
+	slog.Info().Str("address", cfg.Address).Str("database", cfg.Database).Msg("Connected to MongoDB")
 
 	return client, nil
 }
@@ -45,10 +45,10 @@ func disconnectFromMongoDB(client *mongo.Client) {
 	defer cancel()
 
 	if dErr := client.Disconnect(ctx); dErr != nil {
-		logger.Warn().Err(dErr).Msg("Failed to disconnect from MongoDB")
+		slog.Warn().Err(dErr).Msg("Failed to disconnect from MongoDB")
 
 		return
 	}
 
-	logger.Info().Msg("Disconnected from MongoDB")
+	slog.Info().Msg("Disconnected from MongoDB")
 }

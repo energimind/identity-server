@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/energimind/identity-server/core/infra/logger"
+	"github.com/energimind/go-kit/slog"
 	"github.com/energimind/identity-server/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +10,7 @@ import (
 // into the request context.
 func LoggerInjector() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		reqctx.SetLogger(c, logger.Global)
+		reqctx.SetLogger(c, slog.Global)
 
 		c.Next()
 	}
