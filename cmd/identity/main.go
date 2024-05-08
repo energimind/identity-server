@@ -26,7 +26,7 @@ func runCLI() error {
 
 	app := &cli.App{
 		Name:      server.Version.Name,
-		Usage:     "Identity Server Service",
+		Usage:     server.Version.DisplayName,
 		Version:   server.Version.Version,
 		Copyright: server.Version.Copyright,
 		Action: func(_ *cli.Context) error {
