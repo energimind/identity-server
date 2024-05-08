@@ -11,8 +11,6 @@ func Run(cfg *config.Config) error {
 
 	srv, clr, err := setupServer(cfg)
 	if err != nil {
-		clr.closeAll()
-
 		return err
 	}
 

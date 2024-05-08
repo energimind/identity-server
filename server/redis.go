@@ -3,11 +3,12 @@ package server
 import (
 	"fmt"
 
+	"github.com/energimind/go-kit/slog"
 	"github.com/energimind/identity-server/core/config"
 	"github.com/energimind/identity-server/core/infra/redis"
 )
 
-func connectToRedis(cfg *config.RedisConfig) (*redis.Cache, error) {
+func connectRedis(cfg config.RedisConfig, closer *closer) (*redis.Cache, error) {
 	cache, err := redis.NewCache(redis.Config{
 		Host:       cfg.Host,
 		Port:       cfg.Port,
@@ -20,9 +21,9 @@ func connectToRedis(cfg *config.RedisConfig) (*redis.Cache, error) {
 		return nil, fmt.Errorf("failed to create redis cache: %w", err)
 	}
 
-	return cache, nil
-}
+	closer.add(cache.Stop)
 
-func disconnectFromRedis(cache *redis.Cache) {
-	cache.Stop()
+	slog.Info().Msg("Connected to redis")
+
+	return cache, nil
 }

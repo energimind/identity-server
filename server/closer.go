@@ -1,5 +1,6 @@
 package server
 
+// closer is a slice of closer functions.
 type closer []func()
 
 // add adds a closer function.

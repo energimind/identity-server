@@ -2,53 +2,32 @@ package server
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"github.com/energimind/go-kit/slog"
 	"github.com/energimind/identity-server/core/config"
+	driver "github.com/energimind/identity-server/core/infra/mongo"
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func connectToMongoDB(cfg *config.MongoConfig) (*mongo.Client, error) {
-	const timeout = 5 * time.Second
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	cred := options.Credential{
-		AuthSource:  cfg.Database,
-		Username:    cfg.Username,
-		Password:    cfg.Password,
-		PasswordSet: false,
-	}
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.Address).SetAuth(cred))
+func connectMongo(ctx context.Context, cfg config.MongoConfig, closer *closer) (*mongo.Database, error) {
+	client, disconnect, err := driver.Connect(ctx, mongoDriverConfig(cfg))
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to MongoDB: %w", err)
+		return nil, errors.Wrap(err, "failed to connect to mongo")
 	}
 
-	if pErr := client.Ping(ctx, nil); pErr != nil {
-		return nil, fmt.Errorf("failed to ping MongoDB: %w", pErr)
-	}
+	closer.add(disconnect)
 
-	slog.Info().Str("address", cfg.Address).Str("database", cfg.Database).Msg("Connected to MongoDB")
+	slog.Info().Str("address", cfg.Address).Str("database", cfg.Database).Msg("Connected to mongo")
 
-	return client, nil
+	return client.Database(cfg.Database), nil
 }
 
-func disconnectFromMongoDB(client *mongo.Client) {
-	const timeout = 5 * time.Second
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	if dErr := client.Disconnect(ctx); dErr != nil {
-		slog.Warn().Err(dErr).Msg("Failed to disconnect from MongoDB")
-
-		return
+func mongoDriverConfig(cfg config.MongoConfig) driver.Config {
+	return driver.Config{
+		Address:  cfg.Address,
+		Database: cfg.Database,
+		Username: cfg.Username,
+		Password: cfg.Password,
 	}
-
-	slog.Info().Msg("Disconnected from MongoDB")
 }
