@@ -40,7 +40,7 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) {
 		return startupFailure(err)
 	}
 
-	redisCache, err := connectRedis(cfg.Redis, clr)
+	redisCache, err := connectRedis(ctx, cfg.Redis, clr)
 	if err != nil {
 		return startupFailure(err)
 	}

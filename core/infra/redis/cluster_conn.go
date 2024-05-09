@@ -18,7 +18,7 @@ type clusterConnection struct {
 var _ connection = (*clusterConnection)(nil)
 
 // newClusterConnection creates a new cluster connection.
-func newClusterConnection(config Config) (*clusterConnection, error) {
+func newClusterConnection(ctx context.Context, config Config) (*clusterConnection, error) {
 	addresses := hostutil.ComposeAddressList(config.Host, config.Port, defaultPort)
 	client := redis.NewClusterClient(&redis.ClusterOptions{
 		Addrs:           addresses,
@@ -34,7 +34,7 @@ func newClusterConnection(config Config) (*clusterConnection, error) {
 		PoolTimeout:     poolTimeout,
 	})
 
-	ctx, cancelFunc := context.WithTimeout(context.Background(), ioTimeout)
+	ctx, cancelFunc := context.WithTimeout(ctx, ioTimeout)
 	defer cancelFunc()
 
 	if err := client.Ping(ctx).Err(); err != nil {

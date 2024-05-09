@@ -27,7 +27,7 @@ type Cache struct {
 var _ domain.Cache = (*Cache)(nil)
 
 // NewCache creates a new domain. The cache is in the connected state.
-func NewCache(config Config) (*Cache, error) {
+func NewCache(ctx context.Context, config Config) (*Cache, error) {
 	if config.Namespace == "" {
 		return nil, errors.New("missing redis namespace")
 	}
@@ -35,14 +35,14 @@ func NewCache(config Config) (*Cache, error) {
 	var conn connection
 
 	if config.Standalone {
-		sConn, err := newStandaloneConnection(config)
+		sConn, err := newStandaloneConnection(ctx, config)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create standalone redis conn")
 		}
 
 		conn = sConn
 	} else {
-		cConn, err := newClusterConnection(config)
+		cConn, err := newClusterConnection(ctx, config)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create cluster redis conn")
 		}

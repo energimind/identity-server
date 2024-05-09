@@ -18,7 +18,7 @@ type standaloneConnection struct {
 var _ connection = (*standaloneConnection)(nil)
 
 // newStandaloneConnection creates a new standalone connection.
-func newStandaloneConnection(config Config) (*standaloneConnection, error) {
+func newStandaloneConnection(ctx context.Context, config Config) (*standaloneConnection, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:            hostutil.ComposeAddress(config.Host, config.Port, defaultPort),
 		Username:        config.Username,
@@ -33,7 +33,7 @@ func newStandaloneConnection(config Config) (*standaloneConnection, error) {
 		PoolTimeout:     poolTimeout,
 	})
 
-	ctx, cancelFunc := context.WithTimeout(context.Background(), ioTimeout)
+	ctx, cancelFunc := context.WithTimeout(ctx, ioTimeout)
 	defer cancelFunc()
 
 	if err := client.Ping(ctx).Err(); err != nil {

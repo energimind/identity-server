@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/energimind/go-kit/slog"
@@ -8,8 +9,8 @@ import (
 	"github.com/energimind/identity-server/core/infra/redis"
 )
 
-func connectRedis(cfg config.RedisConfig, closer *closer) (*redis.Cache, error) {
-	cache, err := redis.NewCache(redis.Config{
+func connectRedis(ctx context.Context, cfg config.RedisConfig, closer *closer) (*redis.Cache, error) {
+	cache, err := redis.NewCache(ctx, redis.Config{
 		Host:       cfg.Host,
 		Port:       cfg.Port,
 		Username:   cfg.Username,
