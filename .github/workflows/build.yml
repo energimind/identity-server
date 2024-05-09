@@ -51,4 +51,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/energimind/identity-server:${{ env.BUILD_ID }}
+          tags: |
+            ghcr.io/energimind/identity-server:${{ env.BUILD_ID }}
+            ghcr.io/energimind/identity-server:latest
