@@ -20,6 +20,7 @@ func setupHandlersAndMiddlewares(
 	mongoDB *mongo.Database,
 	idGen, shortIDGen, keyGen domain.IDGenerator,
 	authEndpoint string,
+	localAdminEnabled bool,
 	cookieOperator *sessioncookie.Provider,
 	cache domain.Cache,
 ) (api.Handlers, api.Middlewares) {
@@ -43,14 +44,14 @@ func setupHandlersAndMiddlewares(
 		Provider:    adminapi.NewProviderHandler(providerService),
 		User:        adminapi.NewUserHandler(userService),
 		Daemon:      adminapi.NewDaemonHandler(daemonService),
-		AdminAuth:   adminapi.NewAuthHandler(identityClient, cookieOperator),
+		AdminAuth:   adminapi.NewAuthHandler(identityClient, cookieOperator, localAdminEnabled),
 		Auth:        authapi.NewHandler(authService),
 		Util:        utilapi.NewHandler(keyGen),
 		Health:      healthapi.NewHandler(),
 	}
 
 	middlewares := api.Middlewares{
-		RequireActor: middleware.RequireActor(cookieOperator, identityClient),
+		RequireActor: middleware.RequireActor(cookieOperator, identityClient, localAdminEnabled),
 	}
 
 	return handlers, middlewares

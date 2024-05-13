@@ -19,22 +19,25 @@ const (
 
 // AuthHandler handles admin auth requests.
 type AuthHandler struct {
-	identityClient admin.IdentityClient
-	cookieOperator admin.CookieOperator
-	client         *resty.Client
+	identityClient    admin.IdentityClient
+	cookieOperator    admin.CookieOperator
+	localAdminEnabled bool
+	client            *resty.Client
 }
 
 // NewAuthHandler returns a new instance of AuthHandler.
 func NewAuthHandler(
 	identityClient admin.IdentityClient,
 	cookieOperator admin.CookieOperator,
+	localAdminEnabled bool,
 ) *AuthHandler {
 	const clientTimeout = 10 * time.Second
 
 	return &AuthHandler{
-		identityClient: identityClient,
-		cookieOperator: cookieOperator,
-		client:         resty.New().SetTimeout(clientTimeout),
+		identityClient:    identityClient,
+		cookieOperator:    cookieOperator,
+		localAdminEnabled: localAdminEnabled,
+		client:            resty.New().SetTimeout(clientTimeout),
 	}
 }
 
@@ -49,7 +52,7 @@ func (h *AuthHandler) providerLink(c *gin.Context) {
 	appCode := c.Query("appCode")
 	providerCode := c.Query("providerCode")
 
-	if providerCode == local.AdminProviderCode {
+	if h.localAdminEnabled && providerCode == local.AdminProviderCode {
 		c.JSON(http.StatusOK, gin.H{"link": localProviderLink})
 
 		return
@@ -69,7 +72,7 @@ func (h *AuthHandler) login(c *gin.Context) {
 	code := c.Query("code")
 	state := c.Query("state")
 
-	if code == local.AdminProviderCode && state == local.AdminProviderCode {
+	if h.localAdminEnabled && code == local.AdminProviderCode && state == local.AdminProviderCode {
 		h.loginLocal(c)
 
 		return
@@ -139,7 +142,7 @@ func (h *AuthHandler) logout(c *gin.Context) {
 
 	sessionID := c.GetString("sessionId")
 
-	if sessionID == local.AdminSessionID {
+	if h.localAdminEnabled && sessionID == local.AdminSessionID {
 		c.Status(http.StatusOK)
 
 		return

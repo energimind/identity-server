@@ -22,7 +22,13 @@ type sessionRefresher interface {
 // The actor can be retrieved from the request context using the reqctx.Actor function.
 //
 // If the actor can not be found, the request is aborted with a 401 Unauthorized error.
-func RequireActor(cookieOperator admin.CookieOperator, sessionRefresher sessionRefresher) gin.HandlerFunc {
+//
+//nolint:funlen
+func RequireActor(
+	cookieOperator admin.CookieOperator,
+	sessionRefresher sessionRefresher,
+	localAdminEnabled bool,
+) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		us, err := cookieOperator.ParseCookie(c)
 		if err != nil {
@@ -33,7 +39,7 @@ func RequireActor(cookieOperator admin.CookieOperator, sessionRefresher sessionR
 			return
 		}
 
-		if us.SessionID == local.AdminSessionID {
+		if localAdminEnabled && us.SessionID == local.AdminSessionID && us.UserID == local.AdminID {
 			// add the actor to the request context
 			reqctx.SetActor(c, admin.NewActor(local.AdminID, local.AdminApplicationID, local.AdminRole))
 

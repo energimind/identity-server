@@ -53,6 +53,7 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) {
 		shortIDGen,
 		keyGen,
 		cfg.Auth.Endpoint,
+		cfg.Auth.LocalAdminEnabled,
 		cookieOperator,
 		redisCache,
 	)
