@@ -6,6 +6,7 @@ import (
 
 	"github.com/energimind/identity-server/core/domain"
 	"github.com/energimind/identity-server/core/domain/admin"
+	"github.com/energimind/identity-server/core/domain/local"
 	"github.com/energimind/identity-server/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
@@ -28,6 +29,15 @@ func RequireActor(cookieOperator admin.CookieOperator, sessionRefresher sessionR
 			_ = c.Error(domain.NewSessionError(fmt.Sprintf("invalid sessionKey cookie: %s", err)))
 
 			c.Abort()
+
+			return
+		}
+
+		if us.SessionID == local.AdminSessionID {
+			// add the actor to the request context
+			reqctx.SetActor(c, admin.NewActor(local.AdminID, local.AdminApplicationID, local.AdminRole))
+
+			c.Next()
 
 			return
 		}

@@ -7,8 +7,14 @@ import (
 	"github.com/energimind/identity-server/core/api"
 	"github.com/energimind/identity-server/core/domain"
 	"github.com/energimind/identity-server/core/domain/admin"
+	"github.com/energimind/identity-server/core/domain/local"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
+)
+
+const (
+	localProviderLink = "/auth/callback?code=" + local.AdminProviderCode +
+		"&state=" + local.AdminProviderCode
 )
 
 // AuthHandler handles admin auth requests.
@@ -43,6 +49,12 @@ func (h *AuthHandler) providerLink(c *gin.Context) {
 	appCode := c.Query("appCode")
 	providerCode := c.Query("providerCode")
 
+	if providerCode == local.AdminProviderCode {
+		c.JSON(http.StatusOK, gin.H{"link": localProviderLink})
+
+		return
+	}
+
 	link, err := h.identityClient.ProviderLink(c.Request.Context(), appCode, providerCode)
 	if err != nil {
 		_ = c.Error(err)
@@ -56,6 +68,12 @@ func (h *AuthHandler) providerLink(c *gin.Context) {
 func (h *AuthHandler) login(c *gin.Context) {
 	code := c.Query("code")
 	state := c.Query("state")
+
+	if code == local.AdminProviderCode && state == local.AdminProviderCode {
+		h.loginLocal(c)
+
+		return
+	}
 
 	session, user, err := h.identityClient.Login(c.Request.Context(), code, state)
 	if err != nil {
@@ -87,6 +105,30 @@ func (h *AuthHandler) login(c *gin.Context) {
 	})
 }
 
+func (h *AuthHandler) loginLocal(c *gin.Context) {
+	us := domain.NewUserSession(
+		local.AdminSessionID,
+		local.AdminApplicationID,
+		local.AdminID,
+		local.AdminRole.String(),
+	)
+
+	if cErr := h.cookieOperator.CreateCookie(c, us); cErr != nil {
+		_ = c.Error(cErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"username":      "admin",
+		"email":         "admin",
+		"displayName":   "Local Admin",
+		"applicationId": local.AdminApplicationID,
+		"userId":        local.AdminID,
+		"role":          local.AdminRole,
+	})
+}
+
 func (h *AuthHandler) logout(c *gin.Context) {
 	// reset the cookie even if the logout fails
 	if err := h.cookieOperator.ResetCookie(c); err != nil {
@@ -96,6 +138,12 @@ func (h *AuthHandler) logout(c *gin.Context) {
 	}
 
 	sessionID := c.GetString("sessionId")
+
+	if sessionID == local.AdminSessionID {
+		c.Status(http.StatusOK)
+
+		return
+	}
 
 	if err := h.identityClient.Logout(c.Request.Context(), sessionID); err != nil {
 		_ = c.Error(err)
