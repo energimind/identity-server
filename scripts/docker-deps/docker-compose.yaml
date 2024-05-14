@@ -1,0 +1,46 @@
+services:
+  mongo:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - identity_net
+    profiles:
+      - default
+      - web
+
+  redis:
+    image: redis:latest
+    command: redis-server --requirepass redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - identity_net
+    profiles:
+      - default
+      - web
+
+  identity-web:
+    image: ghcr.io/energimind/identity-web:latest
+    ports:
+      - "5173:8080"
+    volumes:
+      - ./identity-web.js:/app/config.js
+    networks:
+      - identity_net
+    profiles:
+      - web
+
+volumes:
+  mongo_data:
+  redis_data:
+
+networks:
+  identity_net:
