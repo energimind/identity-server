@@ -24,7 +24,7 @@ permissions to carry out their tasks without compromising the security of the sy
 ### Run Tests
 
 ```bash
-act -r --rm -W .github/workflows/ci.yml
+act -r --rm -W .github/workflows/build.yml
 ```
 
 ### Build Docker image

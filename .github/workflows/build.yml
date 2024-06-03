@@ -4,12 +4,13 @@ permissions: read-all
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -17,40 +18,18 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: stable
-      - name: Install UPX
-        run: sudo apt update && sudo apt install -y upx
-      - name: Read version
-        run: echo "VERSION=$(cat .version)" >> $GITHUB_ENV
-      - name: Get commit ID and date
-        run: |
-          COMMIT_ID=$(git rev-parse --short=8 HEAD)
-          COMMIT_DATE=$(TZ=UTC0 git --no-pager log -1 --format="%cd" --date=format-local:"%Y%m%d%H%M" HEAD)
-          echo "BUILD_ID=${COMMIT_DATE}-${COMMIT_ID}" >> $GITHUB_ENV
-      - name: Build
-        run: |
-          VERSION_PATH=github.com/energimind/identity-server/server
-          GO_OPTS="-trimpath -mod=readonly"
-          LDFLAGS="-w -s -X ${VERSION_PATH}.appVersion=${VERSION} -X ${VERSION_PATH}.appBuildID=${BUILD_ID}"
-          CGO_ENABLED=0 go build ${GO_OPTS} -ldflags="${LDFLAGS}" -o identity-server github.com/energimind/identity-server/cmd/identity
-      - name: Compress the executable
-        run: |
-          upx -6 -q identity-server
-      - name: Print signature
-        run: |
-          ls -alh identity-server
-          ./identity-server --version
-      - name: Login to docker registry
-        uses: docker/login-action@v3
+      - name: Run linter
+        uses: golangci/golangci-lint-action@v6
         with:
-          registry: ghcr.io
-          username: "${{ secrets.DOCKER_USERNAME }}"
-          password: "${{ secrets.DOCKER_TOKEN }}"
-      - name: Build and push
-        uses: docker/build-push-action@v5
+          version: latest
+      - name: Run tests
+        run: go test -count=1 -race ./...
+  md-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Run markdownlint1
+        uses: avto-dev/markdown-lint@v1
         with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: |
-            ghcr.io/energimind/identity-server:${{ env.BUILD_ID }}
-            ghcr.io/energimind/identity-server:latest
+          args: "README.md"
