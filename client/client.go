@@ -1,4 +1,4 @@
-package identity
+package client
 
 import (
 	"context"
@@ -16,11 +16,8 @@ type Client struct {
 	rest         *resty.Client
 }
 
-// Ensure Client implements admin.IdentityClient.
-var _ admin.IdentityClient = (*Client)(nil)
-
-// NewClient returns a new instance of Client.
-func NewClient(authEndpoint string) *Client {
+// New returns a new instance of Client.
+func New(authEndpoint string) *Client {
 	const clientTimeout = 10 * time.Second
 
 	return &Client{

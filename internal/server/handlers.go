@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/api"
 	adminapi "github.com/energimind/identity-server/internal/core/api/handler/admin"
 	authapi "github.com/energimind/identity-server/internal/core/api/handler/auth"
@@ -9,7 +10,6 @@ import (
 	"github.com/energimind/identity-server/internal/core/domain"
 	adminsvc "github.com/energimind/identity-server/internal/core/domain/admin/service"
 	authsvc "github.com/energimind/identity-server/internal/core/domain/auth/service"
-	"github.com/energimind/identity-server/internal/core/infra/identity"
 	"github.com/energimind/identity-server/internal/core/infra/repository"
 	"github.com/energimind/identity-server/internal/core/infra/rest/middleware"
 	"github.com/energimind/identity-server/internal/core/infra/rest/sessioncookie"
@@ -50,7 +50,7 @@ func setupHandlersAndMiddlewares(deps dependencies) (api.Handlers, api.Middlewar
 	apiKeyLookupService := adminsvc.NewAPIKeyLookupService(userRepo, daemonRepo)
 	authService := authsvc.NewService(providerLookupService, apiKeyLookupService, shortIDGen, cache)
 
-	identityClient := identity.NewClient(authEndpoint)
+	identityClient := client.New(authEndpoint)
 
 	handlers := api.Handlers{
 		Application: adminapi.NewApplicationHandler(applicationService),
