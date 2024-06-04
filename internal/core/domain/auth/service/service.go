@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/energimind/go-kit/slog"
@@ -47,7 +49,9 @@ var _ auth.Service = (*Service)(nil)
 // ProviderLink implements the service.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCode string) (string, error) {
+func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCode, action string) (string, error) {
+	const defaultAction = "login"
+
 	provider, err := s.providerFinder.LookupProvider(ctx, applicationCode, providerCode)
 	if err != nil {
 		return "", err
@@ -68,15 +72,27 @@ func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCod
 		return "", pErr
 	}
 
+	if action == "" {
+		action = defaultAction
+	}
+
+	state := fmt.Sprintf("%s:%s", action, sessionID)
+
 	// return the auth URL with the session ID embedded in the state parameter
-	return oauthProvider.GetAuthURL(ctx, sessionID), nil
+	return oauthProvider.GetAuthURL(ctx, state), nil
 }
 
 // Login implements the service.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *Service) Login(ctx context.Context, code, state string) (auth.Info, error) {
+	const actionPlusSessionID = 2
+
 	sessionID := state
+
+	if tokens := strings.Split(state, ":"); len(tokens) == actionPlusSessionID {
+		sessionID = tokens[1]
+	}
 
 	session := userSession{}
 

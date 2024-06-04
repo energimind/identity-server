@@ -37,8 +37,9 @@ func (h *Handler) Bind(root gin.IRoutes) {
 func (h *Handler) providerLink(c *gin.Context) {
 	appCode := c.Query("appCode")
 	providerCode := c.Query("providerCode")
+	action := c.Query("action")
 
-	link, err := h.service.ProviderLink(c, appCode, providerCode)
+	link, err := h.service.ProviderLink(c, appCode, providerCode, action)
 	if err != nil {
 		_ = c.Error(err)
 

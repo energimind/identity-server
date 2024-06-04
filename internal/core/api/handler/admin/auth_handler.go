@@ -58,6 +58,8 @@ func (h *AuthHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares)
 }
 
 func (h *AuthHandler) providerLink(c *gin.Context) {
+	const action = "login"
+
 	appCode := c.Query("appCode")
 	providerCode := c.Query("providerCode")
 
@@ -67,7 +69,7 @@ func (h *AuthHandler) providerLink(c *gin.Context) {
 		return
 	}
 
-	link, err := h.identityClient.ProviderLink(c.Request.Context(), appCode, providerCode)
+	link, err := h.identityClient.ProviderLink(c.Request.Context(), appCode, providerCode, action)
 	if err != nil {
 		_ = c.Error(err)
 

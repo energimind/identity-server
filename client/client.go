@@ -25,7 +25,7 @@ func New(authEndpoint string) *Client {
 }
 
 // ProviderLink returns the link to the provider's login page.
-func (c *Client) ProviderLink(ctx context.Context, appCode, providerCode string) (string, error) {
+func (c *Client) ProviderLink(ctx context.Context, appCode, providerCode, action string) (string, error) {
 	var result struct {
 		Link string `json:"link"`
 	}
@@ -35,6 +35,7 @@ func (c *Client) ProviderLink(ctx context.Context, appCode, providerCode string)
 		SetQueryParams(map[string]string{
 			"appCode":      appCode,
 			"providerCode": providerCode,
+			"action":       action,
 		}).
 		SetResult(&result).
 		Get(c.authEndpoint + "/link")
