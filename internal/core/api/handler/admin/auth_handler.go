@@ -98,7 +98,7 @@ func (h *AuthHandler) login(c *gin.Context) {
 		c.Request.Context(),
 		adminActor,
 		admin.ID(session.ApplicationID),
-		session.UserEmail,
+		session.User.Email,
 	)
 	if err != nil {
 		_ = c.Error(err)

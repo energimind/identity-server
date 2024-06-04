@@ -70,7 +70,7 @@ func (h *Handler) login(c *gin.Context) {
 		"userInfo": gin.H{
 			"id":         userInfo.ID,
 			"name":       userInfo.Name,
-			"given":      userInfo.GivenName,
+			"givenName":  userInfo.GivenName,
 			"familyName": userInfo.FamilyName,
 			"email":      userInfo.Email,
 		},

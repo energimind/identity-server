@@ -55,7 +55,11 @@ func (c *Client) Login(ctx context.Context, code, state string) (Session, error)
 		SessionID     string `json:"sessionId"`
 		ApplicationID string `json:"applicationId"`
 		UserInfo      struct {
-			Email string `json:"email"`
+			ID         string `json:"id"`
+			Name       string `json:"name"`
+			GivenName  string `json:"givenName"`
+			FamilyName string `json:"familyName"`
+			Email      string `json:"email"`
 		} `json:"userInfo"`
 	}
 
@@ -78,7 +82,13 @@ func (c *Client) Login(ctx context.Context, code, state string) (Session, error)
 	session := Session{
 		SessionID:     result.SessionID,
 		ApplicationID: result.ApplicationID,
-		UserEmail:     result.UserInfo.Email,
+		User: User{
+			ID:         result.UserInfo.ID,
+			Name:       result.UserInfo.Name,
+			GivenName:  result.UserInfo.GivenName,
+			FamilyName: result.UserInfo.FamilyName,
+			Email:      result.UserInfo.Email,
+		},
 	}
 
 	return session, nil
