@@ -16,14 +16,27 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func setupHandlersAndMiddlewares(
-	mongoDB *mongo.Database,
-	idGen, shortIDGen, keyGen domain.IDGenerator,
-	authEndpoint string,
-	localAdminEnabled bool,
-	cookieOperator *sessioncookie.Provider,
-	cache domain.Cache,
-) (api.Handlers, api.Middlewares) {
+type dependencies struct {
+	mongoDB           *mongo.Database
+	idGen             domain.IDGenerator
+	shortIDGen        domain.IDGenerator
+	keyGen            domain.IDGenerator
+	authEndpoint      string
+	localAdminEnabled bool
+	cookieOperator    *sessioncookie.Provider
+	cache             domain.Cache
+}
+
+func setupHandlersAndMiddlewares(deps dependencies) (api.Handlers, api.Middlewares) {
+	mongoDB := deps.mongoDB
+	idGen := deps.idGen
+	shortIDGen := deps.shortIDGen
+	keyGen := deps.keyGen
+	authEndpoint := deps.authEndpoint
+	localAdminEnabled := deps.localAdminEnabled
+	cookieOperator := deps.cookieOperator
+	cache := deps.cache
+
 	applicationRepo := repository.NewApplicationRepository(mongoDB)
 	providerRepo := repository.NewProviderRepository(mongoDB)
 	userRepo := repository.NewUserRepository(mongoDB)

@@ -19,7 +19,7 @@ import (
 
 // setupServer creates and configures a new server.
 // It returns the server, a function to release resources and an error if any.
-func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) {
+func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) { //nolint:funlen
 	clr := &closer{}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -48,14 +48,16 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) {
 	cookieOperator := sessioncookie.NewProvider("sessionKey", cfg.Cookie.Secret)
 
 	handlers, middlewares := setupHandlersAndMiddlewares(
-		mongoDB,
-		idGen,
-		shortIDGen,
-		keyGen,
-		cfg.Auth.Endpoint,
-		cfg.Auth.LocalAdminEnabled,
-		cookieOperator,
-		redisCache,
+		dependencies{
+			mongoDB:           mongoDB,
+			idGen:             idGen,
+			shortIDGen:        shortIDGen,
+			keyGen:            keyGen,
+			authEndpoint:      cfg.Auth.Endpoint,
+			localAdminEnabled: cfg.Auth.LocalAdminEnabled,
+			cookieOperator:    cookieOperator,
+			cache:             redisCache,
+		},
 	)
 
 	routes := api.NewRoutes(handlers, middlewares)
