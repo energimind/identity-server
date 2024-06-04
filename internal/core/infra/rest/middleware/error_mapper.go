@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/gin-gonic/gin"
 )
@@ -28,14 +29,15 @@ func ErrorMapper() gin.HandlerFunc {
 
 func mapError(c *gin.Context) { //nolint:funlen
 	var (
-		badRequestError   domain.BadRequestError
-		accessDeniedError domain.AccessDeniedError
-		notFoundError     domain.NotFoundError
-		validationError   domain.ValidationError
-		storeError        domain.StoreError
-		gatewayError      domain.GatewayError
-		sessionError      domain.SessionError
-		unauthorizedError domain.UnauthorizedError
+		badRequestError     domain.BadRequestError
+		accessDeniedError   domain.AccessDeniedError
+		notFoundError       domain.NotFoundError
+		validationError     domain.ValidationError
+		storeError          domain.StoreError
+		gatewayError        domain.GatewayError
+		sessionError        domain.SessionError
+		unauthorizedError   domain.UnauthorizedError
+		identityServerError client.IdentityServerError
 	)
 
 	err := c.Errors.Last().Err
@@ -84,6 +86,12 @@ func mapError(c *gin.Context) { //nolint:funlen
 
 	if errors.As(err, &unauthorizedError) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": unauthorizedError.Error()})
+
+		return
+	}
+
+	if errors.As(err, &identityServerError) {
+		c.JSON(http.StatusBadGateway, gin.H{"error": identityServerError.Error()})
 
 		return
 	}

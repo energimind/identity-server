@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/energimind/identity-server/internal/core/domain"
-	"github.com/energimind/identity-server/internal/core/domain/admin"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -26,7 +24,7 @@ func New(authEndpoint string) *Client {
 	}
 }
 
-// ProviderLink implements admin.IdentityClient.
+// ProviderLink returns the link to the provider's login page.
 func (c *Client) ProviderLink(ctx context.Context, appCode, providerCode string) (string, error) {
 	var result struct {
 		Link string `json:"link"`
@@ -41,7 +39,7 @@ func (c *Client) ProviderLink(ctx context.Context, appCode, providerCode string)
 		SetResult(&result).
 		Get(c.authEndpoint + "/link")
 	if err != nil {
-		return "", domain.NewGatewayError("failed to get provider link: %v", err)
+		return "", newIdentityServerError("failed to get provider link: %v", err)
 	}
 
 	if err := processErrorResponse(rsp); err != nil {
@@ -51,8 +49,8 @@ func (c *Client) ProviderLink(ctx context.Context, appCode, providerCode string)
 	return result.Link, nil
 }
 
-// Login implements admin.IdentityClient.
-func (c *Client) Login(ctx context.Context, code, state string) (admin.Session, error) {
+// Login completes the login process and returns the session information.
+func (c *Client) Login(ctx context.Context, code, state string) (Session, error) {
 	var result struct {
 		SessionID     string `json:"sessionId"`
 		ApplicationID string `json:"applicationId"`
@@ -70,14 +68,14 @@ func (c *Client) Login(ctx context.Context, code, state string) (admin.Session, 
 		SetResult(&result).
 		Post(c.authEndpoint + "/login")
 	if err != nil {
-		return admin.Session{}, domain.NewGatewayError("failed to complete login: %v", err)
+		return Session{}, newIdentityServerError("failed to complete login: %v", err)
 	}
 
 	if err := processErrorResponse(rsp); err != nil {
-		return admin.Session{}, err
+		return Session{}, err
 	}
 
-	session := admin.Session{
+	session := Session{
 		SessionID:     result.SessionID,
 		ApplicationID: result.ApplicationID,
 		UserEmail:     result.UserInfo.Email,
@@ -86,7 +84,7 @@ func (c *Client) Login(ctx context.Context, code, state string) (admin.Session, 
 	return session, nil
 }
 
-// Refresh implements admin.IdentityClient.
+// Refresh refreshes the session and returns whether the session was refreshed.
 func (c *Client) Refresh(ctx context.Context, sessionID string) (bool, error) {
 	var result struct {
 		Refreshed bool `json:"refreshed"`
@@ -98,7 +96,7 @@ func (c *Client) Refresh(ctx context.Context, sessionID string) (bool, error) {
 		SetResult(&result).
 		Put(c.authEndpoint + "/refresh")
 	if err != nil {
-		return false, domain.NewGatewayError("failed to refresh session: %v", err)
+		return false, newIdentityServerError("failed to refresh session: %v", err)
 	}
 
 	if err := processErrorResponse(rsp); err != nil {
@@ -108,14 +106,14 @@ func (c *Client) Refresh(ctx context.Context, sessionID string) (bool, error) {
 	return result.Refreshed, nil
 }
 
-// Logout implements admin.IdentityClient.
+// Logout logs out the session.
 func (c *Client) Logout(ctx context.Context, sessionID string) error {
 	rsp, err := c.rest.R().
 		SetContext(ctx).
 		SetHeader("X-IS-SessionID", sessionID).
 		Delete(c.authEndpoint + "/logout")
 	if err != nil {
-		return domain.NewGatewayError("failed to logout: %v", err)
+		return newIdentityServerError("failed to logout: %v", err)
 	}
 
 	return processErrorResponse(rsp)
@@ -137,5 +135,5 @@ func processErrorResponse(rsp *resty.Response) error {
 		result.Error = "unspecified"
 	}
 
-	return domain.NewGatewayError("%s (%d)", result.Error, rsp.StatusCode())
+	return newIdentityServerError("%s (%d)", result.Error, rsp.StatusCode())
 }

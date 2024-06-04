@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/api"
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
@@ -24,7 +25,7 @@ var adminActor = admin.Actor{Role: admin.SystemRoleAdmin}
 
 // AuthHandler handles admin auth requests.
 type AuthHandler struct {
-	identityClient    admin.IdentityClient
+	identityClient    *client.Client
 	userFinder        admin.UserFinder
 	cookieOperator    admin.CookieOperator
 	localAdminEnabled bool
@@ -33,7 +34,7 @@ type AuthHandler struct {
 
 // NewAuthHandler returns a new instance of AuthHandler.
 func NewAuthHandler(
-	identityClient admin.IdentityClient,
+	identityClient *client.Client,
 	userFinder admin.UserFinder,
 	cookieOperator admin.CookieOperator,
 	localAdminEnabled bool,
