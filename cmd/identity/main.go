@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/energimind/identity-server/core/config"
-	"github.com/energimind/identity-server/server"
+	"github.com/energimind/identity-server/internal/config"
+	"github.com/energimind/identity-server/internal/server"
 	"github.com/urfave/cli/v2"
 )
 
