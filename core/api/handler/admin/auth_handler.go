@@ -17,9 +17,15 @@ const (
 		"&state=" + local.AdminProviderCode
 )
 
+// adminActor is the actor for the admin role.
+//
+//nolint:gochecknoglobals // it is a constant
+var adminActor = admin.Actor{Role: admin.SystemRoleAdmin}
+
 // AuthHandler handles admin auth requests.
 type AuthHandler struct {
 	identityClient    admin.IdentityClient
+	userFinder        admin.UserFinder
 	cookieOperator    admin.CookieOperator
 	localAdminEnabled bool
 	client            *resty.Client
@@ -28,6 +34,7 @@ type AuthHandler struct {
 // NewAuthHandler returns a new instance of AuthHandler.
 func NewAuthHandler(
 	identityClient admin.IdentityClient,
+	userFinder admin.UserFinder,
 	cookieOperator admin.CookieOperator,
 	localAdminEnabled bool,
 ) *AuthHandler {
@@ -35,6 +42,7 @@ func NewAuthHandler(
 
 	return &AuthHandler{
 		identityClient:    identityClient,
+		userFinder:        userFinder,
 		cookieOperator:    cookieOperator,
 		localAdminEnabled: localAdminEnabled,
 		client:            resty.New().SetTimeout(clientTimeout),
@@ -78,7 +86,19 @@ func (h *AuthHandler) login(c *gin.Context) {
 		return
 	}
 
-	session, user, err := h.identityClient.Login(c.Request.Context(), code, state)
+	session, err := h.identityClient.Login(c.Request.Context(), code, state)
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	user, err := h.userFinder.GetUserByEmail(
+		c.Request.Context(),
+		adminActor,
+		admin.ID(session.ApplicationID),
+		session.UserEmail,
+	)
 	if err != nil {
 		_ = c.Error(err)
 

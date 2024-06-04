@@ -10,15 +10,9 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// adminActor is the actor for the admin role.
-//
-//nolint:gochecknoglobals // it is a constant
-var adminActor = admin.Actor{Role: admin.SystemRoleAdmin}
-
 // Client is a client to interact with the identity service.
 type Client struct {
 	authEndpoint string
-	userFinder   admin.UserFinder
 	rest         *resty.Client
 }
 
@@ -26,12 +20,11 @@ type Client struct {
 var _ admin.IdentityClient = (*Client)(nil)
 
 // NewClient returns a new instance of Client.
-func NewClient(authEndpoint string, userFinder admin.UserFinder) *Client {
+func NewClient(authEndpoint string) *Client {
 	const clientTimeout = 10 * time.Second
 
 	return &Client{
 		authEndpoint: authEndpoint + "/api/v1/auth",
-		userFinder:   userFinder,
 		rest:         resty.New().SetTimeout(clientTimeout),
 	}
 }
@@ -62,7 +55,7 @@ func (c *Client) ProviderLink(ctx context.Context, appCode, providerCode string)
 }
 
 // Login implements admin.IdentityClient.
-func (c *Client) Login(ctx context.Context, code, state string) (admin.Session, admin.User, error) {
+func (c *Client) Login(ctx context.Context, code, state string) (admin.Session, error) {
 	var result struct {
 		SessionID     string `json:"sessionId"`
 		ApplicationID string `json:"applicationId"`
@@ -80,30 +73,20 @@ func (c *Client) Login(ctx context.Context, code, state string) (admin.Session, 
 		SetResult(&result).
 		Post(c.authEndpoint + "/login")
 	if err != nil {
-		return admin.Session{}, admin.User{}, domain.NewGatewayError("failed to complete login: %v", err)
+		return admin.Session{}, domain.NewGatewayError("failed to complete login: %v", err)
 	}
 
 	if err := processErrorResponse(rsp); err != nil {
-		return admin.Session{}, admin.User{}, err
-	}
-
-	user, err := c.userFinder.GetUserByEmail(
-		ctx,
-		adminActor,
-		admin.ID(result.ApplicationID),
-		result.UserInfo.Email,
-	)
-	if err != nil {
-		//nolint:wrapcheck // this is already a domain error
-		return admin.Session{}, admin.User{}, err
+		return admin.Session{}, err
 	}
 
 	session := admin.Session{
 		SessionID:     result.SessionID,
 		ApplicationID: result.ApplicationID,
+		UserEmail:     result.UserInfo.Email,
 	}
 
-	return session, user, nil
+	return session, nil
 }
 
 // Refresh implements admin.IdentityClient.

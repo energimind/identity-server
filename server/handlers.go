@@ -37,14 +37,14 @@ func setupHandlersAndMiddlewares(
 	apiKeyLookupService := admin.NewAPIKeyLookupService(userRepo, daemonRepo)
 	authService := auth.NewService(providerLookupService, apiKeyLookupService, shortIDGen, cache)
 
-	identityClient := identity.NewClient(authEndpoint, userService)
+	identityClient := identity.NewClient(authEndpoint)
 
 	handlers := api.Handlers{
 		Application: adminapi.NewApplicationHandler(applicationService),
 		Provider:    adminapi.NewProviderHandler(providerService),
 		User:        adminapi.NewUserHandler(userService),
 		Daemon:      adminapi.NewDaemonHandler(daemonService),
-		AdminAuth:   adminapi.NewAuthHandler(identityClient, cookieOperator, localAdminEnabled),
+		AdminAuth:   adminapi.NewAuthHandler(identityClient, userService, cookieOperator, localAdminEnabled),
 		Auth:        authapi.NewHandler(authService),
 		Util:        utilapi.NewHandler(keyGen),
 		Health:      healthapi.NewHandler(),
