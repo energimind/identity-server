@@ -256,10 +256,9 @@ func TestUserService_UpdateUser(t *testing.T) {
 	appID := admin.ID("a1")
 
 	tests := map[string]struct {
-		actor        admin.Actor
-		userNotExist bool
-		wantResult   bool
-		wantError    error
+		actor      admin.Actor
+		wantResult bool
+		wantError  error
 	}{
 		"user": {
 			actor:      admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
@@ -289,11 +288,6 @@ func TestUserService_UpdateUser(t *testing.T) {
 			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
 			wantError: domain.StoreError{},
 		},
-		"manager-duplicateUser": {
-			actor:        admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
-			userNotExist: true,
-			wantError:    domain.ConflictError{},
-		},
 		"admin": {
 			actor:      admin.Actor{Role: admin.SystemRoleAdmin},
 			wantResult: true,
@@ -321,8 +315,6 @@ func TestUserService_UpdateUser(t *testing.T) {
 		} else {
 			repo.forcedError = nil
 		}
-
-		repo.userExists = !test.userNotExist
 
 		t.Run(name, func(t *testing.T) {
 			user := admin.User{

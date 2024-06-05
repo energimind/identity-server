@@ -205,11 +205,7 @@ func (s *UserService) UpdateUser(
 			return admin.User{}, domain.NewAccessDeniedError("user %s cannot update user %s", actor.UserID, user.ID)
 		}
 
-		if err := s.repo.UpdateUser(ctx, user); err != nil {
-			return admin.User{}, err
-		}
-
-		return user, nil
+		return update()
 	case admin.SystemRoleManager:
 		if actor.ApplicationID != user.ApplicationID {
 			return admin.User{}, domain.NewAccessDeniedError("manager %s cannot update user %s", actor.UserID, user.ID)
@@ -448,6 +444,10 @@ func (s *UserService) checkUserExists(ctx context.Context, appID admin.ID, email
 func (s *UserService) checkAnotherUserExists(ctx context.Context, appID admin.ID, email string, id admin.ID) error {
 	user, err := s.repo.GetUserByEmail(ctx, appID, email)
 	if err != nil {
+		if domain.IsNotFoundError(err) {
+			return nil
+		}
+
 		return err
 	}
 
