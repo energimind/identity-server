@@ -70,6 +70,23 @@ func (e ValidationError) Error() string {
 	return e.Message
 }
 
+// ConflictError is the error returned when an object conflicts with another object.
+type ConflictError struct {
+	Message string
+}
+
+// NewConflictError returns a new ConflictError.
+func NewConflictError(format string, args ...any) ConflictError {
+	return ConflictError{
+		Message: fmt.Sprintf(format, args...),
+	}
+}
+
+// Error returns the error message.
+func (e ConflictError) Error() string {
+	return e.Message
+}
+
 // StoreError is the error returned when an error occurs while storing an object.
 type StoreError struct {
 	Message string

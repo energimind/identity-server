@@ -27,12 +27,13 @@ func ErrorMapper() gin.HandlerFunc {
 	}
 }
 
-func mapError(c *gin.Context) { //nolint:funlen
+func mapError(c *gin.Context) { //nolint:funlen,cyclop
 	var (
 		badRequestError     domain.BadRequestError
 		accessDeniedError   domain.AccessDeniedError
 		notFoundError       domain.NotFoundError
 		validationError     domain.ValidationError
+		conflictError       domain.ConflictError
 		storeError          domain.StoreError
 		gatewayError        domain.GatewayError
 		sessionError        domain.SessionError
@@ -62,6 +63,12 @@ func mapError(c *gin.Context) { //nolint:funlen
 
 	if errors.As(err, &validationError) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationError.Error()})
+
+		return
+	}
+
+	if errors.As(err, &conflictError) {
+		c.JSON(http.StatusConflict, gin.H{"error": conflictError.Error()})
 
 		return
 	}

@@ -55,6 +55,8 @@ github.com/docker/go-units v0.5.0 h1:69rxXcBk27SvSaaxTtLh/8llcHD8vYHT7WSdRZ/jvr4
 github.com/docker/go-units v0.5.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
 github.com/energimind/go-kit v0.7.1-0.20240508103148-0f9a8cbc92a2 h1:a73U6H9eJP/Ff/VmnjIbUUBLypHgDZLu3H9sPsVWq0U=
 github.com/energimind/go-kit v0.7.1-0.20240508103148-0f9a8cbc92a2/go.mod h1:z2kHK4PC0x1zsrThZpaU6hYaTYNSPBlpnNC4gnY6CBs=
+github.com/energimind/powermesh-core v0.0.2-0.20240605100125-4d531f5637fb h1:yuD2UKiEYjJzQUnVtZ+CTyHZZD7OTUfDnba68+b31qw=
+github.com/energimind/powermesh-core v0.0.2-0.20240605100125-4d531f5637fb/go.mod h1:gpmAAdc8K38HrfXyyAFNh8Px9IeUamZ1hLXrirN6IJg=
 github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=
 github.com/felixge/httpsnoop v1.0.4/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
 github.com/gabriel-vasile/mimetype v1.4.3 h1:in2uUcidCuFcDKtdcBxlR0rJ1+fsokWf+uqxgUFjbI0=
