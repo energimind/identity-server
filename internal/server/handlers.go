@@ -57,7 +57,7 @@ func setupHandlersAndMiddlewares(deps dependencies) (api.Handlers, api.Middlewar
 		Provider:    adminapi.NewProviderHandler(providerService),
 		User:        adminapi.NewUserHandler(userService),
 		Daemon:      adminapi.NewDaemonHandler(daemonService),
-		AdminAuth:   adminapi.NewAuthHandler(identityClient, userService, cookieOperator, localAdminEnabled),
+		AdminAuth:   adminapi.NewAuthHandler(identityClient, userService, userService, cookieOperator, localAdminEnabled),
 		Auth:        authapi.NewHandler(authService),
 		Util:        utilapi.NewHandler(keyGen),
 		Health:      healthapi.NewHandler(),

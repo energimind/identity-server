@@ -1,6 +1,9 @@
 package domain
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // BadRequestError is the error returned when a request is invalid.
 type BadRequestError struct {
@@ -51,6 +54,13 @@ func NewNotFoundError(format string, args ...any) NotFoundError {
 // Error returns the error message.
 func (e NotFoundError) Error() string {
 	return e.Message
+}
+
+// IsNotFoundError returns true if the error is a NotFoundError.
+func IsNotFoundError(err error) bool {
+	var notFoundError NotFoundError
+
+	return errors.As(err, &notFoundError)
 }
 
 // ValidationError is the error returned when an object is invalid.

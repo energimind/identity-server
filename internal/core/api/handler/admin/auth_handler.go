@@ -27,6 +27,7 @@ var adminActor = admin.Actor{Role: admin.SystemRoleAdmin}
 type AuthHandler struct {
 	identityClient    *client.Client
 	userFinder        admin.UserFinder
+	userCreator       admin.UserCreator
 	cookieOperator    admin.CookieOperator
 	localAdminEnabled bool
 	client            *resty.Client
@@ -36,6 +37,7 @@ type AuthHandler struct {
 func NewAuthHandler(
 	identityClient *client.Client,
 	userFinder admin.UserFinder,
+	userCreator admin.UserCreator,
 	cookieOperator admin.CookieOperator,
 	localAdminEnabled bool,
 ) *AuthHandler {
@@ -44,6 +46,7 @@ func NewAuthHandler(
 	return &AuthHandler{
 		identityClient:    identityClient,
 		userFinder:        userFinder,
+		userCreator:       userCreator,
 		cookieOperator:    cookieOperator,
 		localAdminEnabled: localAdminEnabled,
 		client:            resty.New().SetTimeout(clientTimeout),

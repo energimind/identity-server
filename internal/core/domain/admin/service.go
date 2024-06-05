@@ -39,6 +39,11 @@ type UserFinder interface {
 	GetUserByEmail(ctx context.Context, actor Actor, appID ID, email string) (User, error)
 }
 
+// UserCreator defines the user creator interface.
+type UserCreator interface {
+	CreateUser(ctx context.Context, actor Actor, user User) (User, error)
+}
+
 // DaemonService defines the daemon service interface.
 type DaemonService interface {
 	GetDaemons(ctx context.Context, actor Actor, appID ID) ([]Daemon, error)

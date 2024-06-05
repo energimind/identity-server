@@ -137,6 +137,20 @@ func (s *UserService) CreateUser(
 		return admin.User{}, err
 	}
 
+	create := func() (admin.User, error) {
+		if err := s.checkUserExists(ctx, user.ApplicationID, user.Email); err != nil {
+			return admin.User{}, err
+		}
+
+		user.ID = admin.ID(s.idgen.GenerateID())
+
+		if err := s.repo.CreateUser(ctx, user); err != nil {
+			return admin.User{}, err
+		}
+
+		return user, nil
+	}
+
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.User{}, domain.NewAccessDeniedError("user %s cannot create user", actor.UserID)
@@ -145,21 +159,9 @@ func (s *UserService) CreateUser(
 			return admin.User{}, domain.NewAccessDeniedError("manager %s cannot create user", actor.UserID)
 		}
 
-		user.ID = admin.ID(s.idgen.GenerateID())
-
-		if err := s.repo.CreateUser(ctx, user); err != nil {
-			return admin.User{}, err
-		}
-
-		return user, nil
+		return create()
 	case admin.SystemRoleAdmin:
-		user.ID = admin.ID(s.idgen.GenerateID())
-
-		if err := s.repo.CreateUser(ctx, user); err != nil {
-			return admin.User{}, err
-		}
-
-		return user, nil
+		return create()
 	case admin.SystemRoleNone:
 		return admin.User{}, domain.NewAccessDeniedError("anonymous user cannot create user")
 	default:
@@ -178,6 +180,18 @@ func (s *UserService) UpdateUser(
 	user, err := validateUser(user)
 	if err != nil {
 		return admin.User{}, err
+	}
+
+	update := func() (admin.User, error) {
+		if err := s.checkAnotherUserExists(ctx, user.ApplicationID, user.Email, user.ID); err != nil {
+			return admin.User{}, err
+		}
+
+		if err := s.repo.UpdateUser(ctx, user); err != nil {
+			return admin.User{}, err
+		}
+
+		return user, nil
 	}
 
 	switch actor.Role {
@@ -201,17 +215,9 @@ func (s *UserService) UpdateUser(
 			return admin.User{}, domain.NewAccessDeniedError("manager %s cannot update user %s", actor.UserID, user.ID)
 		}
 
-		if err := s.repo.UpdateUser(ctx, user); err != nil {
-			return admin.User{}, err
-		}
-
-		return user, nil
+		return update()
 	case admin.SystemRoleAdmin:
-		if err := s.repo.UpdateUser(ctx, user); err != nil {
-			return admin.User{}, err
-		}
-
-		return user, nil
+		return update()
 	case admin.SystemRoleNone:
 		return admin.User{}, domain.NewAccessDeniedError("anonymous user cannot update user %s", user.ID)
 	default:
@@ -414,4 +420,40 @@ func (s *UserService) GetUserByEmail(
 	default:
 		return admin.User{}, domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
 	}
+}
+
+// checkUserExists checks if a user with the given email already exists.
+//
+// It returns a domain.ConflictError if the user already exists.
+//
+//nolint:wrapcheck // see comment in the header
+func (s *UserService) checkUserExists(ctx context.Context, appID admin.ID, email string) error {
+	_, err := s.repo.GetUserByEmail(ctx, appID, email)
+	if err == nil {
+		return domain.NewConflictError("user with email %s already exists", email)
+	}
+
+	if domain.IsNotFoundError(err) {
+		return nil
+	}
+
+	return err
+}
+
+// checkAnotherUserExists checks if a user with the given email already exists, but not the user with the given ID.
+//
+// It returns a domain.ConflictError if the user already exists.
+//
+//nolint:wrapcheck // see comment in the header
+func (s *UserService) checkAnotherUserExists(ctx context.Context, appID admin.ID, email string, id admin.ID) error {
+	user, err := s.repo.GetUserByEmail(ctx, appID, email)
+	if err != nil {
+		return err
+	}
+
+	if user.ID != id {
+		return domain.NewConflictError("user with email %s already exists", email)
+	}
+
+	return nil
 }
