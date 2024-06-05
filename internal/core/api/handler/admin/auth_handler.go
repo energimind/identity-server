@@ -2,6 +2,7 @@ package admin
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/energimind/identity-server/client"
@@ -14,8 +15,9 @@ import (
 )
 
 const (
-	localProviderLink = "/auth/callback?code=" + local.AdminProviderCode +
-		"&state=" + local.AdminProviderCode
+	defaultAction     = "login"
+	signupAction      = "signup"
+	localProviderLink = "/auth/callback?code=" + local.AdminProviderCode + "&state=" + local.AdminProviderCode
 )
 
 // adminActor is the actor for the admin role.
@@ -61,10 +63,13 @@ func (h *AuthHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares)
 }
 
 func (h *AuthHandler) providerLink(c *gin.Context) {
-	const action = "login"
-
 	appCode := c.Query("appCode")
 	providerCode := c.Query("providerCode")
+	action := c.Query("action")
+
+	if action == "" {
+		action = defaultAction
+	}
 
 	if h.localAdminEnabled && providerCode == local.AdminProviderCode {
 		c.JSON(http.StatusOK, gin.H{"link": localProviderLink})
@@ -86,6 +91,16 @@ func (h *AuthHandler) login(c *gin.Context) {
 	code := c.Query("code")
 	state := c.Query("state")
 
+	if strings.HasPrefix(state, signupAction) {
+		h.doSignup(c, code, state)
+
+		return
+	}
+
+	h.doLogin(c, code, state)
+}
+
+func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 	if h.localAdminEnabled && code == local.AdminProviderCode && state == local.AdminProviderCode {
 		h.loginLocal(c)
 
@@ -111,6 +126,63 @@ func (h *AuthHandler) login(c *gin.Context) {
 		return
 	}
 
+	h.serveCookieAndUser(c, session, user)
+}
+
+func (h *AuthHandler) loginLocal(c *gin.Context) {
+	session := client.Session{
+		SessionID:     local.AdminSessionID,
+		ApplicationID: local.AdminApplicationID,
+	}
+
+	user := admin.User{
+		ID:            local.AdminID,
+		ApplicationID: local.AdminApplicationID,
+		Username:      "admin",
+		Email:         "admin",
+		DisplayName:   "Local Admin",
+		Role:          local.AdminRole,
+	}
+
+	h.serveCookieAndUser(c, session, user)
+}
+
+func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
+	if h.localAdminEnabled && code == local.AdminProviderCode && state == local.AdminProviderCode {
+		h.loginLocal(c)
+
+		return
+	}
+
+	session, err := h.identityClient.Login(c.Request.Context(), code, state)
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	oaUser := session.User
+
+	newUser := admin.User{
+		ApplicationID: admin.ID(session.ApplicationID),
+		Username:      strings.Split(oaUser.Email, "@")[0],
+		Email:         oaUser.Email,
+		DisplayName:   oaUser.Name,
+		Enabled:       true,
+		Role:          admin.SystemRoleUser,
+	}
+
+	user, err := h.userCreator.CreateUser(c.Request.Context(), adminActor, newUser)
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	h.serveCookieAndUser(c, session, user)
+}
+
+func (h *AuthHandler) serveCookieAndUser(c *gin.Context, session client.Session, user admin.User) {
 	us := domain.NewUserSession(
 		session.SessionID,
 		session.ApplicationID,
@@ -131,30 +203,6 @@ func (h *AuthHandler) login(c *gin.Context) {
 		"applicationId": session.ApplicationID,
 		"userId":        user.ID,
 		"role":          user.Role,
-	})
-}
-
-func (h *AuthHandler) loginLocal(c *gin.Context) {
-	us := domain.NewUserSession(
-		local.AdminSessionID,
-		local.AdminApplicationID,
-		local.AdminID,
-		local.AdminRole.String(),
-	)
-
-	if cErr := h.cookieOperator.CreateCookie(c, us); cErr != nil {
-		_ = c.Error(cErr)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"username":      "admin",
-		"email":         "admin",
-		"displayName":   "Local Admin",
-		"applicationId": local.AdminApplicationID,
-		"userId":        local.AdminID,
-		"role":          local.AdminRole,
 	})
 }
 
