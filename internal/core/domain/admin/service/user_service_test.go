@@ -151,14 +151,14 @@ func TestUserService_GetUser(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			res, err := svc.GetUser(context.Background(), test.actor, appID, userID)
 
-			if test.wantResult {
-				require.NotEmpty(t, res)
-			}
-
 			if test.wantError != nil {
 				require.ErrorAs(t, err, &test.wantError)
 			} else {
 				require.NoError(t, err)
+			}
+
+			if test.wantResult {
+				require.NotEmpty(t, res)
 			}
 		})
 	}
@@ -171,6 +171,7 @@ func TestUserService_CreateUser(t *testing.T) {
 
 	tests := map[string]struct {
 		actor      admin.Actor
+		userExists bool
 		wantResult bool
 		wantError  error
 	}{
@@ -189,6 +190,11 @@ func TestUserService_CreateUser(t *testing.T) {
 		"manager-repoError": {
 			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
 			wantError: domain.StoreError{},
+		},
+		"manager-duplicateUser": {
+			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			userExists: true,
+			wantError:  domain.ConflictError{},
 		},
 		"admin": {
 			actor:      admin.Actor{Role: admin.SystemRoleAdmin},
@@ -218,6 +224,8 @@ func TestUserService_CreateUser(t *testing.T) {
 			repo.forcedError = nil
 		}
 
+		repo.userExists = test.userExists
+
 		t.Run(name, func(t *testing.T) {
 			user := admin.User{
 				ApplicationID: appID,
@@ -227,15 +235,15 @@ func TestUserService_CreateUser(t *testing.T) {
 
 			res, err := svc.CreateUser(context.Background(), test.actor, user)
 
-			if test.wantResult {
-				require.NotEmpty(t, res)
-				require.NotEmpty(t, res.ID)
-			}
-
 			if test.wantError != nil {
 				require.ErrorAs(t, err, &test.wantError)
 			} else {
 				require.NoError(t, err)
+			}
+
+			if test.wantResult {
+				require.NotEmpty(t, res)
+				require.NotEmpty(t, res.ID)
 			}
 		})
 	}
@@ -248,9 +256,10 @@ func TestUserService_UpdateUser(t *testing.T) {
 	appID := admin.ID("a1")
 
 	tests := map[string]struct {
-		actor      admin.Actor
-		wantResult bool
-		wantError  error
+		actor        admin.Actor
+		userNotExist bool
+		wantResult   bool
+		wantError    error
 	}{
 		"user": {
 			actor:      admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
@@ -280,6 +289,11 @@ func TestUserService_UpdateUser(t *testing.T) {
 			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
 			wantError: domain.StoreError{},
 		},
+		"manager-duplicateUser": {
+			actor:        admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			userNotExist: true,
+			wantError:    domain.ConflictError{},
+		},
 		"admin": {
 			actor:      admin.Actor{Role: admin.SystemRoleAdmin},
 			wantResult: true,
@@ -308,6 +322,8 @@ func TestUserService_UpdateUser(t *testing.T) {
 			repo.forcedError = nil
 		}
 
+		repo.userExists = !test.userNotExist
+
 		t.Run(name, func(t *testing.T) {
 			user := admin.User{
 				ID:            userID,
@@ -318,14 +334,14 @@ func TestUserService_UpdateUser(t *testing.T) {
 
 			res, err := svc.UpdateUser(context.Background(), test.actor, user)
 
-			if test.wantResult {
-				require.NotEmpty(t, res)
-			}
-
 			if test.wantError != nil {
 				require.ErrorAs(t, err, &test.wantError)
 			} else {
 				require.NoError(t, err)
+			}
+
+			if test.wantResult {
+				require.NotEmpty(t, res)
 			}
 		})
 	}
@@ -389,13 +405,13 @@ func TestUserService_DeleteUser(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			err := svc.DeleteUser(context.Background(), test.actor, appID, userID)
 
-			if test.wantResult {
-				require.NoError(t, err)
-			}
-
 			if test.wantError != nil {
 				require.ErrorAs(t, err, &test.wantError)
 			} else {
+				require.NoError(t, err)
+			}
+
+			if test.wantResult {
 				require.NoError(t, err)
 			}
 		})
@@ -403,6 +419,7 @@ func TestUserService_DeleteUser(t *testing.T) {
 }
 
 type mockUserRepository struct {
+	userExists  bool
 	forcedError error
 }
 
@@ -468,6 +485,10 @@ func (r *mockUserRepository) GetUserByEmail(_ context.Context, appID admin.ID, e
 
 	if email == "" {
 		return admin.User{}, errors.New("test-precondition: empty email")
+	}
+
+	if !r.userExists {
+		return admin.User{}, domain.NewNotFoundError("user not found")
 	}
 
 	return r.mockUser(), r.forcedError
