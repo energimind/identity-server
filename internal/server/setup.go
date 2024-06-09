@@ -25,7 +25,7 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) { //nolint:
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	startupFailure := func(err error) (*httpd.Server, *closer, error) {
+	startupFailure := func(err error) (*httpd.Server, *closer, error) { //nolint:unparam
 		clr.closeAll()
 
 		return nil, nil, err
