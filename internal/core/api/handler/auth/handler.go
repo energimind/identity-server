@@ -50,32 +50,20 @@ func (h *Handler) providerLink(c *gin.Context) {
 }
 
 func (h *Handler) login(c *gin.Context) {
-	info, err := h.service.Login(c, c.Query("code"), c.Query("state"))
+	ai, err := h.service.Login(c, c.Query("code"), c.Query("state"))
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	userInfo := info.UserInfo
-
 	reqctx.Logger(c).Debug().
-		Str("sessionId", info.SessionID).
-		Str("applicationId", info.ApplicationID).
-		Any("userInfo", userInfo).
+		Str("sessionId", ai.SessionInfo.SessionID).
+		Str("applicationId", ai.SessionInfo.ApplicationID).
+		Any("userInfo", ai.UserInfo).
 		Msg("Login completed")
 
-	c.JSON(http.StatusOK, gin.H{
-		"sessionId":     info.SessionID,
-		"applicationId": info.ApplicationID,
-		"userInfo": gin.H{
-			"id":         userInfo.ID,
-			"name":       userInfo.Name,
-			"givenName":  userInfo.GivenName,
-			"familyName": userInfo.FamilyName,
-			"email":      userInfo.Email,
-		},
-	})
+	c.JSON(http.StatusOK, toInfo(ai))
 }
 
 func (h *Handler) refreshSession(c *gin.Context) {

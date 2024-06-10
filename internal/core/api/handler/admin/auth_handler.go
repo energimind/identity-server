@@ -196,14 +196,7 @@ func (h *AuthHandler) serveCookieAndUser(c *gin.Context, session client.Session,
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"username":      user.Username,
-		"email":         user.Email,
-		"displayName":   user.DisplayName,
-		"applicationId": session.ApplicationID,
-		"userId":        user.ID,
-		"role":          user.Role,
-	})
+	c.JSON(http.StatusOK, toInfo(session, user))
 }
 
 func (h *AuthHandler) logout(c *gin.Context) {

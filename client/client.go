@@ -52,17 +52,7 @@ func (c *Client) ProviderLink(ctx context.Context, appCode, providerCode, action
 
 // Login completes the login process and returns the session information.
 func (c *Client) Login(ctx context.Context, code, state string) (Session, error) {
-	var result struct {
-		SessionID     string `json:"sessionId"`
-		ApplicationID string `json:"applicationId"`
-		UserInfo      struct {
-			ID         string `json:"id"`
-			Name       string `json:"name"`
-			GivenName  string `json:"givenName"`
-			FamilyName string `json:"familyName"`
-			Email      string `json:"email"`
-		} `json:"userInfo"`
-	}
+	var result info
 
 	rsp, err := c.rest.R().
 		SetContext(ctx).
@@ -81,8 +71,8 @@ func (c *Client) Login(ctx context.Context, code, state string) (Session, error)
 	}
 
 	session := Session{
-		SessionID:     result.SessionID,
-		ApplicationID: result.ApplicationID,
+		SessionID:     result.SessionInfo.SessionID,
+		ApplicationID: result.SessionInfo.ApplicationID,
 		User: User{
 			ID:         result.UserInfo.ID,
 			Name:       result.UserInfo.Name,

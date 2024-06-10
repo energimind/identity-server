@@ -131,7 +131,7 @@ func (r *UserRepository) GetUserByEmail(
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&user); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return admin.User{}, domain.NewNotFoundError("user with email %s not found", email)
+			return admin.User{}, domain.NewNotFoundError("user with email %s and application %s not found", email, appID)
 		}
 
 		return admin.User{}, domain.NewStoreError("failed to get user by email: %v", err)

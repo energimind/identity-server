@@ -1,5 +1,11 @@
 package auth
 
+// SessionInfo is a struct that contains session information.
+type SessionInfo struct {
+	SessionID     string
+	ApplicationID string
+}
+
 // UserInfo is a struct that contains user information.
 // This info is returned by the identity provider upon successful authentication.
 type UserInfo struct {
@@ -12,7 +18,6 @@ type UserInfo struct {
 
 // Info is a struct that contains session information.
 type Info struct {
-	SessionID     string
-	ApplicationID string
-	UserInfo      UserInfo
+	SessionInfo SessionInfo
+	UserInfo    UserInfo
 }

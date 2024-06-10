@@ -17,7 +17,7 @@ const sessionTTL = 24 * time.Hour
 
 // Service manages user sessions.
 //
-// It implements the service.Service interface.
+// It implements the auth.Service interface.
 //
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
@@ -46,10 +46,10 @@ func NewService(
 	}
 }
 
-// Ensure service implements the service.Service interface.
+// Ensure service implements the auth.Service interface.
 var _ auth.Service = (*Service)(nil)
 
-// ProviderLink implements the service.Service interface.
+// ProviderLink implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCode, action string) (string, error) {
@@ -90,7 +90,7 @@ func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCod
 	return oauthProvider.GetAuthURL(ctx, state), nil
 }
 
-// Login implements the service.Service interface.
+// Login implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *Service) Login(ctx context.Context, code, state string) (auth.Info, error) {
@@ -141,15 +141,17 @@ func (s *Service) Login(ctx context.Context, code, state string) (auth.Info, err
 	}
 
 	info := auth.Info{
-		SessionID:     sessionID,
-		ApplicationID: session.ApplicationID,
-		UserInfo:      toUserInfo(ui),
+		SessionInfo: auth.SessionInfo{
+			SessionID:     sessionID,
+			ApplicationID: session.ApplicationID,
+		},
+		UserInfo: toUserInfo(ui),
 	}
 
 	return info, nil
 }
 
-// Refresh implements the service.Service interface.
+// Refresh implements the auth.Service interface.
 // It returns true if the token was refreshed, false otherwise.
 //
 //nolint:wrapcheck // see comment in the header
@@ -192,7 +194,7 @@ func (s *Service) Refresh(ctx context.Context, sessionID string) (bool, error) {
 	return true, nil
 }
 
-// Logout implements the service.Service interface.
+// Logout implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *Service) Logout(ctx context.Context, sessionID string) error {
@@ -221,7 +223,7 @@ func (s *Service) Logout(ctx context.Context, sessionID string) error {
 	return nil
 }
 
-// VerifyAPIKey implements the service.Service interface.
+// VerifyAPIKey implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *Service) VerifyAPIKey(ctx context.Context, appID admin.ID, apiKey string) error {
