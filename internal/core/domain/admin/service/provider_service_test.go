@@ -26,16 +26,8 @@ func TestProviderService_GetProviders(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
-			wantResult: true,
-		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
-			wantError: domain.AccessDeniedError{},
-		},
-		"manager-repoError": {
 			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
-			wantError: domain.StoreError{},
+			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {
 			actor:      admin.Actor{Role: admin.SystemRoleAdmin},
@@ -66,7 +58,7 @@ func TestProviderService_GetProviders(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.GetProviders(context.Background(), test.actor, appID)
+			res, err := svc.GetProviders(context.Background(), test.actor)
 
 			if test.wantResult {
 				require.Len(t, res, 1)
@@ -97,16 +89,8 @@ func TestProviderService_GetProvider(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
-			wantResult: true,
-		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
-			wantError: domain.AccessDeniedError{},
-		},
-		"manager-repoError": {
 			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
-			wantError: domain.StoreError{},
+			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {
 			actor:      admin.Actor{Role: admin.SystemRoleAdmin},
@@ -137,7 +121,7 @@ func TestProviderService_GetProvider(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.GetProvider(context.Background(), test.actor, appID, userID)
+			res, err := svc.GetProvider(context.Background(), test.actor, userID)
 
 			if test.wantResult {
 				require.NotEmpty(t, res)
@@ -167,16 +151,8 @@ func TestProviderService_CreateProvider(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
-			wantResult: true,
-		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
-			wantError: domain.AccessDeniedError{},
-		},
-		"manager-repoError": {
 			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
-			wantError: domain.StoreError{},
+			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {
 			actor:      admin.Actor{Role: admin.SystemRoleAdmin},
@@ -208,9 +184,8 @@ func TestProviderService_CreateProvider(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			user := admin.Provider{
-				ApplicationID: appID,
-				Code:          "code",
-				Name:          "name",
+				Code: "code",
+				Name: "name",
 			}
 
 			res, err := svc.CreateProvider(context.Background(), test.actor, user)
@@ -245,16 +220,8 @@ func TestProviderService_UpdateProvider(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
-			wantResult: true,
-		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
-			wantError: domain.AccessDeniedError{},
-		},
-		"manager-repoError": {
 			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
-			wantError: domain.StoreError{},
+			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {
 			actor:      admin.Actor{Role: admin.SystemRoleAdmin},
@@ -286,10 +253,9 @@ func TestProviderService_UpdateProvider(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			user := admin.Provider{
-				ID:            userID,
-				ApplicationID: appID,
-				Code:          "newCode",
-				Name:          "newName",
+				ID:   userID,
+				Code: "newCode",
+				Name: "newName",
 			}
 
 			res, err := svc.UpdateProvider(context.Background(), test.actor, user)
@@ -323,16 +289,8 @@ func TestProviderService_DeleteProvider(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
-			wantResult: true,
-		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
-			wantError: domain.AccessDeniedError{},
-		},
-		"manager-repoError": {
 			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
-			wantError: domain.StoreError{},
+			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {
 			actor:      admin.Actor{Role: admin.SystemRoleAdmin},
@@ -363,7 +321,7 @@ func TestProviderService_DeleteProvider(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			err := svc.DeleteProvider(context.Background(), test.actor, appID, userID)
+			err := svc.DeleteProvider(context.Background(), test.actor, userID)
 
 			if test.wantResult {
 				require.NoError(t, err)
@@ -389,19 +347,11 @@ func newMockProviderRepository() *mockProviderRepository {
 	return &mockProviderRepository{}
 }
 
-func (r *mockProviderRepository) GetProviders(_ context.Context, appID admin.ID) ([]admin.Provider, error) {
-	if appID == "" {
-		return nil, errors.New("test-precondition: empty appID")
-	}
-
+func (r *mockProviderRepository) GetProviders(_ context.Context) ([]admin.Provider, error) {
 	return []admin.Provider{r.mockProvider()}, r.forcedError
 }
 
-func (r *mockProviderRepository) GetProvider(_ context.Context, appID, id admin.ID) (admin.Provider, error) {
-	if appID == "" {
-		return admin.Provider{}, errors.New("test-precondition: empty appID")
-	}
-
+func (r *mockProviderRepository) GetProvider(_ context.Context, id admin.ID) (admin.Provider, error) {
 	if id == "" {
 		return admin.Provider{}, errors.New("test-precondition: empty id")
 	}
@@ -425,11 +375,7 @@ func (r *mockProviderRepository) UpdateProvider(_ context.Context, user admin.Pr
 	return r.forcedError
 }
 
-func (r *mockProviderRepository) DeleteProvider(_ context.Context, appID, id admin.ID) error {
-	if appID == "" {
-		return errors.New("test-precondition: empty appID")
-	}
-
+func (r *mockProviderRepository) DeleteProvider(_ context.Context, id admin.ID) error {
 	if id == "" {
 		return errors.New("test-precondition: empty id")
 	}
@@ -439,8 +385,7 @@ func (r *mockProviderRepository) DeleteProvider(_ context.Context, appID, id adm
 
 func (r *mockProviderRepository) mockProvider() admin.Provider {
 	return admin.Provider{
-		ID:            "u1",
-		ApplicationID: "a1",
-		Name:          "mockProvider",
+		ID:   "u1",
+		Name: "mockProvider",
 	}
 }

@@ -46,9 +46,10 @@ func setupHandlersAndMiddlewares(deps dependencies) (api.Handlers, api.Middlewar
 	providerService := adminsvc.NewProviderService(providerRepo, idGen)
 	userService := adminsvc.NewUserService(userRepo, idGen)
 	daemonService := adminsvc.NewDaemonService(daemonRepo, idGen)
-	providerLookupService := adminsvc.NewProviderLookupService(applicationService, providerService)
+	appLookupService := adminsvc.NewApplicationLookupService(applicationService)
+	providerLookupService := adminsvc.NewProviderLookupService(providerService)
 	apiKeyLookupService := adminsvc.NewAPIKeyLookupService(userRepo, daemonRepo)
-	authService := authsvc.NewService(providerLookupService, apiKeyLookupService, shortIDGen, cache)
+	authService := authsvc.NewService(appLookupService, providerLookupService, apiKeyLookupService, shortIDGen, cache)
 
 	identityClient := client.New(authEndpoint)
 

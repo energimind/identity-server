@@ -22,24 +22,27 @@ const sessionTTL = 24 * time.Hour
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
 type Service struct {
-	providerFinder admin.ProviderLookupService
-	apiKeyFinder   admin.APIKeyLookupService
-	idGenerator    domain.IDGenerator
-	sessionCache   domain.Cache
+	applicationFinder admin.ApplicationLookupService
+	providerFinder    admin.ProviderLookupService
+	apiKeyFinder      admin.APIKeyLookupService
+	idGenerator       domain.IDGenerator
+	sessionCache      domain.Cache
 }
 
 // NewService returns a new Service instance.
 func NewService(
+	applicationFinder admin.ApplicationLookupService,
 	providerFinder admin.ProviderLookupService,
 	apiKeyFinder admin.APIKeyLookupService,
 	idgen domain.IDGenerator,
 	cache domain.Cache,
 ) *Service {
 	return &Service{
-		providerFinder: providerFinder,
-		apiKeyFinder:   apiKeyFinder,
-		idGenerator:    idgen,
-		sessionCache:   cache,
+		applicationFinder: applicationFinder,
+		providerFinder:    providerFinder,
+		apiKeyFinder:      apiKeyFinder,
+		idGenerator:       idgen,
+		sessionCache:      cache,
 	}
 }
 
@@ -52,7 +55,12 @@ var _ auth.Service = (*Service)(nil)
 func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCode, action string) (string, error) {
 	const defaultAction = "login"
 
-	provider, err := s.providerFinder.LookupProvider(ctx, applicationCode, providerCode)
+	app, err := s.applicationFinder.LookupApplication(ctx, applicationCode)
+	if err != nil {
+		return "", err
+	}
+
+	provider, err := s.providerFinder.LookupProvider(ctx, providerCode)
 	if err != nil {
 		return "", err
 	}
@@ -66,7 +74,7 @@ func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCod
 	}
 
 	// save oauthCfg in the session
-	session := newUserSession(provider.ApplicationID.String(), oauthCfg)
+	session := newUserSession(app.ID.String(), oauthCfg)
 
 	if pErr := s.sessionCache.Put(ctx, sessionID, session, sessionTTL); pErr != nil {
 		return "", pErr

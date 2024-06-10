@@ -29,9 +29,15 @@ func (r *Routes) RegisterRoutes(root gin.IRouter) {
 			appsEndpoint.Use(r.middlewares.RequireActor)
 
 			r.bind(appsEndpoint, r.handlers.Application)
-			r.bind(appsEndpoint.Group("/:aid/providers"), r.handlers.Provider)
 			r.bind(appsEndpoint.Group("/:aid/users"), r.handlers.User)
 			r.bind(appsEndpoint.Group("/:aid/daemons"), r.handlers.Daemon)
+		}
+
+		providersEndpoint := adminEndpoint.Group("/providers")
+		{
+			providersEndpoint.Use(r.middlewares.RequireActor)
+
+			r.bind(providersEndpoint, r.handlers.Provider)
 		}
 
 		adminAuthEndpoint := adminEndpoint.Group("/auth")

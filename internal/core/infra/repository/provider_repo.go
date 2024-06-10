@@ -26,12 +26,10 @@ var _ admin.ProviderRepository = (*ProviderRepository)(nil)
 // GetProviders implements the admin.ProviderRepository interface.
 func (r *ProviderRepository) GetProviders(
 	ctx context.Context,
-	appID admin.ID,
 ) ([]admin.Provider, error) {
 	coll := r.db.Collection("providers")
-	qFilter := bson.M{"applicationId": appID}
 
-	qCursor, err := coll.Find(ctx, qFilter)
+	qCursor, err := coll.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, domain.NewStoreError("failed to find providers: %v", err)
 	}
@@ -47,10 +45,10 @@ func (r *ProviderRepository) GetProviders(
 // GetProvider implements the admin.ProviderRepository interface.
 func (r *ProviderRepository) GetProvider(
 	ctx context.Context,
-	appID, id admin.ID,
+	id admin.ID,
 ) (admin.Provider, error) {
 	coll := r.db.Collection("providers")
-	qFilter := bson.M{"id": id, "applicationId": appID}
+	qFilter := bson.M{"id": id}
 	provider := dbProvider{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&provider); err != nil {
@@ -102,10 +100,10 @@ func (r *ProviderRepository) UpdateProvider(
 // DeleteProvider implements the admin.ProviderRepository interface.
 func (r *ProviderRepository) DeleteProvider(
 	ctx context.Context,
-	appID, id admin.ID,
+	id admin.ID,
 ) error {
 	coll := r.db.Collection("providers")
-	qFilter := bson.M{"id": id, "applicationId": appID}
+	qFilter := bson.M{"id": id}
 
 	result, err := coll.DeleteOne(ctx, qFilter)
 	if err != nil {

@@ -38,24 +38,14 @@ var _ admin.ProviderService = (*ProviderService)(nil)
 func (s *ProviderService) GetProviders(
 	ctx context.Context,
 	actor admin.Actor,
-	appID admin.ID,
 ) ([]admin.Provider, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return nil, domain.NewAccessDeniedError("user %s cannot get providers", actor.UserID)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != appID {
-			return nil, domain.NewAccessDeniedError("manager %s cannot get providers for application %s", actor.UserID, appID)
-		}
-
-		providers, err := s.repo.GetProviders(ctx, appID)
-		if err != nil {
-			return nil, err
-		}
-
-		return providers, nil
+		return nil, domain.NewAccessDeniedError("manager %s cannot get providers", actor.UserID)
 	case admin.SystemRoleAdmin:
-		providers, err := s.repo.GetProviders(ctx, appID)
+		providers, err := s.repo.GetProviders(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -74,24 +64,15 @@ func (s *ProviderService) GetProviders(
 func (s *ProviderService) GetProvider(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, id admin.ID,
+	id admin.ID,
 ) (admin.Provider, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.Provider{}, domain.NewAccessDeniedError("user %s cannot get provider %s", actor.UserID, id)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != appID {
-			return admin.Provider{}, domain.NewAccessDeniedError("manager %s cannot get provider %s", actor.UserID, id)
-		}
-
-		provider, err := s.repo.GetProvider(ctx, appID, id)
-		if err != nil {
-			return admin.Provider{}, err
-		}
-
-		return provider, nil
+		return admin.Provider{}, domain.NewAccessDeniedError("manager %s cannot get provider %s", actor.UserID, id)
 	case admin.SystemRoleAdmin:
-		user, err := s.repo.GetProvider(ctx, appID, id)
+		user, err := s.repo.GetProvider(ctx, id)
 		if err != nil {
 			return admin.Provider{}, err
 		}
@@ -121,17 +102,7 @@ func (s *ProviderService) CreateProvider(
 	case admin.SystemRoleUser:
 		return admin.Provider{}, domain.NewAccessDeniedError("user %s cannot create provider", actor.UserID)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != provider.ApplicationID {
-			return admin.Provider{}, domain.NewAccessDeniedError("manager %s cannot create provider", actor.UserID)
-		}
-
-		provider.ID = admin.ID(s.idgen.GenerateID())
-
-		if err := s.repo.CreateProvider(ctx, provider); err != nil {
-			return admin.Provider{}, err
-		}
-
-		return provider, nil
+		return admin.Provider{}, domain.NewAccessDeniedError("manager %s cannot create provider", actor.UserID)
 	case admin.SystemRoleAdmin:
 		provider.ID = admin.ID(s.idgen.GenerateID())
 
@@ -164,15 +135,7 @@ func (s *ProviderService) UpdateProvider(
 	case admin.SystemRoleUser:
 		return admin.Provider{}, domain.NewAccessDeniedError("user %s cannot update provider %s", actor.UserID, provider.ID)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != provider.ApplicationID {
-			return admin.Provider{}, domain.NewAccessDeniedError("manager %s cannot update provider %s", actor.UserID, provider.ID)
-		}
-
-		if err := s.repo.UpdateProvider(ctx, provider); err != nil {
-			return admin.Provider{}, err
-		}
-
-		return provider, nil
+		return admin.Provider{}, domain.NewAccessDeniedError("manager %s cannot update provider %s", actor.UserID, provider.ID)
 	case admin.SystemRoleAdmin:
 		if err := s.repo.UpdateProvider(ctx, provider); err != nil {
 			return admin.Provider{}, err
@@ -192,23 +155,15 @@ func (s *ProviderService) UpdateProvider(
 func (s *ProviderService) DeleteProvider(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, id admin.ID,
+	id admin.ID,
 ) error {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return domain.NewAccessDeniedError("user %s cannot delete provider %s", actor.UserID, id)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != appID {
-			return domain.NewAccessDeniedError("manager %s cannot delete provider %s", actor.UserID, id)
-		}
-
-		if err := s.repo.DeleteProvider(ctx, appID, id); err != nil {
-			return err
-		}
-
-		return nil
+		return domain.NewAccessDeniedError("manager %s cannot delete provider %s", actor.UserID, id)
 	case admin.SystemRoleAdmin:
-		if err := s.repo.DeleteProvider(ctx, appID, id); err != nil {
+		if err := s.repo.DeleteProvider(ctx, id); err != nil {
 			return err
 		}
 

@@ -13,11 +13,11 @@ type ApplicationRepository interface {
 
 // ProviderRepository defines the provider repository interface.
 type ProviderRepository interface {
-	GetProviders(ctx context.Context, appID ID) ([]Provider, error)
-	GetProvider(ctx context.Context, appID, id ID) (Provider, error)
+	GetProviders(ctx context.Context) ([]Provider, error)
+	GetProvider(ctx context.Context, id ID) (Provider, error)
 	CreateProvider(ctx context.Context, provider Provider) error
 	UpdateProvider(ctx context.Context, provider Provider) error
-	DeleteProvider(ctx context.Context, appID, id ID) error
+	DeleteProvider(ctx context.Context, id ID) error
 }
 
 // UserRepository defines the user repository interface.

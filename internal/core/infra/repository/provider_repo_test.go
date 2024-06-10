@@ -18,15 +18,14 @@ func TestProviderRepository_CRUD(t *testing.T) {
 	defer closer()
 
 	repo := repository.NewProviderRepository(db)
-	appID := admin.ID("1")
 
 	crud.RunTests(t, crud.Setup[admin.Provider, admin.ID]{
 		RepoOps: crud.RepoOps[admin.Provider, admin.ID]{
 			GetAll: func(ctx context.Context) ([]admin.Provider, error) {
-				return repo.GetProviders(ctx, appID)
+				return repo.GetProviders(ctx)
 			},
 			GetByID: func(ctx context.Context, id admin.ID) (admin.Provider, error) {
-				return repo.GetProvider(ctx, appID, id)
+				return repo.GetProvider(ctx, id)
 			},
 			Create: func(ctx context.Context, provider admin.Provider) error {
 				return repo.CreateProvider(ctx, provider)
@@ -35,22 +34,21 @@ func TestProviderRepository_CRUD(t *testing.T) {
 				return repo.UpdateProvider(ctx, provider)
 			},
 			Delete: func(ctx context.Context, id admin.ID) error {
-				return repo.DeleteProvider(ctx, appID, id)
+				return repo.DeleteProvider(ctx, id)
 			},
 		},
 		EntityOps: crud.EntityOps[admin.Provider, admin.ID]{
 			NewEntity: func(key int) admin.Provider {
 				return admin.Provider{
-					ID:            admin.ID(strconv.Itoa(key)),
-					ApplicationID: appID,
-					Type:          admin.ProviderTypeGoogle,
-					Code:          "google",
-					Name:          "Google",
-					Description:   "Google",
-					Enabled:       true,
-					ClientID:      "client-id",
-					ClientSecret:  "client-secret",
-					RedirectURL:   "https://example.com",
+					ID:           admin.ID(strconv.Itoa(key)),
+					Type:         admin.ProviderTypeGoogle,
+					Code:         "google",
+					Name:         "Google",
+					Description:  "Google",
+					Enabled:      true,
+					ClientID:     "client-id",
+					ClientSecret: "client-secret",
+					RedirectURL:  "https://example.com",
 				}
 			},
 			ModifyEntity: func(provider admin.Provider) admin.Provider {

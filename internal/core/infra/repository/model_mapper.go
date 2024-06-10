@@ -32,31 +32,29 @@ func fromApplication(app dbApplication) admin.Application {
 
 func toProvider(provider admin.Provider) dbProvider {
 	return dbProvider{
-		ID:            toID(provider.ID),
-		ApplicationID: toID(provider.ApplicationID),
-		Type:          toProviderType(provider.Type),
-		Code:          provider.Code,
-		Name:          provider.Name,
-		Description:   provider.Description,
-		Enabled:       provider.Enabled,
-		ClientID:      provider.ClientID,
-		ClientSecret:  provider.ClientSecret,
-		RedirectURL:   provider.RedirectURL,
+		ID:           toID(provider.ID),
+		Type:         toProviderType(provider.Type),
+		Code:         provider.Code,
+		Name:         provider.Name,
+		Description:  provider.Description,
+		Enabled:      provider.Enabled,
+		ClientID:     provider.ClientID,
+		ClientSecret: provider.ClientSecret,
+		RedirectURL:  provider.RedirectURL,
 	}
 }
 
 func fromProvider(provider dbProvider) admin.Provider {
 	return admin.Provider{
-		ID:            fromID(provider.ID),
-		ApplicationID: fromID(provider.ApplicationID),
-		Type:          fromProviderType(provider.Type),
-		Code:          provider.Code,
-		Name:          provider.Name,
-		Description:   provider.Description,
-		Enabled:       provider.Enabled,
-		ClientID:      provider.ClientID,
-		ClientSecret:  provider.ClientSecret,
-		RedirectURL:   provider.RedirectURL,
+		ID:           fromID(provider.ID),
+		Type:         fromProviderType(provider.Type),
+		Code:         provider.Code,
+		Name:         provider.Name,
+		Description:  provider.Description,
+		Enabled:      provider.Enabled,
+		ClientID:     provider.ClientID,
+		ClientSecret: provider.ClientSecret,
+		RedirectURL:  provider.RedirectURL,
 	}
 }
 

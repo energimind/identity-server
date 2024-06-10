@@ -13,16 +13,15 @@ type dbApplication struct {
 
 // dbProvider is the database model for an authentication provider.
 type dbProvider struct {
-	ID            string         `bson:"id"`
-	ApplicationID string         `bson:"applicationId"`
-	Type          dbProviderType `bson:"type"`
-	Code          string         `bson:"code"`
-	Name          string         `bson:"name,omitempty"`
-	Description   string         `bson:"description,omitempty"`
-	Enabled       bool           `bson:"enabled"`
-	ClientID      string         `bson:"clientId"`
-	ClientSecret  string         `bson:"clientSecret"`
-	RedirectURL   string         `bson:"redirectUrl"`
+	ID           string         `bson:"id"`
+	Type         dbProviderType `bson:"type"`
+	Code         string         `bson:"code"`
+	Name         string         `bson:"name,omitempty"`
+	Description  string         `bson:"description,omitempty"`
+	Enabled      bool           `bson:"enabled"`
+	ClientID     string         `bson:"clientId"`
+	ClientSecret string         `bson:"clientSecret"`
+	RedirectURL  string         `bson:"redirectUrl"`
 }
 
 // dbUser is the database model for a user.

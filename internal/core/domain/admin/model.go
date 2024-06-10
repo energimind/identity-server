@@ -41,16 +41,15 @@ type ProviderType string
 
 // Provider represents an authentication provider.
 type Provider struct {
-	ID            ID
-	ApplicationID ID
-	Type          ProviderType
-	Code          string
-	Name          string
-	Description   string
-	Enabled       bool
-	ClientID      string
-	ClientSecret  string
-	RedirectURL   string
+	ID           ID
+	Type         ProviderType
+	Code         string
+	Name         string
+	Description  string
+	Enabled      bool
+	ClientID     string
+	ClientSecret string
+	RedirectURL  string
 }
 
 // SystemRole represents the role of a user in the system.

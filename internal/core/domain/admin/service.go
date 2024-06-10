@@ -13,11 +13,11 @@ type ApplicationService interface {
 
 // ProviderService defines the provider service interface.
 type ProviderService interface {
-	GetProviders(ctx context.Context, actor Actor, appID ID) ([]Provider, error)
-	GetProvider(ctx context.Context, actor Actor, appID, id ID) (Provider, error)
+	GetProviders(ctx context.Context, actor Actor) ([]Provider, error)
+	GetProvider(ctx context.Context, actor Actor, id ID) (Provider, error)
 	CreateProvider(ctx context.Context, actor Actor, provider Provider) (Provider, error)
 	UpdateProvider(ctx context.Context, actor Actor, provider Provider) (Provider, error)
-	DeleteProvider(ctx context.Context, actor Actor, appID, id ID) error
+	DeleteProvider(ctx context.Context, actor Actor, id ID) error
 }
 
 // UserService defines the user service interface.
@@ -58,9 +58,14 @@ type DaemonService interface {
 	DeleteAPIKey(ctx context.Context, actor Actor, appID, daemonID, id ID) error
 }
 
+// ApplicationLookupService defines the application lookup service interface.
+type ApplicationLookupService interface {
+	LookupApplication(ctx context.Context, appCode string) (Application, error)
+}
+
 // ProviderLookupService defines the provider lookup service interface.
 type ProviderLookupService interface {
-	LookupProvider(ctx context.Context, applicationCode, providerCode string) (Provider, error)
+	LookupProvider(ctx context.Context, providerCode string) (Provider, error)
 }
 
 // APIKeyLookupService defines the API key lookup service interface.

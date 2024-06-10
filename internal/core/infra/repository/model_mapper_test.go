@@ -53,29 +53,27 @@ func Test_mapProvider(t *testing.T) {
 	t.Parallel()
 
 	from := admin.Provider{
-		ID:            "provider1",
-		ApplicationID: "app1",
-		Type:          admin.ProviderTypeGoogle,
-		Code:          "google",
-		Name:          "Google",
-		Description:   "Google Description",
-		Enabled:       true,
-		ClientID:      "client1",
-		ClientSecret:  "secret1",
-		RedirectURL:   "https://google.com",
+		ID:           "provider1",
+		Type:         admin.ProviderTypeGoogle,
+		Code:         "google",
+		Name:         "Google",
+		Description:  "Google Description",
+		Enabled:      true,
+		ClientID:     "client1",
+		ClientSecret: "secret1",
+		RedirectURL:  "https://google.com",
 	}
 
 	expected := dbProvider{
-		ID:            "provider1",
-		ApplicationID: "app1",
-		Type:          dbProviderTypeGoogle,
-		Code:          "google",
-		Name:          "Google",
-		Description:   "Google Description",
-		Enabled:       true,
-		ClientID:      "client1",
-		ClientSecret:  "secret1",
-		RedirectURL:   "https://google.com",
+		ID:           "provider1",
+		Type:         dbProviderTypeGoogle,
+		Code:         "google",
+		Name:         "Google",
+		Description:  "Google Description",
+		Enabled:      true,
+		ClientID:     "client1",
+		ClientSecret: "secret1",
+		RedirectURL:  "https://google.com",
 	}
 
 	mapped := toProvider(from)
