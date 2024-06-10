@@ -107,7 +107,14 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 		return
 	}
 
-	session, err := h.identityClient.Login(c.Request.Context(), code, state)
+	sessionID, err := h.identityClient.Login(c.Request.Context(), code, state)
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	session, err := h.identityClient.Session(c.Request.Context(), sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -117,8 +124,8 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 	user, err := h.userFinder.GetUserByEmail(
 		c.Request.Context(),
 		adminActor,
-		admin.ID(session.ApplicationID),
-		session.User.Email,
+		admin.ID(session.SessionInfo.ApplicationID),
+		session.UserInfo.Email,
 	)
 	if err != nil {
 		_ = c.Error(err)
@@ -126,11 +133,11 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 		return
 	}
 
-	h.serveCookieAndUser(c, session, user)
+	h.serveCookieAndUser(c, session.SessionInfo, user)
 }
 
 func (h *AuthHandler) loginLocal(c *gin.Context) {
-	session := client.Session{
+	session := client.SessionInfo{
 		SessionID:     local.AdminSessionID,
 		ApplicationID: local.AdminApplicationID,
 	}
@@ -154,17 +161,24 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 		return
 	}
 
-	session, err := h.identityClient.Login(c.Request.Context(), code, state)
+	sessionID, err := h.identityClient.Login(c.Request.Context(), code, state)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	oaUser := session.User
+	session, err := h.identityClient.Session(c.Request.Context(), sessionID)
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	oaUser := session.UserInfo
 
 	newUser := admin.User{
-		ApplicationID: admin.ID(session.ApplicationID),
+		ApplicationID: admin.ID(session.SessionInfo.ApplicationID),
 		Username:      strings.Split(oaUser.Email, "@")[0],
 		Email:         oaUser.Email,
 		DisplayName:   oaUser.Name,
@@ -179,10 +193,10 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 		return
 	}
 
-	h.serveCookieAndUser(c, session, user)
+	h.serveCookieAndUser(c, session.SessionInfo, user)
 }
 
-func (h *AuthHandler) serveCookieAndUser(c *gin.Context, session client.Session, user admin.User) {
+func (h *AuthHandler) serveCookieAndUser(c *gin.Context, session client.SessionInfo, user admin.User) {
 	us := domain.NewUserSession(
 		session.SessionID,
 		session.ApplicationID,

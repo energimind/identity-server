@@ -1,12 +1,12 @@
 package service
 
 import (
-	"github.com/energimind/identity-server/internal/core/domain/auth"
+	"github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/infra/oauth"
 )
 
-func toUserInfo(ui oauth.UserInfo) auth.UserInfo {
-	return auth.UserInfo{
+func toUserInfo(ui oauth.UserInfo) client.UserInfo {
+	return client.UserInfo{
 		ID:         ui.ID,
 		Name:       ui.Name,
 		GivenName:  ui.GivenName,

@@ -28,7 +28,7 @@ func RequestLogger() gin.HandlerFunc {
 func emitLogEntry(c *gin.Context, duration time.Duration) {
 	status := c.Writer.Status()
 
-	event := reqctx.Logger(c).Debug().
+	event := reqctx.RequestLogger(c).Debug().
 		Str("method", c.Request.Method).
 		Str("path", c.Request.URL.Path).
 		Dur("duration", duration).

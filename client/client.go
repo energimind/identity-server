@@ -8,6 +8,8 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+const sessionIDHeader = "X-IS-SessionID"
+
 // Client is a client to interact with the identity service.
 type Client struct {
 	authEndpoint string
@@ -50,9 +52,11 @@ func (c *Client) ProviderLink(ctx context.Context, appCode, providerCode, action
 	return result.Link, nil
 }
 
-// Login completes the login process and returns the session information.
-func (c *Client) Login(ctx context.Context, code, state string) (Session, error) {
-	var result info
+// Login completes the login process and returns the session ID.
+func (c *Client) Login(ctx context.Context, code, state string) (string, error) {
+	var result struct {
+		SessionID string `json:"sessionId"`
+	}
 
 	rsp, err := c.rest.R().
 		SetContext(ctx).
@@ -63,26 +67,34 @@ func (c *Client) Login(ctx context.Context, code, state string) (Session, error)
 		SetResult(&result).
 		Post(c.authEndpoint + "/login")
 	if err != nil {
-		return Session{}, newIdentityServerError("failed to complete login: %v", err)
+		return "", newIdentityServerError("failed to complete login: %v", err)
+	}
+
+	if err := processErrorResponse(rsp); err != nil {
+		return "", err
+	}
+
+	return result.SessionID, nil
+}
+
+// Session returns the session information.
+func (c *Client) Session(ctx context.Context, sessionID string) (Session, error) {
+	var result Session
+
+	rsp, err := c.rest.R().
+		SetContext(ctx).
+		SetHeader(sessionIDHeader, sessionID).
+		SetResult(&result).
+		Get(c.authEndpoint + "/session")
+	if err != nil {
+		return Session{}, newIdentityServerError("failed to get session info: %v", err)
 	}
 
 	if err := processErrorResponse(rsp); err != nil {
 		return Session{}, err
 	}
 
-	session := Session{
-		SessionID:     result.SessionInfo.SessionID,
-		ApplicationID: result.SessionInfo.ApplicationID,
-		User: User{
-			ID:         result.UserInfo.ID,
-			Name:       result.UserInfo.Name,
-			GivenName:  result.UserInfo.GivenName,
-			FamilyName: result.UserInfo.FamilyName,
-			Email:      result.UserInfo.Email,
-		},
-	}
-
-	return session, nil
+	return result, nil
 }
 
 // Refresh refreshes the session and returns whether the session was refreshed.
@@ -93,7 +105,7 @@ func (c *Client) Refresh(ctx context.Context, sessionID string) (bool, error) {
 
 	rsp, err := c.rest.R().
 		SetContext(ctx).
-		SetHeader("X-IS-SessionID", sessionID).
+		SetHeader(sessionIDHeader, sessionID).
 		SetResult(&result).
 		Put(c.authEndpoint + "/refresh")
 	if err != nil {
@@ -111,7 +123,7 @@ func (c *Client) Refresh(ctx context.Context, sessionID string) (bool, error) {
 func (c *Client) Logout(ctx context.Context, sessionID string) error {
 	rsp, err := c.rest.R().
 		SetContext(ctx).
-		SetHeader("X-IS-SessionID", sessionID).
+		SetHeader(sessionIDHeader, sessionID).
 		Delete(c.authEndpoint + "/logout")
 	if err != nil {
 		return newIdentityServerError("failed to logout: %v", err)

@@ -5,14 +5,14 @@ import (
 	"github.com/energimind/identity-server/internal/core/domain/admin"
 )
 
-func toInfo(session client.Session, user admin.User) info {
+func toInfo(sessionInfo client.SessionInfo, user admin.User) info {
 	return info{
-		SessionInfo: toSessionInfo(session),
+		SessionInfo: toSessionInfo(sessionInfo),
 		UserInfo:    toUserInfo(user),
 	}
 }
 
-func toSessionInfo(session client.Session) sessionInfo {
+func toSessionInfo(session client.SessionInfo) sessionInfo {
 	return sessionInfo{
 		SessionID:     session.SessionID,
 		ApplicationID: session.ApplicationID,

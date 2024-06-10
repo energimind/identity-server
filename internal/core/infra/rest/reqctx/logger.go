@@ -17,10 +17,16 @@ func SetLogger(c *gin.Context, logger zerolog.Logger) {
 	c.Request = c.Request.WithContext(ctx)
 }
 
+// RequestLogger returns the logger from the given context.
+// If the logger was not found in the context, it returns a disabled logger.
+func RequestLogger(c *gin.Context) *zerolog.Logger {
+	return slog.FromContext(c.Request.Context())
+}
+
 // Logger returns the logger from the given context.
 // If the logger was not found in the context, it returns a disabled logger.
-func Logger(c *gin.Context) *zerolog.Logger {
-	return slog.FromContext(c.Request.Context())
+func Logger(ctx context.Context) *zerolog.Logger {
+	return slog.FromContext(ctx)
 }
 
 // UpdateLogger updates the logger in the given context.

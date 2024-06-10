@@ -9,7 +9,6 @@ import (
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
 	"github.com/energimind/identity-server/internal/core/domain/auth"
-	"github.com/energimind/identity-server/internal/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,6 +28,7 @@ func NewHandler(service auth.Service) *Handler {
 func (h *Handler) Bind(root gin.IRoutes) {
 	root.GET("/link", h.providerLink)
 	root.POST("/login", h.login)
+	root.GET("/session", h.getSession)
 	root.PUT("/refresh", h.refreshSession)
 	root.DELETE("/logout", h.logout)
 	root.GET("/verify", h.verifyAPIKey)
@@ -50,20 +50,27 @@ func (h *Handler) providerLink(c *gin.Context) {
 }
 
 func (h *Handler) login(c *gin.Context) {
-	ai, err := h.service.Login(c, c.Query("code"), c.Query("state"))
+	sessionID, err := h.service.Login(c, c.Query("code"), c.Query("state"))
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	reqctx.Logger(c).Debug().
-		Str("sessionId", ai.SessionInfo.SessionID).
-		Str("applicationId", ai.SessionInfo.ApplicationID).
-		Any("userInfo", ai.UserInfo).
-		Msg("Login completed")
+	c.JSON(http.StatusOK, gin.H{"sessionID": sessionID})
+}
 
-	c.JSON(http.StatusOK, toInfo(ai))
+func (h *Handler) getSession(c *gin.Context) {
+	sessionID := c.GetHeader("X-IS-SessionID")
+
+	session, err := h.service.Session(c, sessionID)
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, session)
 }
 
 func (h *Handler) refreshSession(c *gin.Context) {
@@ -74,12 +81,6 @@ func (h *Handler) refreshSession(c *gin.Context) {
 		_ = c.Error(err)
 
 		return
-	}
-
-	if refreshed {
-		reqctx.Logger(c).Debug().
-			Str("sessionId", sessionID).
-			Msg("Session refreshed")
 	}
 
 	c.JSON(http.StatusOK, gin.H{"refreshed": refreshed})
@@ -94,10 +95,6 @@ func (h *Handler) logout(c *gin.Context) {
 
 		return
 	}
-
-	reqctx.Logger(c).Debug().
-		Str("sessionId", sessionID).
-		Msg("Logout completed")
 
 	c.Status(http.StatusOK)
 }
