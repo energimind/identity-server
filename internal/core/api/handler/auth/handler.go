@@ -32,7 +32,7 @@ func (h *Handler) Bind(root gin.IRoutes) {
 	root.POST("/login", h.login)
 	root.GET("/session", h.getSession)
 	root.PUT("/refresh", h.refreshSession)
-	root.DELETE("/logout", h.logout)
+	root.DELETE("/session", h.logout)
 	root.GET("/verify", h.verifyAPIKey)
 }
 

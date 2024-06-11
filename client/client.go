@@ -134,7 +134,7 @@ func (c *Client) Refresh(ctx context.Context, sessionID string) (bool, error) {
 func (c *Client) Logout(ctx context.Context, sessionID string) error {
 	rsp, err := c.newRequest(ctx).
 		SetHeader(sessionIDHeader, sessionID).
-		Delete(c.authEndpoint + "/logout")
+		Delete(c.authEndpoint + "/session")
 	if err != nil {
 		return newIdentityServerError("failed to logout: %v", err)
 	}

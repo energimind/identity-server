@@ -60,7 +60,7 @@ func NewAuthHandler(
 func (h *AuthHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares) {
 	root.GET("/link", h.providerLink)
 	root.POST("/login", h.login)
-	root.DELETE("/logout", mws.RequireActor, h.logout)
+	root.DELETE("/session", mws.RequireActor, h.logout)
 }
 
 func (h *AuthHandler) providerLink(c *gin.Context) {
