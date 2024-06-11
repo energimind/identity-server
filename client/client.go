@@ -8,12 +8,16 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-const sessionIDHeader = "X-IS-SessionID"
+const (
+	sessionIDHeader = "X-IS-SessionID"
+	requestIDHeader = "X-Request-ID"
+)
 
 // Client is a client to interact with the identity service.
 type Client struct {
 	authEndpoint string
 	rest         *resty.Client
+	requestID    string
 }
 
 // New returns a new instance of Client.
@@ -23,6 +27,16 @@ func New(authEndpoint string) *Client {
 	return &Client{
 		authEndpoint: authEndpoint + "/api/v1/auth",
 		rest:         resty.New().SetTimeout(clientTimeout),
+	}
+}
+
+// WithRequestID sets the request ID for the client.
+// It returns a new client with the request ID set.
+func (c *Client) WithRequestID(requestID string) *Client {
+	return &Client{
+		authEndpoint: c.authEndpoint,
+		rest:         c.rest,
+		requestID:    requestID,
 	}
 }
 
@@ -58,8 +72,7 @@ func (c *Client) Login(ctx context.Context, code, state string) (string, error) 
 		SessionID string `json:"sessionId"`
 	}
 
-	rsp, err := c.rest.R().
-		SetContext(ctx).
+	rsp, err := c.newRequest(ctx).
 		SetQueryParams(map[string]string{
 			"code":  code,
 			"state": state,
@@ -81,8 +94,7 @@ func (c *Client) Login(ctx context.Context, code, state string) (string, error) 
 func (c *Client) Session(ctx context.Context, sessionID string) (Session, error) {
 	var result Session
 
-	rsp, err := c.rest.R().
-		SetContext(ctx).
+	rsp, err := c.newRequest(ctx).
 		SetHeader(sessionIDHeader, sessionID).
 		SetResult(&result).
 		Get(c.authEndpoint + "/session")
@@ -103,8 +115,7 @@ func (c *Client) Refresh(ctx context.Context, sessionID string) (bool, error) {
 		Refreshed bool `json:"refreshed"`
 	}
 
-	rsp, err := c.rest.R().
-		SetContext(ctx).
+	rsp, err := c.newRequest(ctx).
 		SetHeader(sessionIDHeader, sessionID).
 		SetResult(&result).
 		Put(c.authEndpoint + "/refresh")
@@ -121,8 +132,7 @@ func (c *Client) Refresh(ctx context.Context, sessionID string) (bool, error) {
 
 // Logout logs out the session.
 func (c *Client) Logout(ctx context.Context, sessionID string) error {
-	rsp, err := c.rest.R().
-		SetContext(ctx).
+	rsp, err := c.newRequest(ctx).
 		SetHeader(sessionIDHeader, sessionID).
 		Delete(c.authEndpoint + "/logout")
 	if err != nil {
@@ -130,6 +140,16 @@ func (c *Client) Logout(ctx context.Context, sessionID string) error {
 	}
 
 	return processErrorResponse(rsp)
+}
+
+func (c *Client) newRequest(ctx context.Context) *resty.Request {
+	req := c.rest.R().SetContext(ctx)
+
+	if c.requestID != "" {
+		req.SetHeader(requestIDHeader, c.requestID)
+	}
+
+	return req
 }
 
 func processErrorResponse(rsp *resty.Response) error {

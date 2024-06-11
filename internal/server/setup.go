@@ -65,6 +65,7 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) { //nolint:
 	restRouter := router.New(
 		gin.Recovery(),
 		middleware.LoggerInjector(),
+		middleware.RequestIDInjector(),
 		middleware.RequestLogger(),
 		middleware.CORS(cfg.Router.AllowOrigin),
 		middleware.ErrorMapper())

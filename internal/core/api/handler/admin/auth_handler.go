@@ -10,6 +10,7 @@ import (
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
 	"github.com/energimind/identity-server/internal/core/domain/local"
+	"github.com/energimind/identity-server/internal/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 )
@@ -63,7 +64,6 @@ func (h *AuthHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares)
 }
 
 func (h *AuthHandler) providerLink(c *gin.Context) {
-	ctx := c.Request.Context()
 	appCode := c.Query("appCode")
 	providerCode := c.Query("providerCode")
 	action := c.Query("action")
@@ -78,7 +78,10 @@ func (h *AuthHandler) providerLink(c *gin.Context) {
 		return
 	}
 
-	link, err := h.identityClient.ProviderLink(ctx, appCode, providerCode, action)
+	ctx := c.Request.Context()
+	ic := h.identityClient.WithRequestID(reqctx.RequestID(ctx))
+
+	link, err := ic.ProviderLink(ctx, appCode, providerCode, action)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -109,15 +112,16 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 	}
 
 	ctx := c.Request.Context()
+	ic := h.identityClient.WithRequestID(reqctx.RequestID(ctx))
 
-	sessionID, err := h.identityClient.Login(ctx, code, state)
+	sessionID, err := ic.Login(ctx, code, state)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	session, err := h.identityClient.Session(ctx, sessionID)
+	session, err := ic.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -165,15 +169,16 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 	}
 
 	ctx := c.Request.Context()
+	ic := h.identityClient.WithRequestID(reqctx.RequestID(ctx))
 
-	sessionID, err := h.identityClient.Login(ctx, code, state)
+	sessionID, err := ic.Login(ctx, code, state)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	session, err := h.identityClient.Session(ctx, sessionID)
+	session, err := ic.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -235,8 +240,9 @@ func (h *AuthHandler) logout(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
+	ic := h.identityClient.WithRequestID(reqctx.RequestID(ctx))
 
-	if err := h.identityClient.Logout(ctx, sessionID); err != nil {
+	if err := ic.Logout(ctx, sessionID); err != nil {
 		_ = c.Error(err)
 
 		return
