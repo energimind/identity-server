@@ -45,7 +45,7 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) { //nolint:
 		return startupFailure(err)
 	}
 
-	cookieOperator := sessioncookie.NewProvider("sessionKey", cfg.Cookie.Secret)
+	cookieOperator := sessioncookie.NewProvider(cfg.Cookie.Name, cfg.Cookie.Secret)
 
 	handlers, middlewares := setupHandlersAndMiddlewares(
 		dependencies{

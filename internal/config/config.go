@@ -37,7 +37,8 @@ type AuthenticatorConfig struct {
 
 // CookieConfig contains cookie setup.
 type CookieConfig struct {
-	Secret string
+	Name   string `env:"COOKIE_NAME"`
+	Secret string `env:"COOKIE_SECRET"`
 }
 
 // RedisConfig contains redis setup.
