@@ -63,6 +63,7 @@ func (h *AuthHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares)
 }
 
 func (h *AuthHandler) providerLink(c *gin.Context) {
+	ctx := c.Request.Context()
 	appCode := c.Query("appCode")
 	providerCode := c.Query("providerCode")
 	action := c.Query("action")
@@ -77,7 +78,7 @@ func (h *AuthHandler) providerLink(c *gin.Context) {
 		return
 	}
 
-	link, err := h.identityClient.ProviderLink(c.Request.Context(), appCode, providerCode, action)
+	link, err := h.identityClient.ProviderLink(ctx, appCode, providerCode, action)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -107,14 +108,16 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 		return
 	}
 
-	sessionID, err := h.identityClient.Login(c.Request.Context(), code, state)
+	ctx := c.Request.Context()
+
+	sessionID, err := h.identityClient.Login(ctx, code, state)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	session, err := h.identityClient.Session(c.Request.Context(), sessionID)
+	session, err := h.identityClient.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -122,7 +125,7 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 	}
 
 	user, err := h.userFinder.GetUserByEmail(
-		c.Request.Context(),
+		ctx,
 		adminActor,
 		admin.ID(session.SessionInfo.ApplicationID),
 		session.UserInfo.Email,
@@ -161,14 +164,16 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 		return
 	}
 
-	sessionID, err := h.identityClient.Login(c.Request.Context(), code, state)
+	ctx := c.Request.Context()
+
+	sessionID, err := h.identityClient.Login(ctx, code, state)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	session, err := h.identityClient.Session(c.Request.Context(), sessionID)
+	session, err := h.identityClient.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -186,7 +191,7 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 		Role:          admin.SystemRoleUser,
 	}
 
-	user, err := h.userCreator.CreateUser(c.Request.Context(), adminActor, newUser)
+	user, err := h.userCreator.CreateUser(ctx, adminActor, newUser)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -229,7 +234,9 @@ func (h *AuthHandler) logout(c *gin.Context) {
 		return
 	}
 
-	if err := h.identityClient.Logout(c.Request.Context(), sessionID); err != nil {
+	ctx := c.Request.Context()
+
+	if err := h.identityClient.Logout(ctx, sessionID); err != nil {
 		_ = c.Error(err)
 
 		return

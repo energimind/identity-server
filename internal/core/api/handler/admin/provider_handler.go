@@ -29,9 +29,10 @@ func (h *ProviderHandler) Bind(root gin.IRoutes) {
 }
 
 func (h *ProviderHandler) findAll(c *gin.Context) {
+	ctx := c.Request.Context()
 	actor := reqctx.Actor(c)
 
-	providers, err := h.service.GetProviders(c, actor)
+	providers, err := h.service.GetProviders(ctx, actor)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -42,10 +43,11 @@ func (h *ProviderHandler) findAll(c *gin.Context) {
 }
 
 func (h *ProviderHandler) findByID(c *gin.Context) {
+	ctx := c.Request.Context()
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	provider, err := h.service.GetProvider(c, actor, admin.ID(id))
+	provider, err := h.service.GetProvider(ctx, actor, admin.ID(id))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -56,6 +58,7 @@ func (h *ProviderHandler) findByID(c *gin.Context) {
 }
 
 func (h *ProviderHandler) create(c *gin.Context) {
+	ctx := c.Request.Context()
 	actor := reqctx.Actor(c)
 
 	dtoProvider := Provider{}
@@ -68,7 +71,7 @@ func (h *ProviderHandler) create(c *gin.Context) {
 
 	provider := toProvider(dtoProvider)
 
-	provider, err := h.service.CreateProvider(c, actor, provider)
+	provider, err := h.service.CreateProvider(ctx, actor, provider)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -79,6 +82,7 @@ func (h *ProviderHandler) create(c *gin.Context) {
 }
 
 func (h *ProviderHandler) update(c *gin.Context) {
+	ctx := c.Request.Context()
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
@@ -94,7 +98,7 @@ func (h *ProviderHandler) update(c *gin.Context) {
 
 	provider.ID = admin.ID(id)
 
-	provider, err := h.service.UpdateProvider(c, actor, provider)
+	provider, err := h.service.UpdateProvider(ctx, actor, provider)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -105,10 +109,11 @@ func (h *ProviderHandler) update(c *gin.Context) {
 }
 
 func (h *ProviderHandler) delete(c *gin.Context) {
+	ctx := c.Request.Context()
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	if err := h.service.DeleteProvider(c, actor, admin.ID(id)); err != nil {
+	if err := h.service.DeleteProvider(ctx, actor, admin.ID(id)); err != nil {
 		_ = c.Error(err)
 
 		return

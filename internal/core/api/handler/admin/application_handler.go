@@ -29,9 +29,10 @@ func (h *ApplicationHandler) Bind(root gin.IRoutes) {
 }
 
 func (h *ApplicationHandler) findAll(c *gin.Context) {
+	ctx := c.Request.Context()
 	actor := reqctx.Actor(c)
 
-	applications, err := h.service.GetApplications(c, actor)
+	applications, err := h.service.GetApplications(ctx, actor)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -42,10 +43,11 @@ func (h *ApplicationHandler) findAll(c *gin.Context) {
 }
 
 func (h *ApplicationHandler) findByID(c *gin.Context) {
+	ctx := c.Request.Context()
 	id := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	application, err := h.service.GetApplication(c, actor, admin.ID(id))
+	application, err := h.service.GetApplication(ctx, actor, admin.ID(id))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -56,6 +58,7 @@ func (h *ApplicationHandler) findByID(c *gin.Context) {
 }
 
 func (h *ApplicationHandler) create(c *gin.Context) {
+	ctx := c.Request.Context()
 	actor := reqctx.Actor(c)
 
 	dtoApplication := Application{}
@@ -66,7 +69,7 @@ func (h *ApplicationHandler) create(c *gin.Context) {
 		return
 	}
 
-	application, err := h.service.CreateApplication(c, actor, toApplication(dtoApplication))
+	application, err := h.service.CreateApplication(ctx, actor, toApplication(dtoApplication))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -77,6 +80,7 @@ func (h *ApplicationHandler) create(c *gin.Context) {
 }
 
 func (h *ApplicationHandler) update(c *gin.Context) {
+	ctx := c.Request.Context()
 	id := c.Param("aid")
 	actor := reqctx.Actor(c)
 
@@ -90,7 +94,7 @@ func (h *ApplicationHandler) update(c *gin.Context) {
 
 	dtoApplication.ID = id
 
-	application, err := h.service.UpdateApplication(c, actor, toApplication(dtoApplication))
+	application, err := h.service.UpdateApplication(ctx, actor, toApplication(dtoApplication))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -101,10 +105,11 @@ func (h *ApplicationHandler) update(c *gin.Context) {
 }
 
 func (h *ApplicationHandler) delete(c *gin.Context) {
+	ctx := c.Request.Context()
 	id := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	if err := h.service.DeleteApplication(c, actor, admin.ID(id)); err != nil {
+	if err := h.service.DeleteApplication(ctx, actor, admin.ID(id)); err != nil {
 		_ = c.Error(err)
 
 		return
