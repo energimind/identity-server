@@ -39,6 +39,9 @@ func RequireActor(
 			return
 		}
 
+		// add sessionID to the request
+		c.Set("sessionId", us.SessionID)
+
 		if localAdminEnabled && us.SessionID == local.AdminSessionID && us.UserID == local.AdminID {
 			// add the actor to the request context
 			reqctx.SetActor(c, admin.NewActor(local.AdminID, local.AdminApplicationID, local.AdminRole))
@@ -70,9 +73,6 @@ func RequireActor(
 				return
 			}
 		}
-
-		// add sessionID to the request
-		c.Set("sessionId", us.SessionID)
 
 		actor := admin.NewActor(admin.ID(us.UserID), admin.ID(us.ApplicationID), admin.SystemRole(us.UserRole))
 
