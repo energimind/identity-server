@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/energimind/go-kit v0.7.1-0.20240508103148-0f9a8cbc92a2
 	github.com/gin-gonic/gin v1.10.0
-	github.com/go-resty/resty/v2 v2.12.0
+	github.com/go-resty/resty/v2 v2.13.1
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.5.3
 	github.com/rs/zerolog v1.32.0
