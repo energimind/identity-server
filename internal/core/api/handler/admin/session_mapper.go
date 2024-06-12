@@ -7,9 +7,9 @@ import (
 
 func toSession(header isclient.Header, user admin.User) session {
 	return session{
-		SessionID:     header.SessionID,
-		ApplicationID: header.ApplicationID,
-		User:          toSessionUser(user),
+		ID:    header.SessionID,
+		AppID: header.ApplicationID,
+		User:  toSessionUser(user),
 	}
 }
 
