@@ -16,13 +16,15 @@ const sessionIDHeader = "X-IS-SessionID"
 
 // Handler is a handler that handles auth requests and sessions.
 type Handler struct {
-	service auth.Service
+	authService auth.Service
+	userFinder  admin.UserFinder
 }
 
 // NewHandler returns a new Handler.
-func NewHandler(service auth.Service) *Handler {
+func NewHandler(service auth.Service, userFinder admin.UserFinder) *Handler {
 	return &Handler{
-		service: service,
+		authService: service,
+		userFinder:  userFinder,
 	}
 }
 
@@ -42,7 +44,7 @@ func (h *Handler) providerLink(c *gin.Context) {
 	providerCode := c.Query("providerCode")
 	action := c.Query("action")
 
-	link, err := h.service.ProviderLink(ctx, appCode, providerCode, action)
+	link, err := h.authService.ProviderLink(ctx, appCode, providerCode, action)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -55,7 +57,7 @@ func (h *Handler) providerLink(c *gin.Context) {
 func (h *Handler) login(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	sessionID, err := h.service.Login(ctx, c.Query("code"), c.Query("state"))
+	sessionID, err := h.authService.Login(ctx, c.Query("code"), c.Query("state"))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -69,21 +71,31 @@ func (h *Handler) getSession(c *gin.Context) {
 	ctx := c.Request.Context()
 	sessionID := c.GetHeader(sessionIDHeader)
 
-	session, err := h.service.Session(ctx, sessionID)
+	session, err := h.authService.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, session)
+	appID := session.Header.ApplicationID
+	userEmail := session.User.Email
+
+	user, err := h.userFinder.GetUserByEmailSys(ctx, admin.ID(appID), userEmail)
+	if err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, toClientSession(session, user))
 }
 
 func (h *Handler) refreshSession(c *gin.Context) {
 	ctx := c.Request.Context()
 	sessionID := c.GetHeader(sessionIDHeader)
 
-	refreshed, err := h.service.Refresh(ctx, sessionID)
+	refreshed, err := h.authService.Refresh(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -97,7 +109,7 @@ func (h *Handler) logout(c *gin.Context) {
 	ctx := c.Request.Context()
 	sessionID := c.GetHeader(sessionIDHeader)
 
-	err := h.service.Logout(ctx, sessionID)
+	err := h.authService.Logout(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -117,7 +129,7 @@ func (h *Handler) verifyAPIKey(c *gin.Context) {
 		return
 	}
 
-	err = h.service.VerifyAPIKey(ctx, admin.ID(appID), apiKey)
+	err = h.authService.VerifyAPIKey(ctx, admin.ID(appID), apiKey)
 	if err != nil {
 		_ = c.Error(domain.NewUnauthorizedError("invalid API key: %v", err))
 

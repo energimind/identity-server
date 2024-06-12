@@ -14,9 +14,8 @@ type Header struct {
 
 // User is a struct that contains user information.
 type User struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	GivenName  string `json:"givenName"`
-	FamilyName string `json:"familyName"`
-	Email      string `json:"email"`
+	ID          string `json:"id"`
+	Username    string `json:"username"`
+	DisplayName string `json:"displayName"`
+	Email       string `json:"email"`
 }
