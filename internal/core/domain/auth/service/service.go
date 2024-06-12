@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/energimind/go-kit/slog"
-	isclient "github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
 	"github.com/energimind/identity-server/internal/core/domain/auth"
@@ -150,14 +149,14 @@ func (s *Service) Login(ctx context.Context, code, state string) (string, error)
 }
 
 // Session implements the auth.Service interface.
-func (s *Service) Session(ctx context.Context, sessionID string) (isclient.Session, error) {
+func (s *Service) Session(ctx context.Context, sessionID string) (auth.Session, error) {
 	us, err := s.findUserSession(ctx, sessionID)
 	if err != nil {
-		return isclient.Session{}, err
+		return auth.Session{}, err
 	}
 
-	return isclient.Session{
-		Header: isclient.Header{
+	return auth.Session{
+		Header: auth.Header{
 			SessionID:     sessionID,
 			ApplicationID: us.ApplicationID,
 		},
