@@ -20,11 +20,6 @@ const (
 	localProviderLink = "/auth/callback?code=" + local.AdminProviderCode + "&state=" + local.AdminProviderCode
 )
 
-// adminActor is the actor for the admin role.
-//
-//nolint:gochecknoglobals // it is a constant
-var adminActor = admin.Actor{Role: admin.SystemRoleAdmin}
-
 // AuthHandler handles admin auth requests.
 type AuthHandler struct {
 	authService       auth.Service
@@ -125,12 +120,7 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 		return
 	}
 
-	user, err := h.userFinder.GetUserByEmail(
-		ctx,
-		adminActor,
-		admin.ID(cs.Header.ApplicationID),
-		cs.User.Email,
-	)
+	user, err := h.userFinder.GetUserByEmailSys(ctx, admin.ID(cs.Header.ApplicationID), cs.User.Email)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -192,7 +182,7 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 		Role:          admin.SystemRoleUser,
 	}
 
-	user, err := h.userCreator.CreateUser(ctx, adminActor, newUser)
+	user, err := h.userCreator.CreateUserSys(ctx, newUser)
 	if err != nil {
 		_ = c.Error(err)
 

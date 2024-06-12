@@ -35,13 +35,15 @@ type UserService interface {
 }
 
 // UserFinder defines the user finder interface.
+// This is a system operation and should not be used in the API.
 type UserFinder interface {
-	GetUserByEmail(ctx context.Context, actor Actor, appID ID, email string) (User, error)
+	GetUserByEmailSys(ctx context.Context, appID ID, email string) (User, error)
 }
 
 // UserCreator defines the user creator interface.
+// This is a system operation and should not be used in the API.
 type UserCreator interface {
-	CreateUser(ctx context.Context, actor Actor, user User) (User, error)
+	CreateUserSys(ctx context.Context, user User) (User, error)
 }
 
 // DaemonService defines the daemon service interface.

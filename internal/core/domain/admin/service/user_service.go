@@ -7,6 +7,11 @@ import (
 	"github.com/energimind/identity-server/internal/core/domain/admin"
 )
 
+// adminActor is the actor for the admin role.
+//
+//nolint:gochecknoglobals // it is a constant
+var adminActor = admin.Actor{Role: admin.SystemRoleAdmin}
+
 // UserService is a service for managing users.
 //
 // It implements the service.UserService and the admin.UserFinder interfaces.
@@ -456,4 +461,23 @@ func (s *UserService) checkAnotherUserExists(ctx context.Context, appID admin.ID
 	}
 
 	return nil
+}
+
+// CreateUserSys creates a user in the system.
+// This method is not exposed in the API. It does not include acting user checks.
+func (s *UserService) CreateUserSys(
+	ctx context.Context,
+	user admin.User,
+) (admin.User, error) {
+	return s.CreateUser(ctx, adminActor, user)
+}
+
+// GetUserByEmailSys gets a user by email in the system.
+// This method is not exposed in the API. It does not include acting user checks.
+func (s *UserService) GetUserByEmailSys(
+	ctx context.Context,
+	appID admin.ID,
+	email string,
+) (admin.User, error) {
+	return s.GetUserByEmail(ctx, adminActor, appID, email)
 }
