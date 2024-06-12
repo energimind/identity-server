@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/energimind/go-kit/slog"
-	"github.com/energimind/identity-server/client"
+	isclient "github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
 	"github.com/energimind/identity-server/internal/core/domain/auth"
@@ -131,10 +131,10 @@ func (s *Service) Login(ctx context.Context, code, state string) (string, error)
 		return "", domain.NewAccessDeniedError("failed to get user info: %v", err)
 	}
 
-	userInfo := toUserInfo(ui)
+	user := toIdentityUser(ui)
 
 	us.updateToken(token)
-	us.updateUserInfo(userInfo)
+	us.updateUser(user)
 
 	if pErr := s.sessionCache.Put(ctx, sessionID, us, sessionTTL); pErr != nil {
 		return "", pErr
@@ -143,25 +143,25 @@ func (s *Service) Login(ctx context.Context, code, state string) (string, error)
 	reqctx.Logger(ctx).Debug().
 		Str("sessionId", sessionID).
 		Str("applicationId", us.ApplicationID).
-		Any("userInfo", us.UserInfo).
+		Any("user", us.User).
 		Msg("Login completed")
 
 	return sessionID, nil
 }
 
 // Session implements the auth.Service interface.
-func (s *Service) Session(ctx context.Context, sessionID string) (client.Session, error) {
+func (s *Service) Session(ctx context.Context, sessionID string) (isclient.Session, error) {
 	us, err := s.findUserSession(ctx, sessionID)
 	if err != nil {
-		return client.Session{}, err
+		return isclient.Session{}, err
 	}
 
-	return client.Session{
-		SessionInfo: client.SessionInfo{
+	return isclient.Session{
+		Header: isclient.Header{
 			SessionID:     sessionID,
 			ApplicationID: us.ApplicationID,
 		},
-		UserInfo: us.UserInfo,
+		User: us.User,
 	}, nil
 }
 

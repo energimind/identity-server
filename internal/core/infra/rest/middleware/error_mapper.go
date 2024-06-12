@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/energimind/identity-server/client"
+	isclient "github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/gin-gonic/gin"
 )
@@ -38,7 +38,7 @@ func mapError(c *gin.Context) { //nolint:funlen,cyclop
 		gatewayError        domain.GatewayError
 		sessionError        domain.SessionError
 		unauthorizedError   domain.UnauthorizedError
-		identityServerError client.IdentityServerError
+		identityServerError isclient.IdentityServerError
 	)
 
 	err := c.Errors.Last().Err

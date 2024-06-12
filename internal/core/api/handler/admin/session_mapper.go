@@ -1,14 +1,14 @@
 package admin
 
 import (
-	"github.com/energimind/identity-server/client"
+	isclient "github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
 )
 
-func toSession(si client.SessionInfo, user admin.User) session {
+func toSession(header isclient.Header, user admin.User) session {
 	return session{
-		SessionID:     si.SessionID,
-		ApplicationID: si.ApplicationID,
+		SessionID:     header.SessionID,
+		ApplicationID: header.ApplicationID,
 		User:          toSessionUser(user),
 	}
 }

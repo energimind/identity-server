@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/energimind/identity-server/client"
+	isclient "github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/api"
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
@@ -28,7 +28,7 @@ var adminActor = admin.Actor{Role: admin.SystemRoleAdmin}
 
 // AuthHandler handles admin auth requests.
 type AuthHandler struct {
-	identityClient    *client.Client
+	identityClient    *isclient.Client
 	userFinder        admin.UserFinder
 	userCreator       admin.UserCreator
 	cookieOperator    admin.CookieOperator
@@ -38,7 +38,7 @@ type AuthHandler struct {
 
 // NewAuthHandler returns a new instance of AuthHandler.
 func NewAuthHandler(
-	identityClient *client.Client,
+	identityClient *isclient.Client,
 	userFinder admin.UserFinder,
 	userCreator admin.UserCreator,
 	cookieOperator admin.CookieOperator,
@@ -121,7 +121,7 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 		return
 	}
 
-	si, err := ic.Session(ctx, sessionID)
+	cs, err := ic.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -131,8 +131,8 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 	user, err := h.userFinder.GetUserByEmail(
 		ctx,
 		adminActor,
-		admin.ID(si.SessionInfo.ApplicationID),
-		si.UserInfo.Email,
+		admin.ID(cs.Header.ApplicationID),
+		cs.User.Email,
 	)
 	if err != nil {
 		_ = c.Error(err)
@@ -140,11 +140,11 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 		return
 	}
 
-	h.serveSessionCookie(c, si.SessionInfo, user)
+	h.serveSessionCookie(c, cs.Header, user)
 }
 
 func (h *AuthHandler) loginLocal(c *gin.Context) {
-	si := client.SessionInfo{
+	header := isclient.Header{
 		SessionID:     local.AdminSessionID,
 		ApplicationID: local.AdminApplicationID,
 	}
@@ -158,7 +158,7 @@ func (h *AuthHandler) loginLocal(c *gin.Context) {
 		Role:          local.AdminRole,
 	}
 
-	h.serveSessionCookie(c, si, user)
+	h.serveSessionCookie(c, header, user)
 }
 
 func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
@@ -185,10 +185,10 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 		return
 	}
 
-	oaUser := cs.UserInfo
+	oaUser := cs.User
 
 	newUser := admin.User{
-		ApplicationID: admin.ID(cs.SessionInfo.ApplicationID),
+		ApplicationID: admin.ID(cs.Header.ApplicationID),
 		Username:      strings.Split(oaUser.Email, "@")[0],
 		Email:         oaUser.Email,
 		DisplayName:   oaUser.Name,
@@ -203,13 +203,13 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 		return
 	}
 
-	h.serveSessionCookie(c, cs.SessionInfo, user)
+	h.serveSessionCookie(c, cs.Header, user)
 }
 
-func (h *AuthHandler) serveSessionCookie(c *gin.Context, si client.SessionInfo, user admin.User) {
+func (h *AuthHandler) serveSessionCookie(c *gin.Context, header isclient.Header, user admin.User) {
 	us := domain.NewUserSession(
-		si.SessionID,
-		si.ApplicationID,
+		header.SessionID,
+		header.ApplicationID,
 		user.ID.String(),
 		user.Role.String(),
 	)
@@ -220,7 +220,7 @@ func (h *AuthHandler) serveSessionCookie(c *gin.Context, si client.SessionInfo, 
 		return
 	}
 
-	c.JSON(http.StatusOK, toSession(si, user))
+	c.JSON(http.StatusOK, toSession(header, user))
 }
 
 func (h *AuthHandler) logout(c *gin.Context) {

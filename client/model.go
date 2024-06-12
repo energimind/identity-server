@@ -2,18 +2,18 @@ package client
 
 // Session is a struct that contains session and user information.
 type Session struct {
-	SessionInfo SessionInfo `json:"sessionInfo"`
-	UserInfo    UserInfo    `json:"userInfo"`
+	Header Header `json:"header"`
+	User   User   `json:"user"`
 }
 
-// SessionInfo is a struct that contains session information.
-type SessionInfo struct {
+// Header is a struct that contains session header information.
+type Header struct {
 	SessionID     string `json:"sessionId"`
 	ApplicationID string `json:"applicationId"`
 }
 
-// UserInfo is a struct that contains user information.
-type UserInfo struct {
+// User is a struct that contains user information.
+type User struct {
 	ID         string `json:"id"`
 	Name       string `json:"name"`
 	GivenName  string `json:"givenName"`
