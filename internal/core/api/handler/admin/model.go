@@ -22,7 +22,7 @@ type Provider struct {
 	RedirectURL  string `json:"redirectUrl"`
 }
 
-// User represents an organic user in the system.
+// User represents an organic sessionUser in the system.
 type User struct {
 	ID          string   `json:"id"`
 	Username    string   `json:"username"`
@@ -34,7 +34,7 @@ type User struct {
 	APIKeys     []APIKey `json:"apiKeys"`
 }
 
-// Daemon represents a non-organic user in the system.
+// Daemon represents a non-organic sessionUser in the system.
 type Daemon struct {
 	ID          string   `json:"id"`
 	Code        string   `json:"code"`
@@ -45,7 +45,7 @@ type Daemon struct {
 }
 
 // APIKey represents an API key that can be used to authenticate a daemon.
-// It can also be used to authenticate a user.
+// It can also be used to authenticate a sessionUser.
 type APIKey struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`

@@ -1,20 +1,14 @@
 package admin
 
-// info is a struct that contains session and user information.
-// This info is returned by the identity provider upon successful authentication.
-type info struct {
-	SessionInfo sessionInfo `json:"sessionInfo"`
-	UserInfo    userInfo    `json:"userInfo"`
+// session is a struct that contains session information.
+type session struct {
+	SessionID     string      `json:"sessionId"`
+	ApplicationID string      `json:"applicationId"`
+	User          sessionUser `json:"user"`
 }
 
-// sessionInfo is a struct that contains session information.
-type sessionInfo struct {
-	SessionID     string `json:"sessionId"`
-	ApplicationID string `json:"applicationId"`
-}
-
-// userInfo is a struct that contains user information.
-type userInfo struct {
+// sessionUser is a struct that contains sessionUser information.
+type sessionUser struct {
 	ID          string `json:"id"`
 	Username    string `json:"username"`
 	DisplayName string `json:"displayName"`

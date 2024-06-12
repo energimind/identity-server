@@ -80,7 +80,7 @@ func toProvider(provider Provider) admin.Provider {
 	}
 }
 
-// fromUser converts a domain user to a DTO user.
+// fromUser converts a domain sessionUser to a DTO sessionUser.
 func fromUser(user admin.User) User {
 	return User{
 		ID:          string(user.ID),
@@ -104,7 +104,7 @@ func fromUsers(users []admin.User) []User {
 	return dtos
 }
 
-// toUser converts a DTO user to a domain user.
+// toUser converts a DTO sessionUser to a domain sessionUser.
 func toUser(user User) admin.User {
 	return admin.User{
 		ID:          admin.ID(user.ID),

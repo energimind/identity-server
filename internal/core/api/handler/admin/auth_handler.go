@@ -121,7 +121,7 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 		return
 	}
 
-	session, err := ic.Session(ctx, sessionID)
+	si, err := ic.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -131,8 +131,8 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 	user, err := h.userFinder.GetUserByEmail(
 		ctx,
 		adminActor,
-		admin.ID(session.SessionInfo.ApplicationID),
-		session.UserInfo.Email,
+		admin.ID(si.SessionInfo.ApplicationID),
+		si.UserInfo.Email,
 	)
 	if err != nil {
 		_ = c.Error(err)
@@ -140,11 +140,11 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 		return
 	}
 
-	h.serveCookieAndUser(c, session.SessionInfo, user)
+	h.serveSessionCookie(c, si.SessionInfo, user)
 }
 
 func (h *AuthHandler) loginLocal(c *gin.Context) {
-	session := client.SessionInfo{
+	si := client.SessionInfo{
 		SessionID:     local.AdminSessionID,
 		ApplicationID: local.AdminApplicationID,
 	}
@@ -158,7 +158,7 @@ func (h *AuthHandler) loginLocal(c *gin.Context) {
 		Role:          local.AdminRole,
 	}
 
-	h.serveCookieAndUser(c, session, user)
+	h.serveSessionCookie(c, si, user)
 }
 
 func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
@@ -178,17 +178,17 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 		return
 	}
 
-	session, err := ic.Session(ctx, sessionID)
+	cs, err := ic.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	oaUser := session.UserInfo
+	oaUser := cs.UserInfo
 
 	newUser := admin.User{
-		ApplicationID: admin.ID(session.SessionInfo.ApplicationID),
+		ApplicationID: admin.ID(cs.SessionInfo.ApplicationID),
 		Username:      strings.Split(oaUser.Email, "@")[0],
 		Email:         oaUser.Email,
 		DisplayName:   oaUser.Name,
@@ -203,24 +203,24 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 		return
 	}
 
-	h.serveCookieAndUser(c, session.SessionInfo, user)
+	h.serveSessionCookie(c, cs.SessionInfo, user)
 }
 
-func (h *AuthHandler) serveCookieAndUser(c *gin.Context, session client.SessionInfo, user admin.User) {
+func (h *AuthHandler) serveSessionCookie(c *gin.Context, si client.SessionInfo, user admin.User) {
 	us := domain.NewUserSession(
-		session.SessionID,
-		session.ApplicationID,
+		si.SessionID,
+		si.ApplicationID,
 		user.ID.String(),
 		user.Role.String(),
 	)
 
-	if cErr := h.cookieOperator.CreateCookie(c, us); cErr != nil {
-		_ = c.Error(cErr)
+	if err := h.cookieOperator.CreateCookie(c, us); err != nil {
+		_ = c.Error(err)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, toInfo(session, user))
+	c.JSON(http.StatusOK, toSession(si, user))
 }
 
 func (h *AuthHandler) logout(c *gin.Context) {
