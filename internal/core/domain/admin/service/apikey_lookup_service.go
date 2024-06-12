@@ -37,13 +37,13 @@ var _ admin.APIKeyLookupService = (*APIKeyLookupService)(nil)
 // LookupAPIKey implements the service.APIKeyLookupService interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *APIKeyLookupService) LookupAPIKey(ctx context.Context, appID admin.ID, key string) (admin.APIKey, error) {
-	fromUser, err := s.userRepo.GetAPIKey(ctx, appID, key)
+func (s *APIKeyLookupService) LookupAPIKey(ctx context.Context, realmID admin.ID, key string) (admin.APIKey, error) {
+	fromUser, err := s.userRepo.GetAPIKey(ctx, realmID, key)
 	if err == nil {
 		return fromUser, nil
 	}
 
-	fromDaemon, err := s.daemonRepo.GetAPIKey(ctx, appID, key)
+	fromDaemon, err := s.daemonRepo.GetAPIKey(ctx, realmID, key)
 	if err == nil {
 		return fromDaemon, nil
 	}

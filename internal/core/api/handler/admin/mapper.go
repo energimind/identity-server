@@ -6,36 +6,36 @@ import (
 	"github.com/energimind/identity-server/internal/core/domain/admin"
 )
 
-// fromApplication converts a domain application to a DTO application.
-func fromApplication(app admin.Application) Application {
-	return Application{
-		ID:          string(app.ID),
-		Code:        app.Code,
-		Name:        app.Name,
-		Description: app.Description,
-		Enabled:     app.Enabled,
+// fromRealm converts a domain realm to a DTO realm.
+func fromRealm(realm admin.Realm) Realm {
+	return Realm{
+		ID:          string(realm.ID),
+		Code:        realm.Code,
+		Name:        realm.Name,
+		Description: realm.Description,
+		Enabled:     realm.Enabled,
 	}
 }
 
-// fromApplications converts a slice of domain applications to a slice of DTO applications.
-func fromApplications(apps []admin.Application) []Application {
-	dtos := make([]Application, len(apps))
+// fromRealms converts a slice of domain realms to a slice of DTO realms.
+func fromRealms(realms []admin.Realm) []Realm {
+	dtos := make([]Realm, len(realms))
 
-	for i, app := range apps {
-		dtos[i] = fromApplication(app)
+	for i, realm := range realms {
+		dtos[i] = fromRealm(realm)
 	}
 
 	return dtos
 }
 
-// toApplication converts a DTO application to a domain application.
-func toApplication(app Application) admin.Application {
-	return admin.Application{
-		ID:          admin.ID(app.ID),
-		Code:        app.Code,
-		Name:        app.Name,
-		Description: app.Description,
-		Enabled:     app.Enabled,
+// toRealm converts a DTO realm to a domain realm.
+func toRealm(realm Realm) admin.Realm {
+	return admin.Realm{
+		ID:          admin.ID(realm.ID),
+		Code:        realm.Code,
+		Name:        realm.Name,
+		Description: realm.Description,
+		Enabled:     realm.Enabled,
 	}
 }
 

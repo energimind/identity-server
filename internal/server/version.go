@@ -1,22 +1,22 @@
 package server
 
 const (
-	appName        = "identity-server"
-	appDisplayName = "Identity Server"
-	appCopyright   = "Copyright \u00A9 2023-2024 energimind.com"
+	realmName        = "identity-server"
+	realmDisplayName = "Identity Server"
+	realmCopyright   = "Copyright \u00A9 2023-2024 energimind.com"
 )
 
 //nolint:gochecknoglobals
 var (
-	appVersion = "v0.0.0"
-	appBuildID = "devel"
-	Version    = VersionInfo{
-		Name:        appName,
-		DisplayName: appDisplayName,
-		Copyright:   appCopyright,
-		Signature:   appDisplayName + " " + appVersion + ", build " + appBuildID,
-		Version:     appVersion,
-		BuildID:     appBuildID,
+	realmVersion = "v0.0.0"
+	realmBuildID = "devel"
+	Version      = VersionInfo{
+		Name:        realmName,
+		DisplayName: realmDisplayName,
+		Copyright:   realmCopyright,
+		Signature:   realmDisplayName + " " + realmVersion + ", build " + realmBuildID,
+		Version:     realmVersion,
+		BuildID:     realmBuildID,
 	}
 )
 

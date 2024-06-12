@@ -26,10 +26,10 @@ var _ admin.UserRepository = (*UserRepository)(nil)
 // GetUsers implements the admin.UserRepository interface.
 func (r *UserRepository) GetUsers(
 	ctx context.Context,
-	appID admin.ID,
+	realmID admin.ID,
 ) ([]admin.User, error) {
 	coll := r.db.Collection("users")
-	qFilter := bson.M{"applicationId": appID}
+	qFilter := bson.M{"realmId": realmID}
 
 	qCursor, err := coll.Find(ctx, qFilter)
 	if err != nil {
@@ -47,10 +47,10 @@ func (r *UserRepository) GetUsers(
 // GetUser implements the admin.UserRepository interface.
 func (r *UserRepository) GetUser(
 	ctx context.Context,
-	appID, id admin.ID,
+	realmID, id admin.ID,
 ) (admin.User, error) {
 	coll := r.db.Collection("users")
-	qFilter := bson.M{"id": id, "applicationId": appID}
+	qFilter := bson.M{"id": id, "realmId": realmID}
 	user := dbUser{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&user); err != nil {
@@ -102,10 +102,10 @@ func (r *UserRepository) UpdateUser(
 // DeleteUser implements the admin.UserRepository interface.
 func (r *UserRepository) DeleteUser(
 	ctx context.Context,
-	appID, id admin.ID,
+	realmID, id admin.ID,
 ) error {
 	coll := r.db.Collection("users")
-	qFilter := bson.M{"id": id, "applicationId": appID}
+	qFilter := bson.M{"id": id, "realmId": realmID}
 
 	result, err := coll.DeleteOne(ctx, qFilter)
 	if err != nil {
@@ -122,16 +122,16 @@ func (r *UserRepository) DeleteUser(
 // GetUserByEmail implements the admin.UserRepository interface.
 func (r *UserRepository) GetUserByEmail(
 	ctx context.Context,
-	appID admin.ID,
+	realmID admin.ID,
 	email string,
 ) (admin.User, error) {
 	coll := r.db.Collection("users")
-	qFilter := bson.M{"email": email, "applicationId": appID}
+	qFilter := bson.M{"email": email, "realmId": realmID}
 	user := dbUser{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&user); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return admin.User{}, domain.NewNotFoundError("user with email %s and application %s not found", email, appID)
+			return admin.User{}, domain.NewNotFoundError("user with email %s and realm %s not found", email, realmID)
 		}
 
 		return admin.User{}, domain.NewStoreError("failed to get user by email: %v", err)
@@ -145,13 +145,13 @@ func (r *UserRepository) GetUserByEmail(
 // This method takes in account the enabled field of the user and the API key.
 func (r *UserRepository) GetAPIKey(
 	ctx context.Context,
-	appID admin.ID,
+	realmID admin.ID,
 	key string,
 ) (admin.APIKey, error) {
 	coll := r.db.Collection("users")
 	qFilter := bson.M{
-		"applicationId": appID,
-		"enabled":       true,
+		"realmId": realmID,
+		"enabled": true,
 		"apiKeys": bson.M{"$elemMatch": bson.M{
 			"key":     key,
 			"enabled": true,

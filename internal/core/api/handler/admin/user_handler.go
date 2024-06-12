@@ -36,10 +36,10 @@ func (h *UserHandler) Bind(root gin.IRoutes) {
 
 func (h *UserHandler) findAll(c *gin.Context) {
 	ctx := c.Request.Context()
-	appID := c.Param("aid")
+	realmID := c.Param("aid")
 	actor := reqctx.Actor(c)
 
-	users, err := h.service.GetUsers(ctx, actor, admin.ID(appID))
+	users, err := h.service.GetUsers(ctx, actor, admin.ID(realmID))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -51,11 +51,11 @@ func (h *UserHandler) findAll(c *gin.Context) {
 
 func (h *UserHandler) findByID(c *gin.Context) {
 	ctx := c.Request.Context()
-	appID := c.Param("aid")
+	realmID := c.Param("aid")
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	user, err := h.service.GetUser(ctx, actor, admin.ID(appID), admin.ID(id))
+	user, err := h.service.GetUser(ctx, actor, admin.ID(realmID), admin.ID(id))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -67,7 +67,7 @@ func (h *UserHandler) findByID(c *gin.Context) {
 
 func (h *UserHandler) create(c *gin.Context) {
 	ctx := c.Request.Context()
-	appID := c.Param("aid")
+	realmID := c.Param("aid")
 	actor := reqctx.Actor(c)
 
 	dtoUser := User{}
@@ -80,7 +80,7 @@ func (h *UserHandler) create(c *gin.Context) {
 
 	user := toUser(dtoUser)
 
-	user.ApplicationID = admin.ID(appID)
+	user.RealmID = admin.ID(realmID)
 
 	user, err := h.service.CreateUser(ctx, actor, user)
 	if err != nil {
@@ -94,7 +94,7 @@ func (h *UserHandler) create(c *gin.Context) {
 
 func (h *UserHandler) update(c *gin.Context) {
 	ctx := c.Request.Context()
-	appID := c.Param("aid")
+	realmID := c.Param("aid")
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
@@ -109,7 +109,7 @@ func (h *UserHandler) update(c *gin.Context) {
 	user := toUser(dtoUser)
 
 	user.ID = admin.ID(id)
-	user.ApplicationID = admin.ID(appID)
+	user.RealmID = admin.ID(realmID)
 
 	user, err := h.service.UpdateUser(ctx, actor, user)
 	if err != nil {
@@ -123,11 +123,11 @@ func (h *UserHandler) update(c *gin.Context) {
 
 func (h *UserHandler) delete(c *gin.Context) {
 	ctx := c.Request.Context()
-	appID := c.Param("aid")
+	realmID := c.Param("aid")
 	id := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	if err := h.service.DeleteUser(ctx, actor, admin.ID(appID), admin.ID(id)); err != nil {
+	if err := h.service.DeleteUser(ctx, actor, admin.ID(realmID), admin.ID(id)); err != nil {
 		_ = c.Error(err)
 
 		return
@@ -138,11 +138,11 @@ func (h *UserHandler) delete(c *gin.Context) {
 
 func (h *UserHandler) findAllAPIKeys(c *gin.Context) {
 	ctx := c.Request.Context()
-	appID := c.Param("aid")
+	realmID := c.Param("aid")
 	userID := c.Param("id")
 	actor := reqctx.Actor(c)
 
-	apiKeys, err := h.service.GetAPIKeys(ctx, actor, admin.ID(appID), admin.ID(userID))
+	apiKeys, err := h.service.GetAPIKeys(ctx, actor, admin.ID(realmID), admin.ID(userID))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -154,12 +154,12 @@ func (h *UserHandler) findAllAPIKeys(c *gin.Context) {
 
 func (h *UserHandler) findAPIKey(c *gin.Context) {
 	ctx := c.Request.Context()
-	appID := c.Param("aid")
+	realmID := c.Param("aid")
 	userID := c.Param("id")
 	key := c.Param("kid")
 	actor := reqctx.Actor(c)
 
-	apiKey, err := h.service.GetAPIKey(ctx, actor, admin.ID(appID), admin.ID(userID), admin.ID(key))
+	apiKey, err := h.service.GetAPIKey(ctx, actor, admin.ID(realmID), admin.ID(userID), admin.ID(key))
 	if err != nil {
 		_ = c.Error(err)
 
@@ -171,7 +171,7 @@ func (h *UserHandler) findAPIKey(c *gin.Context) {
 
 func (h *UserHandler) createAPIKey(c *gin.Context) {
 	ctx := c.Request.Context()
-	appID := c.Param("aid")
+	realmID := c.Param("aid")
 	userID := c.Param("id")
 	actor := reqctx.Actor(c)
 
@@ -185,7 +185,7 @@ func (h *UserHandler) createAPIKey(c *gin.Context) {
 
 	apiKey := toAPIKey(dtoAPIKey)
 
-	apiKey, err := h.service.CreateAPIKey(ctx, actor, admin.ID(appID), admin.ID(userID), apiKey)
+	apiKey, err := h.service.CreateAPIKey(ctx, actor, admin.ID(realmID), admin.ID(userID), apiKey)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -197,7 +197,7 @@ func (h *UserHandler) createAPIKey(c *gin.Context) {
 
 func (h *UserHandler) updateAPIKey(c *gin.Context) {
 	ctx := c.Request.Context()
-	appID := c.Param("aid")
+	realmID := c.Param("aid")
 	userID := c.Param("id")
 	keyID := c.Param("kid")
 	actor := reqctx.Actor(c)
@@ -214,7 +214,7 @@ func (h *UserHandler) updateAPIKey(c *gin.Context) {
 
 	apiKey.ID = admin.ID(keyID)
 
-	apiKey, err := h.service.UpdateAPIKey(ctx, actor, admin.ID(appID), admin.ID(userID), admin.ID(keyID), apiKey)
+	apiKey, err := h.service.UpdateAPIKey(ctx, actor, admin.ID(realmID), admin.ID(userID), admin.ID(keyID), apiKey)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -226,12 +226,12 @@ func (h *UserHandler) updateAPIKey(c *gin.Context) {
 
 func (h *UserHandler) deleteAPIKey(c *gin.Context) {
 	ctx := c.Request.Context()
-	appID := c.Param("aid")
+	realmID := c.Param("aid")
 	userID := c.Param("id")
 	keyID := c.Param("kid")
 	actor := reqctx.Actor(c)
 
-	if err := h.service.DeleteAPIKey(ctx, actor, admin.ID(appID), admin.ID(userID), admin.ID(keyID)); err != nil {
+	if err := h.service.DeleteAPIKey(ctx, actor, admin.ID(realmID), admin.ID(userID), admin.ID(keyID)); err != nil {
 		_ = c.Error(err)
 
 		return

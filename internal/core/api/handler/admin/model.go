@@ -1,7 +1,7 @@
 package admin
 
-// Application represents an application.
-type Application struct {
+// Realm represents a realm.
+type Realm struct {
 	ID          string `json:"id"`
 	Code        string `json:"code"`
 	Name        string `json:"name"`

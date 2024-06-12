@@ -11,7 +11,7 @@ const fieldSeparator = ":"
 // serializeUserSession returns the serialized representation of the UserSession.
 func serializeUserSession(us domain.UserSession) string {
 	return us.SessionID + fieldSeparator +
-		us.ApplicationID + fieldSeparator +
+		us.RealmID + fieldSeparator +
 		us.UserID + fieldSeparator +
 		us.UserRole
 }
@@ -27,9 +27,9 @@ func deserializeUserSession(serialized string) (domain.UserSession, error) {
 	}
 
 	return domain.UserSession{
-		SessionID:     parts[0],
-		ApplicationID: parts[1],
-		UserID:        parts[2],
-		UserRole:      parts[3],
+		SessionID: parts[0],
+		RealmID:   parts[1],
+		UserID:    parts[2],
+		UserRole:  parts[3],
 	}, nil
 }

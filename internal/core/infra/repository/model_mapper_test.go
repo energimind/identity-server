@@ -10,40 +10,40 @@ import (
 )
 
 func Test_allUserFieldsAreMapped(t *testing.T) {
-	mapping.CheckAllFieldsAreMapped(t, admin.Application{}, dbApplication{})
+	mapping.CheckAllFieldsAreMapped(t, admin.Realm{}, dbRealm{})
 	mapping.CheckAllFieldsAreMapped(t, admin.Provider{}, dbProvider{})
 	mapping.CheckAllFieldsAreMapped(t, admin.User{}, dbUser{})
 	mapping.CheckAllFieldsAreMapped(t, admin.Daemon{}, dbDaemon{})
 	mapping.CheckAllFieldsAreMapped(t, admin.APIKey{}, dbAPIKey{})
 
-	mapping.CheckAllFieldsAreMapped(t, dbApplication{}, admin.Application{})
+	mapping.CheckAllFieldsAreMapped(t, dbRealm{}, admin.Realm{})
 	mapping.CheckAllFieldsAreMapped(t, dbProvider{}, admin.Provider{})
 	mapping.CheckAllFieldsAreMapped(t, dbUser{}, admin.User{})
 	mapping.CheckAllFieldsAreMapped(t, dbDaemon{}, admin.Daemon{})
 	mapping.CheckAllFieldsAreMapped(t, dbAPIKey{}, admin.APIKey{})
 }
 
-func Test_mapApplication(t *testing.T) {
+func Test_mapRealm(t *testing.T) {
 	t.Parallel()
 
-	from := admin.Application{
-		ID:          "app1",
-		Code:        "app1",
-		Name:        "Application 1",
-		Description: "Application 1",
+	from := admin.Realm{
+		ID:          "realm1",
+		Code:        "realm1",
+		Name:        "Realm 1",
+		Description: "Realm 1",
 		Enabled:     true,
 	}
 
-	expected := dbApplication{
-		ID:          "app1",
-		Code:        "app1",
-		Name:        "Application 1",
-		Description: "Application 1",
+	expected := dbRealm{
+		ID:          "realm1",
+		Code:        "realm1",
+		Name:        "Realm 1",
+		Description: "Realm 1",
 		Enabled:     true,
 	}
 
-	mapped := toApplication(from)
-	back := fromApplication(mapped)
+	mapped := toRealm(from)
+	back := fromRealm(mapped)
 
 	require.Equal(t, expected, mapped)
 	require.Equal(t, from, back)
@@ -87,25 +87,25 @@ func Test_mapUser(t *testing.T) {
 	t.Parallel()
 
 	from := admin.User{
-		ID:            "user1",
-		ApplicationID: "app1",
-		Username:      "user1",
-		Email:         "user@somedomain.com",
-		Description:   "User 1",
-		Enabled:       true,
-		Role:          admin.SystemRoleManager,
-		APIKeys:       []admin.APIKey{{}},
+		ID:          "user1",
+		RealmID:     "realm1",
+		Username:    "user1",
+		Email:       "user@somedomain.com",
+		Description: "User 1",
+		Enabled:     true,
+		Role:        admin.SystemRoleManager,
+		APIKeys:     []admin.APIKey{{}},
 	}
 
 	expected := dbUser{
-		ID:            "user1",
-		ApplicationID: "app1",
-		Username:      "user1",
-		Email:         "user@somedomain.com",
-		Description:   "User 1",
-		Enabled:       true,
-		Role:          dbSystemRoleManager,
-		APIKeys:       []dbAPIKey{{}},
+		ID:          "user1",
+		RealmID:     "realm1",
+		Username:    "user1",
+		Email:       "user@somedomain.com",
+		Description: "User 1",
+		Enabled:     true,
+		Role:        dbSystemRoleManager,
+		APIKeys:     []dbAPIKey{{}},
 	}
 
 	mapped := toUser(from)
@@ -119,23 +119,23 @@ func Test_mapDaemon(t *testing.T) {
 	t.Parallel()
 
 	from := admin.Daemon{
-		ID:            "daemon1",
-		ApplicationID: "app1",
-		Code:          "daemon1",
-		Name:          "Daemon 1",
-		Description:   "Daemon 1",
-		Enabled:       true,
-		APIKeys:       []admin.APIKey{{}},
+		ID:          "daemon1",
+		RealmID:     "realm1",
+		Code:        "daemon1",
+		Name:        "Daemon 1",
+		Description: "Daemon 1",
+		Enabled:     true,
+		APIKeys:     []admin.APIKey{{}},
 	}
 
 	expected := dbDaemon{
-		ID:            "daemon1",
-		ApplicationID: "app1",
-		Code:          "daemon1",
-		Name:          "Daemon 1",
-		Description:   "Daemon 1",
-		Enabled:       true,
-		APIKeys:       []dbAPIKey{{}},
+		ID:          "daemon1",
+		RealmID:     "realm1",
+		Code:        "daemon1",
+		Name:        "Daemon 1",
+		Description: "Daemon 1",
+		Enabled:     true,
+		APIKeys:     []dbAPIKey{{}},
 	}
 
 	mapped := toDaemon(from)

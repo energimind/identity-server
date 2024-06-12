@@ -49,24 +49,24 @@ var _ admin.UserFinder = (*UserService)(nil)
 func (s *UserService) GetUsers(
 	ctx context.Context,
 	actor admin.Actor,
-	appID admin.ID,
+	realmID admin.ID,
 ) ([]admin.User, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return nil, domain.NewAccessDeniedError("user %s cannot get users", actor.UserID)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != appID {
-			return nil, domain.NewAccessDeniedError("manager %s cannot get users for application %s", actor.UserID, appID)
+		if actor.RealmID != realmID {
+			return nil, domain.NewAccessDeniedError("manager %s cannot get users for realm %s", actor.UserID, realmID)
 		}
 
-		users, err := s.repo.GetUsers(ctx, appID)
+		users, err := s.repo.GetUsers(ctx, realmID)
 		if err != nil {
 			return nil, err
 		}
 
 		return users, nil
 	case admin.SystemRoleAdmin:
-		users, err := s.repo.GetUsers(ctx, appID)
+		users, err := s.repo.GetUsers(ctx, realmID)
 		if err != nil {
 			return nil, err
 		}
@@ -85,11 +85,11 @@ func (s *UserService) GetUsers(
 func (s *UserService) GetUser(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, id admin.ID,
+	realmID, id admin.ID,
 ) (admin.User, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
-		if actor.ApplicationID != appID {
+		if actor.RealmID != realmID {
 			return admin.User{}, domain.NewAccessDeniedError("user %s cannot get user %s", actor.UserID, id)
 		}
 
@@ -98,25 +98,25 @@ func (s *UserService) GetUser(
 			return admin.User{}, domain.NewAccessDeniedError("user %s cannot get user %s", actor.UserID, id)
 		}
 
-		user, err := s.repo.GetUser(ctx, appID, id)
+		user, err := s.repo.GetUser(ctx, realmID, id)
 		if err != nil {
 			return admin.User{}, err
 		}
 
 		return user, nil
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != appID {
+		if actor.RealmID != realmID {
 			return admin.User{}, domain.NewAccessDeniedError("manager %s cannot get user %s", actor.UserID, id)
 		}
 
-		user, err := s.repo.GetUser(ctx, appID, id)
+		user, err := s.repo.GetUser(ctx, realmID, id)
 		if err != nil {
 			return admin.User{}, err
 		}
 
 		return user, nil
 	case admin.SystemRoleAdmin:
-		user, err := s.repo.GetUser(ctx, appID, id)
+		user, err := s.repo.GetUser(ctx, realmID, id)
 		if err != nil {
 			return admin.User{}, err
 		}
@@ -143,7 +143,7 @@ func (s *UserService) CreateUser(
 	}
 
 	create := func() (admin.User, error) {
-		if err := s.checkUserExists(ctx, user.ApplicationID, user.Email); err != nil {
+		if err := s.checkUserExists(ctx, user.RealmID, user.Email); err != nil {
 			return admin.User{}, err
 		}
 
@@ -160,7 +160,7 @@ func (s *UserService) CreateUser(
 	case admin.SystemRoleUser:
 		return admin.User{}, domain.NewAccessDeniedError("user %s cannot create user", actor.UserID)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != user.ApplicationID {
+		if actor.RealmID != user.RealmID {
 			return admin.User{}, domain.NewAccessDeniedError("manager %s cannot create user", actor.UserID)
 		}
 
@@ -188,7 +188,7 @@ func (s *UserService) UpdateUser(
 	}
 
 	update := func() (admin.User, error) {
-		if err := s.checkAnotherUserExists(ctx, user.ApplicationID, user.Email, user.ID); err != nil {
+		if err := s.checkAnotherUserExists(ctx, user.RealmID, user.Email, user.ID); err != nil {
 			return admin.User{}, err
 		}
 
@@ -201,7 +201,7 @@ func (s *UserService) UpdateUser(
 
 	switch actor.Role {
 	case admin.SystemRoleUser:
-		if actor.ApplicationID != user.ApplicationID {
+		if actor.RealmID != user.RealmID {
 			return admin.User{}, domain.NewAccessDeniedError("user %s cannot update user %s", actor.UserID, user.ID)
 		}
 
@@ -212,7 +212,7 @@ func (s *UserService) UpdateUser(
 
 		return update()
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != user.ApplicationID {
+		if actor.RealmID != user.RealmID {
 			return admin.User{}, domain.NewAccessDeniedError("manager %s cannot update user %s", actor.UserID, user.ID)
 		}
 
@@ -232,23 +232,23 @@ func (s *UserService) UpdateUser(
 func (s *UserService) DeleteUser(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, id admin.ID,
+	realmID, id admin.ID,
 ) error {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return domain.NewAccessDeniedError("user %s cannot delete user %s", actor.UserID, id)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != appID {
+		if actor.RealmID != realmID {
 			return domain.NewAccessDeniedError("manager %s cannot delete user %s", actor.UserID, id)
 		}
 
-		if err := s.repo.DeleteUser(ctx, appID, id); err != nil {
+		if err := s.repo.DeleteUser(ctx, realmID, id); err != nil {
 			return err
 		}
 
 		return nil
 	case admin.SystemRoleAdmin:
-		if err := s.repo.DeleteUser(ctx, appID, id); err != nil {
+		if err := s.repo.DeleteUser(ctx, realmID, id); err != nil {
 			return err
 		}
 
@@ -264,9 +264,9 @@ func (s *UserService) DeleteUser(
 func (s *UserService) GetAPIKeys(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, userID admin.ID,
+	realmID, userID admin.ID,
 ) ([]admin.APIKey, error) {
-	user, err := s.GetUser(ctx, actor, appID, userID)
+	user, err := s.GetUser(ctx, actor, realmID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -278,9 +278,9 @@ func (s *UserService) GetAPIKeys(
 func (s *UserService) GetAPIKey(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, userID, id admin.ID,
+	realmID, userID, id admin.ID,
 ) (admin.APIKey, error) {
-	user, err := s.GetUser(ctx, actor, appID, userID)
+	user, err := s.GetUser(ctx, actor, realmID, userID)
 	if err != nil {
 		return admin.APIKey{}, err
 	}
@@ -300,7 +300,7 @@ func (s *UserService) GetAPIKey(
 func (s *UserService) CreateAPIKey(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, userID admin.ID,
+	realmID, userID admin.ID,
 	apiKey admin.APIKey,
 ) (admin.APIKey, error) {
 	apiKey, err := validateAPIKey(apiKey)
@@ -308,7 +308,7 @@ func (s *UserService) CreateAPIKey(
 		return admin.APIKey{}, err
 	}
 
-	user, err := s.GetUser(ctx, actor, appID, userID)
+	user, err := s.GetUser(ctx, actor, realmID, userID)
 	if err != nil {
 		return admin.APIKey{}, err
 	}
@@ -330,7 +330,7 @@ func (s *UserService) CreateAPIKey(
 func (s *UserService) UpdateAPIKey(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, userID, id admin.ID,
+	realmID, userID, id admin.ID,
 	apiKey admin.APIKey,
 ) (admin.APIKey, error) {
 	apiKey, err := validateAPIKey(apiKey)
@@ -338,7 +338,7 @@ func (s *UserService) UpdateAPIKey(
 		return admin.APIKey{}, err
 	}
 
-	user, err := s.GetUser(ctx, actor, appID, userID)
+	user, err := s.GetUser(ctx, actor, realmID, userID)
 	if err != nil {
 		return admin.APIKey{}, err
 	}
@@ -364,9 +364,9 @@ func (s *UserService) UpdateAPIKey(
 func (s *UserService) DeleteAPIKey(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, userID, id admin.ID,
+	realmID, userID, id admin.ID,
 ) error {
-	user, err := s.GetUser(ctx, actor, appID, userID)
+	user, err := s.GetUser(ctx, actor, realmID, userID)
 	if err != nil {
 		return err
 	}
@@ -392,25 +392,25 @@ func (s *UserService) DeleteAPIKey(
 func (s *UserService) GetUserByEmail(
 	ctx context.Context,
 	actor admin.Actor,
-	appID admin.ID,
+	realmID admin.ID,
 	email string,
 ) (admin.User, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.User{}, domain.NewAccessDeniedError("user %s cannot get user by email", actor.UserID)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != appID {
+		if actor.RealmID != realmID {
 			return admin.User{}, domain.NewAccessDeniedError("manager %s cannot get user by email", actor.UserID)
 		}
 
-		user, err := s.repo.GetUserByEmail(ctx, appID, email)
+		user, err := s.repo.GetUserByEmail(ctx, realmID, email)
 		if err != nil {
 			return admin.User{}, err
 		}
 
 		return user, nil
 	case admin.SystemRoleAdmin:
-		user, err := s.repo.GetUserByEmail(ctx, appID, email)
+		user, err := s.repo.GetUserByEmail(ctx, realmID, email)
 		if err != nil {
 			return admin.User{}, err
 		}
@@ -428,8 +428,8 @@ func (s *UserService) GetUserByEmail(
 // It returns a domain.ConflictError if the user already exists.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *UserService) checkUserExists(ctx context.Context, appID admin.ID, email string) error {
-	_, err := s.repo.GetUserByEmail(ctx, appID, email)
+func (s *UserService) checkUserExists(ctx context.Context, realmID admin.ID, email string) error {
+	_, err := s.repo.GetUserByEmail(ctx, realmID, email)
 	if err == nil {
 		return domain.NewConflictError("user with email %s already exists", email)
 	}
@@ -446,8 +446,8 @@ func (s *UserService) checkUserExists(ctx context.Context, appID admin.ID, email
 // It returns a domain.ConflictError if the user already exists.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *UserService) checkAnotherUserExists(ctx context.Context, appID admin.ID, email string, id admin.ID) error {
-	user, err := s.repo.GetUserByEmail(ctx, appID, email)
+func (s *UserService) checkAnotherUserExists(ctx context.Context, realmID admin.ID, email string, id admin.ID) error {
+	user, err := s.repo.GetUserByEmail(ctx, realmID, email)
 	if err != nil {
 		if domain.IsNotFoundError(err) {
 			return nil
@@ -476,8 +476,8 @@ func (s *UserService) CreateUserSys(
 // This method is not exposed in the API. It does not include acting user checks.
 func (s *UserService) GetUserByEmailSys(
 	ctx context.Context,
-	appID admin.ID,
+	realmID admin.ID,
 	email string,
 ) (admin.User, error) {
-	return s.GetUserByEmail(ctx, adminActor, appID, email)
+	return s.GetUserByEmail(ctx, adminActor, realmID, email)
 }

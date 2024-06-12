@@ -26,10 +26,10 @@ var _ admin.DaemonRepository = (*DaemonRepository)(nil)
 // GetDaemons implements the admin.DaemonRepository interface.
 func (r *DaemonRepository) GetDaemons(
 	ctx context.Context,
-	appID admin.ID,
+	realmID admin.ID,
 ) ([]admin.Daemon, error) {
 	coll := r.db.Collection("daemons")
-	qFilter := bson.M{"applicationId": appID}
+	qFilter := bson.M{"realmId": realmID}
 
 	qCursor, err := coll.Find(ctx, qFilter)
 	if err != nil {
@@ -47,10 +47,10 @@ func (r *DaemonRepository) GetDaemons(
 // GetDaemon implements the admin.DaemonRepository interface.
 func (r *DaemonRepository) GetDaemon(
 	ctx context.Context,
-	appID, id admin.ID,
+	realmID, id admin.ID,
 ) (admin.Daemon, error) {
 	coll := r.db.Collection("daemons")
-	qFilter := bson.M{"id": id, "applicationId": appID}
+	qFilter := bson.M{"id": id, "realmId": realmID}
 	daemon := dbDaemon{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&daemon); err != nil {
@@ -102,10 +102,10 @@ func (r *DaemonRepository) UpdateDaemon(
 // DeleteDaemon implements the admin.DaemonRepository interface.
 func (r *DaemonRepository) DeleteDaemon(
 	ctx context.Context,
-	appID, id admin.ID,
+	realmID, id admin.ID,
 ) error {
 	coll := r.db.Collection("daemons")
-	qFilter := bson.M{"id": id, "applicationId": appID}
+	qFilter := bson.M{"id": id, "realmId": realmID}
 
 	result, err := coll.DeleteOne(ctx, qFilter)
 	if err != nil {
@@ -124,13 +124,13 @@ func (r *DaemonRepository) DeleteDaemon(
 // This method takes in account the enabled field of the user and the API key.
 func (r *DaemonRepository) GetAPIKey(
 	ctx context.Context,
-	appID admin.ID,
+	realmID admin.ID,
 	key string,
 ) (admin.APIKey, error) {
 	coll := r.db.Collection("daemons")
 	qFilter := bson.M{
-		"applicationId": appID,
-		"enabled":       true,
+		"realmId": realmID,
+		"enabled": true,
 		"apiKeys": bson.M{"$elemMatch": bson.M{
 			"key":     key,
 			"enabled": true,

@@ -10,23 +10,23 @@ func fromID(id string) admin.ID {
 	return admin.ID(id)
 }
 
-func toApplication(app admin.Application) dbApplication {
-	return dbApplication{
-		ID:          toID(app.ID),
-		Code:        app.Code,
-		Name:        app.Name,
-		Description: app.Description,
-		Enabled:     app.Enabled,
+func toRealm(realm admin.Realm) dbRealm {
+	return dbRealm{
+		ID:          toID(realm.ID),
+		Code:        realm.Code,
+		Name:        realm.Name,
+		Description: realm.Description,
+		Enabled:     realm.Enabled,
 	}
 }
 
-func fromApplication(app dbApplication) admin.Application {
-	return admin.Application{
-		ID:          fromID(app.ID),
-		Code:        app.Code,
-		Name:        app.Name,
-		Description: app.Description,
-		Enabled:     app.Enabled,
+func fromRealm(realm dbRealm) admin.Realm {
+	return admin.Realm{
+		ID:          fromID(realm.ID),
+		Code:        realm.Code,
+		Name:        realm.Name,
+		Description: realm.Description,
+		Enabled:     realm.Enabled,
 	}
 }
 
@@ -60,53 +60,53 @@ func fromProvider(provider dbProvider) admin.Provider {
 
 func toUser(user admin.User) dbUser {
 	return dbUser{
-		ID:            toID(user.ID),
-		ApplicationID: toID(user.ApplicationID),
-		Username:      user.Username,
-		Email:         user.Email,
-		DisplayName:   user.DisplayName,
-		Description:   user.Description,
-		Enabled:       user.Enabled,
-		Role:          toSystemRole(user.Role),
-		APIKeys:       mapSlice(user.APIKeys, toAPIKey),
+		ID:          toID(user.ID),
+		RealmID:     toID(user.RealmID),
+		Username:    user.Username,
+		Email:       user.Email,
+		DisplayName: user.DisplayName,
+		Description: user.Description,
+		Enabled:     user.Enabled,
+		Role:        toSystemRole(user.Role),
+		APIKeys:     mapSlice(user.APIKeys, toAPIKey),
 	}
 }
 
 func fromUser(user dbUser) admin.User {
 	return admin.User{
-		ID:            fromID(user.ID),
-		ApplicationID: fromID(user.ApplicationID),
-		Username:      user.Username,
-		Email:         user.Email,
-		DisplayName:   user.DisplayName,
-		Description:   user.Description,
-		Enabled:       user.Enabled,
-		Role:          fromSystemRole(user.Role),
-		APIKeys:       mapSlice(user.APIKeys, fromAPIKey),
+		ID:          fromID(user.ID),
+		RealmID:     fromID(user.RealmID),
+		Username:    user.Username,
+		Email:       user.Email,
+		DisplayName: user.DisplayName,
+		Description: user.Description,
+		Enabled:     user.Enabled,
+		Role:        fromSystemRole(user.Role),
+		APIKeys:     mapSlice(user.APIKeys, fromAPIKey),
 	}
 }
 
 func toDaemon(daemon admin.Daemon) dbDaemon {
 	return dbDaemon{
-		ID:            toID(daemon.ID),
-		ApplicationID: toID(daemon.ApplicationID),
-		Code:          daemon.Code,
-		Name:          daemon.Name,
-		Description:   daemon.Description,
-		Enabled:       daemon.Enabled,
-		APIKeys:       mapSlice(daemon.APIKeys, toAPIKey),
+		ID:          toID(daemon.ID),
+		RealmID:     toID(daemon.RealmID),
+		Code:        daemon.Code,
+		Name:        daemon.Name,
+		Description: daemon.Description,
+		Enabled:     daemon.Enabled,
+		APIKeys:     mapSlice(daemon.APIKeys, toAPIKey),
 	}
 }
 
 func fromDaemon(daemon dbDaemon) admin.Daemon {
 	return admin.Daemon{
-		ID:            fromID(daemon.ID),
-		ApplicationID: fromID(daemon.ApplicationID),
-		Code:          daemon.Code,
-		Name:          daemon.Name,
-		Description:   daemon.Description,
-		Enabled:       daemon.Enabled,
-		APIKeys:       mapSlice(daemon.APIKeys, fromAPIKey),
+		ID:          fromID(daemon.ID),
+		RealmID:     fromID(daemon.RealmID),
+		Code:        daemon.Code,
+		Name:        daemon.Name,
+		Description: daemon.Description,
+		Enabled:     daemon.Enabled,
+		APIKeys:     mapSlice(daemon.APIKeys, fromAPIKey),
 	}
 }
 

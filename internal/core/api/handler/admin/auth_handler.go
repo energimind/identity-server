@@ -58,7 +58,7 @@ func (h *AuthHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares)
 }
 
 func (h *AuthHandler) providerLink(c *gin.Context) {
-	appCode := c.Query("appCode")
+	realmCode := c.Query("realmCode")
 	providerCode := c.Query("providerCode")
 	action := c.Query("action")
 
@@ -74,7 +74,7 @@ func (h *AuthHandler) providerLink(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	link, err := h.authService.ProviderLink(ctx, appCode, providerCode, action)
+	link, err := h.authService.ProviderLink(ctx, realmCode, providerCode, action)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -120,7 +120,7 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 		return
 	}
 
-	user, err := h.userFinder.GetUserByEmailSys(ctx, admin.ID(cs.Header.ApplicationID), cs.User.Email)
+	user, err := h.userFinder.GetUserByEmailSys(ctx, admin.ID(cs.Header.RealmID), cs.User.Email)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -132,17 +132,17 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 
 func (h *AuthHandler) loginLocal(c *gin.Context) {
 	header := auth.Header{
-		SessionID:     local.AdminSessionID,
-		ApplicationID: local.AdminApplicationID,
+		SessionID: local.AdminSessionID,
+		RealmID:   local.AdminRealmID,
 	}
 
 	user := admin.User{
-		ID:            local.AdminID,
-		ApplicationID: local.AdminApplicationID,
-		Username:      "admin",
-		Email:         "admin",
-		DisplayName:   "Local Admin",
-		Role:          local.AdminRole,
+		ID:          local.AdminID,
+		RealmID:     local.AdminRealmID,
+		Username:    "admin",
+		Email:       "admin",
+		DisplayName: "Local Admin",
+		Role:        local.AdminRole,
 	}
 
 	h.serveSessionCookie(c, header, user)
@@ -174,12 +174,12 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 	oaUser := cs.User
 
 	newUser := admin.User{
-		ApplicationID: admin.ID(cs.Header.ApplicationID),
-		Username:      strings.Split(oaUser.Email, "@")[0],
-		Email:         oaUser.Email,
-		DisplayName:   oaUser.Name,
-		Enabled:       true,
-		Role:          admin.SystemRoleUser,
+		RealmID:     admin.ID(cs.Header.RealmID),
+		Username:    strings.Split(oaUser.Email, "@")[0],
+		Email:       oaUser.Email,
+		DisplayName: oaUser.Name,
+		Enabled:     true,
+		Role:        admin.SystemRoleUser,
 	}
 
 	user, err := h.userCreator.CreateUserSys(ctx, newUser)
@@ -195,7 +195,7 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 func (h *AuthHandler) serveSessionCookie(c *gin.Context, header auth.Header, user admin.User) {
 	us := domain.NewUserSession(
 		header.SessionID,
-		header.ApplicationID,
+		header.RealmID,
 		user.ID.String(),
 		user.Role.String(),
 	)

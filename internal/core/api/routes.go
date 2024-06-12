@@ -24,13 +24,13 @@ func (r *Routes) RegisterRoutes(root gin.IRouter) {
 
 	adminEndpoint := api.Group("/admin")
 	{
-		appsEndpoint := adminEndpoint.Group("/applications")
+		realmsEndpoint := adminEndpoint.Group("/realms")
 		{
-			appsEndpoint.Use(r.middlewares.RequireActor)
+			realmsEndpoint.Use(r.middlewares.RequireActor)
 
-			r.bind(appsEndpoint, r.handlers.Application)
-			r.bind(appsEndpoint.Group("/:aid/users"), r.handlers.User)
-			r.bind(appsEndpoint.Group("/:aid/daemons"), r.handlers.Daemon)
+			r.bind(realmsEndpoint, r.handlers.Realm)
+			r.bind(realmsEndpoint.Group("/:aid/users"), r.handlers.User)
+			r.bind(realmsEndpoint.Group("/:aid/daemons"), r.handlers.Daemon)
 		}
 
 		providersEndpoint := adminEndpoint.Group("/providers")

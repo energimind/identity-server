@@ -6,9 +6,9 @@ import "github.com/energimind/identity-server/internal/core/domain/admin"
 
 // Local admin constants.
 const (
-	AdminProviderCode  = "local"
-	AdminApplicationID = "localApplicationId"
-	AdminSessionID     = "localSessionId"
-	AdminID            = "localAdminId"
-	AdminRole          = admin.SystemRoleAdmin
+	AdminProviderCode = "local"
+	AdminRealmID      = "localRealmId"
+	AdminSessionID    = "localSessionId"
+	AdminID           = "localAdminId"
+	AdminRole         = admin.SystemRoleAdmin
 )

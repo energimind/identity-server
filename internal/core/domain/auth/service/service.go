@@ -24,27 +24,27 @@ const sessionTTL = 24 * time.Hour
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
 type Service struct {
-	applicationFinder admin.ApplicationLookupService
-	providerFinder    admin.ProviderLookupService
-	apiKeyFinder      admin.APIKeyLookupService
-	idGenerator       domain.IDGenerator
-	sessionCache      domain.Cache
+	realmFinder    admin.RealmLookupService
+	providerFinder admin.ProviderLookupService
+	apiKeyFinder   admin.APIKeyLookupService
+	idGenerator    domain.IDGenerator
+	sessionCache   domain.Cache
 }
 
 // NewService returns a new Service instance.
 func NewService(
-	applicationFinder admin.ApplicationLookupService,
+	realmFinder admin.RealmLookupService,
 	providerFinder admin.ProviderLookupService,
 	apiKeyFinder admin.APIKeyLookupService,
 	idgen domain.IDGenerator,
 	cache domain.Cache,
 ) *Service {
 	return &Service{
-		applicationFinder: applicationFinder,
-		providerFinder:    providerFinder,
-		apiKeyFinder:      apiKeyFinder,
-		idGenerator:       idgen,
-		sessionCache:      cache,
+		realmFinder:    realmFinder,
+		providerFinder: providerFinder,
+		apiKeyFinder:   apiKeyFinder,
+		idGenerator:    idgen,
+		sessionCache:   cache,
 	}
 }
 
@@ -54,10 +54,10 @@ var _ auth.Service = (*Service)(nil)
 // ProviderLink implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCode, action string) (string, error) {
+func (s *Service) ProviderLink(ctx context.Context, realmCode, providerCode, action string) (string, error) {
 	const defaultAction = "login"
 
-	app, err := s.applicationFinder.LookupApplication(ctx, applicationCode)
+	realm, err := s.realmFinder.LookupRealm(ctx, realmCode)
 	if err != nil {
 		return "", err
 	}
@@ -76,7 +76,7 @@ func (s *Service) ProviderLink(ctx context.Context, applicationCode, providerCod
 	}
 
 	// save oauthCfg in the session
-	us := newUserSession(app.ID.String(), oauthCfg)
+	us := newUserSession(realm.ID.String(), oauthCfg)
 
 	if pErr := s.sessionCache.Put(ctx, sessionID, us, sessionTTL); pErr != nil {
 		return "", pErr
@@ -141,7 +141,7 @@ func (s *Service) Login(ctx context.Context, code, state string) (string, error)
 
 	reqctx.Logger(ctx).Debug().
 		Str("sessionId", sessionID).
-		Str("applicationId", us.ApplicationID).
+		Str("realmId", us.RealmID).
 		Any("user", us.User).
 		Msg("Login completed")
 
@@ -157,8 +157,8 @@ func (s *Service) Session(ctx context.Context, sessionID string) (auth.Session, 
 
 	return auth.Session{
 		Header: auth.Header{
-			SessionID:     sessionID,
-			ApplicationID: us.ApplicationID,
+			SessionID: sessionID,
+			RealmID:   us.RealmID,
 		},
 		User: us.User,
 	}, nil
@@ -233,8 +233,8 @@ func (s *Service) Logout(ctx context.Context, sessionID string) error {
 // VerifyAPIKey implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *Service) VerifyAPIKey(ctx context.Context, appID admin.ID, apiKey string) error {
-	_, err := s.apiKeyFinder.LookupAPIKey(ctx, appID, apiKey)
+func (s *Service) VerifyAPIKey(ctx context.Context, realmID admin.ID, apiKey string) error {
+	_, err := s.apiKeyFinder.LookupAPIKey(ctx, realmID, apiKey)
 
 	return err
 }

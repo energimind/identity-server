@@ -38,24 +38,24 @@ var _ admin.DaemonService = (*DaemonService)(nil)
 func (s *DaemonService) GetDaemons(
 	ctx context.Context,
 	actor admin.Actor,
-	appID admin.ID,
+	realmID admin.ID,
 ) ([]admin.Daemon, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return nil, domain.NewAccessDeniedError("user %s cannot get daemons", actor.UserID)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != appID {
-			return nil, domain.NewAccessDeniedError("manager %s cannot get daemons for application %s", actor.UserID, appID)
+		if actor.RealmID != realmID {
+			return nil, domain.NewAccessDeniedError("manager %s cannot get daemons for realm %s", actor.UserID, realmID)
 		}
 
-		daemons, err := s.repo.GetDaemons(ctx, appID)
+		daemons, err := s.repo.GetDaemons(ctx, realmID)
 		if err != nil {
 			return nil, err
 		}
 
 		return daemons, nil
 	case admin.SystemRoleAdmin:
-		daemons, err := s.repo.GetDaemons(ctx, appID)
+		daemons, err := s.repo.GetDaemons(ctx, realmID)
 		if err != nil {
 			return nil, err
 		}
@@ -74,24 +74,24 @@ func (s *DaemonService) GetDaemons(
 func (s *DaemonService) GetDaemon(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, id admin.ID,
+	realmID, id admin.ID,
 ) (admin.Daemon, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return admin.Daemon{}, domain.NewAccessDeniedError("user %s cannot get daemon %s", actor.UserID, id)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != appID {
+		if actor.RealmID != realmID {
 			return admin.Daemon{}, domain.NewAccessDeniedError("manager %s cannot get daemon %s", actor.UserID, id)
 		}
 
-		daemon, err := s.repo.GetDaemon(ctx, appID, id)
+		daemon, err := s.repo.GetDaemon(ctx, realmID, id)
 		if err != nil {
 			return admin.Daemon{}, err
 		}
 
 		return daemon, nil
 	case admin.SystemRoleAdmin:
-		user, err := s.repo.GetDaemon(ctx, appID, id)
+		user, err := s.repo.GetDaemon(ctx, realmID, id)
 		if err != nil {
 			return admin.Daemon{}, err
 		}
@@ -121,7 +121,7 @@ func (s *DaemonService) CreateDaemon(
 	case admin.SystemRoleUser:
 		return admin.Daemon{}, domain.NewAccessDeniedError("user %s cannot create daemon", actor.UserID)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != daemon.ApplicationID {
+		if actor.RealmID != daemon.RealmID {
 			return admin.Daemon{}, domain.NewAccessDeniedError("manager %s cannot create daemon", actor.UserID)
 		}
 
@@ -164,7 +164,7 @@ func (s *DaemonService) UpdateDaemon(
 	case admin.SystemRoleUser:
 		return admin.Daemon{}, domain.NewAccessDeniedError("user %s cannot update daemon %s", actor.UserID, daemon.ID)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != daemon.ApplicationID {
+		if actor.RealmID != daemon.RealmID {
 			return admin.Daemon{}, domain.NewAccessDeniedError("manager %s cannot update daemon %s", actor.UserID, daemon.ID)
 		}
 
@@ -192,23 +192,23 @@ func (s *DaemonService) UpdateDaemon(
 func (s *DaemonService) DeleteDaemon(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, id admin.ID,
+	realmID, id admin.ID,
 ) error {
 	switch actor.Role {
 	case admin.SystemRoleUser:
 		return domain.NewAccessDeniedError("user %s cannot delete daemon %s", actor.UserID, id)
 	case admin.SystemRoleManager:
-		if actor.ApplicationID != appID {
+		if actor.RealmID != realmID {
 			return domain.NewAccessDeniedError("manager %s cannot delete daemon %s", actor.UserID, id)
 		}
 
-		if err := s.repo.DeleteDaemon(ctx, appID, id); err != nil {
+		if err := s.repo.DeleteDaemon(ctx, realmID, id); err != nil {
 			return err
 		}
 
 		return nil
 	case admin.SystemRoleAdmin:
-		if err := s.repo.DeleteDaemon(ctx, appID, id); err != nil {
+		if err := s.repo.DeleteDaemon(ctx, realmID, id); err != nil {
 			return err
 		}
 
@@ -224,9 +224,9 @@ func (s *DaemonService) DeleteDaemon(
 func (s *DaemonService) GetAPIKeys(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, daemonID admin.ID,
+	realmID, daemonID admin.ID,
 ) ([]admin.APIKey, error) {
-	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
+	daemon, err := s.GetDaemon(ctx, actor, realmID, daemonID)
 	if err != nil {
 		return nil, err
 	}
@@ -238,9 +238,9 @@ func (s *DaemonService) GetAPIKeys(
 func (s *DaemonService) GetAPIKey(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, daemonID, id admin.ID,
+	realmID, daemonID, id admin.ID,
 ) (admin.APIKey, error) {
-	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
+	daemon, err := s.GetDaemon(ctx, actor, realmID, daemonID)
 	if err != nil {
 		return admin.APIKey{}, err
 	}
@@ -260,7 +260,7 @@ func (s *DaemonService) GetAPIKey(
 func (s *DaemonService) CreateAPIKey(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, daemonID admin.ID,
+	realmID, daemonID admin.ID,
 	apiKey admin.APIKey,
 ) (admin.APIKey, error) {
 	apiKey, err := validateAPIKey(apiKey)
@@ -268,7 +268,7 @@ func (s *DaemonService) CreateAPIKey(
 		return admin.APIKey{}, err
 	}
 
-	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
+	daemon, err := s.GetDaemon(ctx, actor, realmID, daemonID)
 	if err != nil {
 		return admin.APIKey{}, err
 	}
@@ -290,7 +290,7 @@ func (s *DaemonService) CreateAPIKey(
 func (s *DaemonService) UpdateAPIKey(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, daemonID, id admin.ID,
+	realmID, daemonID, id admin.ID,
 	apiKey admin.APIKey,
 ) (admin.APIKey, error) {
 	apiKey, err := validateAPIKey(apiKey)
@@ -298,7 +298,7 @@ func (s *DaemonService) UpdateAPIKey(
 		return admin.APIKey{}, err
 	}
 
-	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
+	daemon, err := s.GetDaemon(ctx, actor, realmID, daemonID)
 	if err != nil {
 		return admin.APIKey{}, err
 	}
@@ -324,9 +324,9 @@ func (s *DaemonService) UpdateAPIKey(
 func (s *DaemonService) DeleteAPIKey(
 	ctx context.Context,
 	actor admin.Actor,
-	appID, daemonID, id admin.ID,
+	realmID, daemonID, id admin.ID,
 ) error {
-	daemon, err := s.GetDaemon(ctx, actor, appID, daemonID)
+	daemon, err := s.GetDaemon(ctx, actor, realmID, daemonID)
 	if err != nil {
 		return err
 	}

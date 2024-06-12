@@ -14,7 +14,7 @@ import (
 func TestProviderService_GetProviders(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -26,7 +26,7 @@ func TestProviderService_GetProviders(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {
@@ -76,7 +76,7 @@ func TestProviderService_GetProviders(t *testing.T) {
 func TestProviderService_GetProvider(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 	userID := admin.ID("u1")
 
 	tests := map[string]struct {
@@ -85,11 +85,11 @@ func TestProviderService_GetProvider(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: userID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {
@@ -139,7 +139,7 @@ func TestProviderService_GetProvider(t *testing.T) {
 func TestProviderService_CreateProvider(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -147,11 +147,11 @@ func TestProviderService_CreateProvider(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {
@@ -208,7 +208,7 @@ func TestProviderService_UpdateProvider(t *testing.T) {
 	t.Parallel()
 
 	userID := admin.ID("u1")
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -216,11 +216,11 @@ func TestProviderService_UpdateProvider(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: userID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {
@@ -277,7 +277,7 @@ func TestProviderService_DeleteProvider(t *testing.T) {
 	t.Parallel()
 
 	userID := admin.ID("u1")
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -285,11 +285,11 @@ func TestProviderService_DeleteProvider(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: userID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {

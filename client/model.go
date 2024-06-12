@@ -8,8 +8,8 @@ type Session struct {
 
 // Header is a struct that contains session header information.
 type Header struct {
-	SessionID     string `json:"sessionId"`
-	ApplicationID string `json:"applicationId"`
+	SessionID string `json:"sessionId"`
+	RealmID   string `json:"realmId"`
 }
 
 // User is a struct that contains user information.

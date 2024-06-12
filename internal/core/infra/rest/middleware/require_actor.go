@@ -44,7 +44,7 @@ func RequireActor(
 
 		if localAdminEnabled && us.SessionID == local.AdminSessionID && us.UserID == local.AdminID {
 			// add the actor to the request context
-			reqctx.SetActor(c, admin.NewActor(local.AdminID, local.AdminApplicationID, local.AdminRole))
+			reqctx.SetActor(c, admin.NewActor(local.AdminID, local.AdminRealmID, local.AdminRole))
 
 			c.Next()
 
@@ -74,7 +74,7 @@ func RequireActor(
 			}
 		}
 
-		actor := admin.NewActor(admin.ID(us.UserID), admin.ID(us.ApplicationID), admin.SystemRole(us.UserRole))
+		actor := admin.NewActor(admin.ID(us.UserID), admin.ID(us.RealmID), admin.SystemRole(us.UserRole))
 
 		// add the actor to the request context
 		reqctx.SetActor(c, actor)

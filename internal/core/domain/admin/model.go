@@ -12,7 +12,7 @@ const (
 const (
 	SystemRoleNone    SystemRole = ""        // no access
 	SystemRoleUser    SystemRole = "user"    // user only access
-	SystemRoleManager SystemRole = "manager" // application management access
+	SystemRoleManager SystemRole = "manager" // realm management access
 	SystemRoleAdmin   SystemRole = "admin"   // system-wide access
 )
 
@@ -25,10 +25,10 @@ var (
 	AllSystemRoles   = []SystemRole{SystemRoleNone, SystemRoleUser, SystemRoleManager, SystemRoleAdmin}
 )
 
-// Application represents an application that can be used to authenticate
+// Realm represents a realm that can be used to authenticate
 // users. It is used to group providers and users.
 // It is the top level entity in the admin domain.
-type Application struct {
+type Realm struct {
 	ID          ID
 	Code        string
 	Name        string
@@ -63,27 +63,27 @@ func (r SystemRole) String() string {
 // User represents an organic user in the system.
 // The user authenticates with the system using an authentication provider.
 type User struct {
-	ID            ID
-	ApplicationID ID
-	Username      string
-	Email         string
-	DisplayName   string
-	Description   string
-	Enabled       bool
-	Role          SystemRole
-	APIKeys       []APIKey
+	ID          ID
+	RealmID     ID
+	Username    string
+	Email       string
+	DisplayName string
+	Description string
+	Enabled     bool
+	Role        SystemRole
+	APIKeys     []APIKey
 }
 
 // Daemon represents a non-organic user in the system.
 // The daemon authenticates with the system using an API key.
 type Daemon struct {
-	ID            ID
-	ApplicationID ID
-	Code          string
-	Name          string
-	Description   string
-	Enabled       bool
-	APIKeys       []APIKey
+	ID          ID
+	RealmID     ID
+	Code        string
+	Name        string
+	Description string
+	Enabled     bool
+	APIKeys     []APIKey
 }
 
 // APIKey represents an API key that can be used to authenticate a daemon.

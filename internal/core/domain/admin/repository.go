@@ -2,13 +2,13 @@ package admin
 
 import "context"
 
-// ApplicationRepository defines the application repository interface.
-type ApplicationRepository interface {
-	GetApplications(ctx context.Context) ([]Application, error)
-	GetApplication(ctx context.Context, id ID) (Application, error)
-	CreateApplication(ctx context.Context, app Application) error
-	UpdateApplication(ctx context.Context, app Application) error
-	DeleteApplication(ctx context.Context, id ID) error
+// RealmRepository defines the realm repository interface.
+type RealmRepository interface {
+	GetRealms(ctx context.Context) ([]Realm, error)
+	GetRealm(ctx context.Context, id ID) (Realm, error)
+	CreateRealm(ctx context.Context, realm Realm) error
+	UpdateRealm(ctx context.Context, realm Realm) error
+	DeleteRealm(ctx context.Context, id ID) error
 }
 
 // ProviderRepository defines the provider repository interface.
@@ -22,21 +22,21 @@ type ProviderRepository interface {
 
 // UserRepository defines the user repository interface.
 type UserRepository interface {
-	GetUsers(ctx context.Context, appID ID) ([]User, error)
-	GetUser(ctx context.Context, appID, id ID) (User, error)
+	GetUsers(ctx context.Context, realmID ID) ([]User, error)
+	GetUser(ctx context.Context, realmID, id ID) (User, error)
 	CreateUser(ctx context.Context, user User) error
 	UpdateUser(ctx context.Context, user User) error
-	DeleteUser(ctx context.Context, appID, id ID) error
-	GetUserByEmail(ctx context.Context, appID ID, email string) (User, error)
-	GetAPIKey(ctx context.Context, appID ID, key string) (APIKey, error)
+	DeleteUser(ctx context.Context, realmID, id ID) error
+	GetUserByEmail(ctx context.Context, realmID ID, email string) (User, error)
+	GetAPIKey(ctx context.Context, realmID ID, key string) (APIKey, error)
 }
 
 // DaemonRepository defines the daemon repository interface.
 type DaemonRepository interface {
-	GetDaemons(ctx context.Context, appID ID) ([]Daemon, error)
-	GetDaemon(ctx context.Context, appID, id ID) (Daemon, error)
+	GetDaemons(ctx context.Context, realmID ID) ([]Daemon, error)
+	GetDaemon(ctx context.Context, realmID, id ID) (Daemon, error)
 	CreateDaemon(ctx context.Context, daemon Daemon) error
 	UpdateDaemon(ctx context.Context, daemon Daemon) error
-	DeleteDaemon(ctx context.Context, appID, id ID) error
-	GetAPIKey(ctx context.Context, appID ID, key string) (APIKey, error)
+	DeleteDaemon(ctx context.Context, realmID, id ID) error
+	GetAPIKey(ctx context.Context, realmID ID, key string) (APIKey, error)
 }

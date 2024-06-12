@@ -40,11 +40,11 @@ func (h *Handler) Bind(root gin.IRoutes) {
 
 func (h *Handler) providerLink(c *gin.Context) {
 	ctx := c.Request.Context()
-	appCode := c.Query("appCode")
+	realmCode := c.Query("realmCode")
 	providerCode := c.Query("providerCode")
 	action := c.Query("action")
 
-	link, err := h.authService.ProviderLink(ctx, appCode, providerCode, action)
+	link, err := h.authService.ProviderLink(ctx, realmCode, providerCode, action)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -78,10 +78,10 @@ func (h *Handler) getSession(c *gin.Context) {
 		return
 	}
 
-	appID := session.Header.ApplicationID
+	realmID := session.Header.RealmID
 	userEmail := session.User.Email
 
-	user, err := h.userFinder.GetUserByEmailSys(ctx, admin.ID(appID), userEmail)
+	user, err := h.userFinder.GetUserByEmailSys(ctx, admin.ID(realmID), userEmail)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -122,14 +122,14 @@ func (h *Handler) logout(c *gin.Context) {
 func (h *Handler) verifyAPIKey(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	appID, apiKey, err := decodeAuthHeader(c.GetHeader("Authorization"))
+	realmID, apiKey, err := decodeAuthHeader(c.GetHeader("Authorization"))
 	if err != nil {
 		_ = c.Error(domain.NewBadRequestError("invalid authorization header: %v", err))
 
 		return
 	}
 
-	err = h.authService.VerifyAPIKey(ctx, admin.ID(appID), apiKey)
+	err = h.authService.VerifyAPIKey(ctx, admin.ID(realmID), apiKey)
 	if err != nil {
 		_ = c.Error(domain.NewUnauthorizedError("invalid API key: %v", err))
 
@@ -162,15 +162,15 @@ func decodeAPIKeyToken(token string) (string, string, error) {
 		return "", "", fmt.Errorf("failed to decode API key token: %w", err)
 	}
 
-	const partCount = 2 // appID:apiKey
+	const partCount = 2 // realmID:apiKey
 
 	parts := strings.Split(string(decoded), ":")
 	if len(parts) != partCount {
 		return "", "", fmt.Errorf("invalid API key token format")
 	}
 
-	appID := parts[0]
+	realmID := parts[0]
 	apiKey := parts[1]
 
-	return appID, apiKey, nil
+	return realmID, apiKey, nil
 }

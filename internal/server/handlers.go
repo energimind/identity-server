@@ -34,29 +34,29 @@ func setupHandlersAndMiddlewares(deps dependencies) (api.Handlers, api.Middlewar
 	cookieOperator := deps.cookieOperator
 	cache := deps.cache
 
-	applicationRepo := repository.NewApplicationRepository(mongoDB)
+	realmRepo := repository.NewRealmRepository(mongoDB)
 	providerRepo := repository.NewProviderRepository(mongoDB)
 	userRepo := repository.NewUserRepository(mongoDB)
 	daemonRepo := repository.NewDaemonRepository(mongoDB)
 
-	applicationService := adminsvc.NewApplicationService(applicationRepo, idGen)
+	realmService := adminsvc.NewRealmService(realmRepo, idGen)
 	providerService := adminsvc.NewProviderService(providerRepo, idGen)
 	userService := adminsvc.NewUserService(userRepo, idGen)
 	daemonService := adminsvc.NewDaemonService(daemonRepo, idGen)
-	appLookupService := adminsvc.NewApplicationLookupService(applicationService)
+	realmLookupService := adminsvc.NewRealmLookupService(realmService)
 	providerLookupService := adminsvc.NewProviderLookupService(providerService)
 	apiKeyLookupService := adminsvc.NewAPIKeyLookupService(userRepo, daemonRepo)
-	authService := authsvc.NewService(appLookupService, providerLookupService, apiKeyLookupService, shortIDGen, cache)
+	authService := authsvc.NewService(realmLookupService, providerLookupService, apiKeyLookupService, shortIDGen, cache)
 
 	handlers := api.Handlers{
-		Application: adminapi.NewApplicationHandler(applicationService),
-		Provider:    adminapi.NewProviderHandler(providerService),
-		User:        adminapi.NewUserHandler(userService),
-		Daemon:      adminapi.NewDaemonHandler(daemonService),
-		AdminAuth:   adminapi.NewAuthHandler(authService, userService, userService, cookieOperator, localAdminEnabled),
-		Auth:        authapi.NewHandler(authService, userService),
-		Util:        utilapi.NewHandler(keyGen),
-		Health:      healthapi.NewHandler(),
+		Realm:     adminapi.NewRealmHandler(realmService),
+		Provider:  adminapi.NewProviderHandler(providerService),
+		User:      adminapi.NewUserHandler(userService),
+		Daemon:    adminapi.NewDaemonHandler(daemonService),
+		AdminAuth: adminapi.NewAuthHandler(authService, userService, userService, cookieOperator, localAdminEnabled),
+		Auth:      authapi.NewHandler(authService, userService),
+		Util:      utilapi.NewHandler(keyGen),
+		Health:    healthapi.NewHandler(),
 	}
 
 	middlewares := api.Middlewares{

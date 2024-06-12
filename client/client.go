@@ -41,7 +41,7 @@ func (c *Client) WithRequestID(requestID string) *Client {
 }
 
 // ProviderLink returns the link to the provider's login page.
-func (c *Client) ProviderLink(ctx context.Context, appCode, providerCode, action string) (string, error) {
+func (c *Client) ProviderLink(ctx context.Context, realmCode, providerCode, action string) (string, error) {
 	var result struct {
 		Link string `json:"link"`
 	}
@@ -49,7 +49,7 @@ func (c *Client) ProviderLink(ctx context.Context, appCode, providerCode, action
 	rsp, err := c.rest.R().
 		SetContext(ctx).
 		SetQueryParams(map[string]string{
-			"appCode":      appCode,
+			"realmCode":    realmCode,
 			"providerCode": providerCode,
 			"action":       action,
 		}).

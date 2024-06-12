@@ -9,8 +9,8 @@ import (
 func toClientSession(session auth.Session, user admin.User) isclient.Session {
 	return isclient.Session{
 		Header: isclient.Header{
-			SessionID:     session.Header.SessionID,
-			ApplicationID: session.Header.ApplicationID,
+			SessionID: session.Header.SessionID,
+			RealmID:   session.Header.RealmID,
 		},
 		User: isclient.User{
 			ID:          user.ID.String(),

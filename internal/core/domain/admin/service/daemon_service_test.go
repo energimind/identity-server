@@ -14,7 +14,7 @@ import (
 func TestDaemonService_GetDaemons(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -26,15 +26,15 @@ func TestDaemonService_GetDaemons(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -66,7 +66,7 @@ func TestDaemonService_GetDaemons(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.GetDaemons(context.Background(), test.actor, appID)
+			res, err := svc.GetDaemons(context.Background(), test.actor, realmID)
 
 			if test.wantResult {
 				require.Len(t, res, 1)
@@ -84,7 +84,7 @@ func TestDaemonService_GetDaemons(t *testing.T) {
 func TestDaemonService_GetDaemon(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 	userID := admin.ID("u1")
 
 	tests := map[string]struct {
@@ -93,19 +93,19 @@ func TestDaemonService_GetDaemon(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: userID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -137,7 +137,7 @@ func TestDaemonService_GetDaemon(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.GetDaemon(context.Background(), test.actor, appID, userID)
+			res, err := svc.GetDaemon(context.Background(), test.actor, realmID, userID)
 
 			if test.wantResult {
 				require.NotEmpty(t, res)
@@ -155,7 +155,7 @@ func TestDaemonService_GetDaemon(t *testing.T) {
 func TestDaemonService_CreateDaemon(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -163,19 +163,19 @@ func TestDaemonService_CreateDaemon(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -208,9 +208,9 @@ func TestDaemonService_CreateDaemon(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			user := admin.Daemon{
-				ApplicationID: appID,
-				Code:          "code",
-				Name:          "name",
+				RealmID: realmID,
+				Code:    "code",
+				Name:    "name",
 			}
 
 			res, err := svc.CreateDaemon(context.Background(), test.actor, user)
@@ -233,7 +233,7 @@ func TestDaemonService_UpdateDaemon(t *testing.T) {
 	t.Parallel()
 
 	userID := admin.ID("u1")
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -241,19 +241,19 @@ func TestDaemonService_UpdateDaemon(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: userID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -286,10 +286,10 @@ func TestDaemonService_UpdateDaemon(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			user := admin.Daemon{
-				ID:            userID,
-				ApplicationID: appID,
-				Code:          "newCode",
-				Name:          "newName",
+				ID:      userID,
+				RealmID: realmID,
+				Code:    "newCode",
+				Name:    "newName",
 			}
 
 			res, err := svc.UpdateDaemon(context.Background(), test.actor, user)
@@ -311,7 +311,7 @@ func TestDaemonService_DeleteDaemon(t *testing.T) {
 	t.Parallel()
 
 	userID := admin.ID("u1")
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -319,19 +319,19 @@ func TestDaemonService_DeleteDaemon(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: userID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -363,7 +363,7 @@ func TestDaemonService_DeleteDaemon(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			err := svc.DeleteDaemon(context.Background(), test.actor, appID, userID)
+			err := svc.DeleteDaemon(context.Background(), test.actor, realmID, userID)
 
 			if test.wantResult {
 				require.NoError(t, err)
@@ -389,17 +389,17 @@ func newMockDaemonRepository() *mockDaemonRepository {
 	return &mockDaemonRepository{}
 }
 
-func (r *mockDaemonRepository) GetDaemons(_ context.Context, appID admin.ID) ([]admin.Daemon, error) {
-	if appID == "" {
-		return nil, errors.New("test-precondition: empty appID")
+func (r *mockDaemonRepository) GetDaemons(_ context.Context, realmID admin.ID) ([]admin.Daemon, error) {
+	if realmID == "" {
+		return nil, errors.New("test-precondition: empty realmID")
 	}
 
 	return []admin.Daemon{r.mockDaemon()}, r.forcedError
 }
 
-func (r *mockDaemonRepository) GetDaemon(_ context.Context, appID, id admin.ID) (admin.Daemon, error) {
-	if appID == "" {
-		return admin.Daemon{}, errors.New("test-precondition: empty appID")
+func (r *mockDaemonRepository) GetDaemon(_ context.Context, realmID, id admin.ID) (admin.Daemon, error) {
+	if realmID == "" {
+		return admin.Daemon{}, errors.New("test-precondition: empty realmID")
 	}
 
 	if id == "" {
@@ -425,9 +425,9 @@ func (r *mockDaemonRepository) UpdateDaemon(_ context.Context, user admin.Daemon
 	return r.forcedError
 }
 
-func (r *mockDaemonRepository) DeleteDaemon(_ context.Context, appID, id admin.ID) error {
-	if appID == "" {
-		return errors.New("test-precondition: empty appID")
+func (r *mockDaemonRepository) DeleteDaemon(_ context.Context, realmID, id admin.ID) error {
+	if realmID == "" {
+		return errors.New("test-precondition: empty realmID")
 	}
 
 	if id == "" {
@@ -437,9 +437,9 @@ func (r *mockDaemonRepository) DeleteDaemon(_ context.Context, appID, id admin.I
 	return r.forcedError
 }
 
-func (r *mockDaemonRepository) GetAPIKey(_ context.Context, appID admin.ID, key string) (admin.APIKey, error) {
-	if appID == "" {
-		return admin.APIKey{}, errors.New("test-precondition: empty appID")
+func (r *mockDaemonRepository) GetAPIKey(_ context.Context, realmID admin.ID, key string) (admin.APIKey, error) {
+	if realmID == "" {
+		return admin.APIKey{}, errors.New("test-precondition: empty realmID")
 	}
 
 	if key == "" {
@@ -451,8 +451,8 @@ func (r *mockDaemonRepository) GetAPIKey(_ context.Context, appID admin.ID, key 
 
 func (r *mockDaemonRepository) mockDaemon() admin.Daemon {
 	return admin.Daemon{
-		ID:            "u1",
-		ApplicationID: "a1",
-		Name:          "mockDaemon",
+		ID:      "u1",
+		RealmID: "a1",
+		Name:    "mockDaemon",
 	}
 }

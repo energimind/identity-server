@@ -1,2 +1,2 @@
-// Package service provides the application service layer for the admin domain.
+// Package service provides the realm service layer for the admin domain.
 package service

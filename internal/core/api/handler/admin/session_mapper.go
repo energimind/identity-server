@@ -7,9 +7,9 @@ import (
 
 func toSession(header auth.Header, user admin.User) session {
 	return session{
-		ID:    header.SessionID,
-		AppID: header.ApplicationID,
-		User:  toSessionUser(user),
+		ID:      header.SessionID,
+		RealmID: header.RealmID,
+		User:    toSessionUser(user),
 	}
 }
 

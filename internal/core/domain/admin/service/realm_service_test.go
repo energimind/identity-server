@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestApplicationService_GetApplications(t *testing.T) {
+func TestRealmService_GetRealms(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("1")
+	realmID := admin.ID("1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -25,11 +25,11 @@ func TestApplicationService_GetApplications(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -50,8 +50,8 @@ func TestApplicationService_GetApplications(t *testing.T) {
 		},
 	}
 
-	repo := newMockApplicationRepository()
-	svc := NewApplicationService(repo, nil)
+	repo := newMockRealmRepository()
+	svc := NewRealmService(repo, nil)
 
 	for name, test := range tests {
 		if errors.Is(test.wantError, domain.StoreError{}) {
@@ -61,7 +61,7 @@ func TestApplicationService_GetApplications(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.GetApplications(context.Background(), test.actor)
+			res, err := svc.GetRealms(context.Background(), test.actor)
 
 			if test.wantResult {
 				require.Len(t, res, 1)
@@ -76,10 +76,10 @@ func TestApplicationService_GetApplications(t *testing.T) {
 	}
 }
 
-func TestApplicationService_GetApplication(t *testing.T) {
+func TestRealmService_GetRealm(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("1")
+	realmID := admin.ID("1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -91,15 +91,15 @@ func TestApplicationService_GetApplication(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -120,10 +120,10 @@ func TestApplicationService_GetApplication(t *testing.T) {
 		},
 	}
 
-	repo := newMockApplicationRepository()
-	svc := NewApplicationService(repo, nil)
+	repo := newMockRealmRepository()
+	svc := NewRealmService(repo, nil)
 
-	id := appID
+	id := realmID
 
 	for name, test := range tests {
 		if errors.Is(test.wantError, domain.StoreError{}) {
@@ -133,7 +133,7 @@ func TestApplicationService_GetApplication(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.GetApplication(context.Background(), test.actor, id)
+			res, err := svc.GetRealm(context.Background(), test.actor, id)
 
 			if test.wantResult {
 				require.NotEmpty(t, res)
@@ -148,10 +148,10 @@ func TestApplicationService_GetApplication(t *testing.T) {
 	}
 }
 
-func TestApplicationService_CreateApplication(t *testing.T) {
+func TestRealmService_CreateRealm(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("1")
+	realmID := admin.ID("1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -163,7 +163,7 @@ func TestApplicationService_CreateApplication(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {
@@ -184,8 +184,8 @@ func TestApplicationService_CreateApplication(t *testing.T) {
 		},
 	}
 
-	repo := newMockApplicationRepository()
-	svc := NewApplicationService(repo, newMockIDGenerator())
+	repo := newMockRealmRepository()
+	svc := NewRealmService(repo, newMockIDGenerator())
 
 	for name, test := range tests {
 		if errors.Is(test.wantError, domain.StoreError{}) {
@@ -195,7 +195,7 @@ func TestApplicationService_CreateApplication(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.CreateApplication(context.Background(), test.actor, admin.Application{
+			res, err := svc.CreateRealm(context.Background(), test.actor, admin.Realm{
 				Code: "code",
 				Name: "name",
 			})
@@ -214,10 +214,10 @@ func TestApplicationService_CreateApplication(t *testing.T) {
 	}
 }
 
-func TestApplicationService_UpdateApplication(t *testing.T) {
+func TestRealmService_UpdateRealm(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("1")
+	realmID := admin.ID("1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -229,15 +229,15 @@ func TestApplicationService_UpdateApplication(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -257,8 +257,8 @@ func TestApplicationService_UpdateApplication(t *testing.T) {
 		},
 	}
 
-	repo := newMockApplicationRepository()
-	svc := NewApplicationService(repo, nil)
+	repo := newMockRealmRepository()
+	svc := NewRealmService(repo, nil)
 
 	for name, test := range tests {
 		if errors.Is(test.wantError, domain.StoreError{}) {
@@ -268,13 +268,13 @@ func TestApplicationService_UpdateApplication(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			app := admin.Application{
-				ID:   appID,
+			realm := admin.Realm{
+				ID:   realmID,
 				Code: "newCode",
 				Name: "newName",
 			}
 
-			res, err := svc.UpdateApplication(context.Background(), test.actor, app)
+			res, err := svc.UpdateRealm(context.Background(), test.actor, realm)
 
 			if test.wantResult {
 				require.NotEmpty(t, res)
@@ -289,10 +289,10 @@ func TestApplicationService_UpdateApplication(t *testing.T) {
 	}
 }
 
-func TestApplicationService_DeleteApplication(t *testing.T) {
+func TestRealmService_DeleteRealm(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("1")
+	realmID := admin.ID("1")
 
 	tests := map[string]struct {
 		actor     admin.Actor
@@ -303,7 +303,7 @@ func TestApplicationService_DeleteApplication(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"admin": {
@@ -323,10 +323,10 @@ func TestApplicationService_DeleteApplication(t *testing.T) {
 		},
 	}
 
-	repo := newMockApplicationRepository()
-	svc := NewApplicationService(repo, nil)
+	repo := newMockRealmRepository()
+	svc := NewRealmService(repo, nil)
 
-	id := appID
+	id := realmID
 
 	for name, test := range tests {
 		if errors.Is(test.wantError, domain.StoreError{}) {
@@ -336,7 +336,7 @@ func TestApplicationService_DeleteApplication(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			err := svc.DeleteApplication(context.Background(), test.actor, id)
+			err := svc.DeleteRealm(context.Background(), test.actor, id)
 
 			if test.wantError != nil {
 				require.ErrorAs(t, err, &test.wantError)
@@ -347,46 +347,46 @@ func TestApplicationService_DeleteApplication(t *testing.T) {
 	}
 }
 
-type mockApplicationRepository struct {
+type mockRealmRepository struct {
 	forcedError error
 }
 
-// ensure mockApplicationRepository implements admin.ApplicationRepository.
-var _ admin.ApplicationRepository = (*mockApplicationRepository)(nil)
+// ensure mockRealmRepository implements admin.RealmRepository.
+var _ admin.RealmRepository = (*mockRealmRepository)(nil)
 
-func newMockApplicationRepository() *mockApplicationRepository {
-	return &mockApplicationRepository{}
+func newMockRealmRepository() *mockRealmRepository {
+	return &mockRealmRepository{}
 }
 
-func (r *mockApplicationRepository) GetApplications(_ context.Context) ([]admin.Application, error) {
-	return []admin.Application{r.mockApplication()}, r.forcedError
+func (r *mockRealmRepository) GetRealms(_ context.Context) ([]admin.Realm, error) {
+	return []admin.Realm{r.mockRealm()}, r.forcedError
 }
 
-func (r *mockApplicationRepository) GetApplication(_ context.Context, id admin.ID) (admin.Application, error) {
+func (r *mockRealmRepository) GetRealm(_ context.Context, id admin.ID) (admin.Realm, error) {
 	if id == "" {
-		return admin.Application{}, errors.New("test-precondition: empty id")
+		return admin.Realm{}, errors.New("test-precondition: empty id")
 	}
 
-	return r.mockApplication(), r.forcedError
+	return r.mockRealm(), r.forcedError
 }
 
-func (r *mockApplicationRepository) CreateApplication(_ context.Context, app admin.Application) error {
-	if (app == admin.Application{}) {
-		return errors.New("test-precondition: empty application")
-	}
-
-	return r.forcedError
-}
-
-func (r *mockApplicationRepository) UpdateApplication(_ context.Context, app admin.Application) error {
-	if (app == admin.Application{}) {
-		return errors.New("test-precondition: empty application")
+func (r *mockRealmRepository) CreateRealm(_ context.Context, realm admin.Realm) error {
+	if (realm == admin.Realm{}) {
+		return errors.New("test-precondition: empty realm")
 	}
 
 	return r.forcedError
 }
 
-func (r *mockApplicationRepository) DeleteApplication(_ context.Context, id admin.ID) error {
+func (r *mockRealmRepository) UpdateRealm(_ context.Context, realm admin.Realm) error {
+	if (realm == admin.Realm{}) {
+		return errors.New("test-precondition: empty realm")
+	}
+
+	return r.forcedError
+}
+
+func (r *mockRealmRepository) DeleteRealm(_ context.Context, id admin.ID) error {
 	if id == "" {
 		return errors.New("test-precondition: empty id")
 	}
@@ -394,9 +394,9 @@ func (r *mockApplicationRepository) DeleteApplication(_ context.Context, id admi
 	return r.forcedError
 }
 
-func (r *mockApplicationRepository) mockApplication() admin.Application {
-	return admin.Application{
+func (r *mockRealmRepository) mockRealm() admin.Realm {
+	return admin.Realm{
 		ID:   "1",
-		Name: "mockApplication",
+		Name: "mockRealm",
 	}
 }

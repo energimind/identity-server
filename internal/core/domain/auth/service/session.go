@@ -9,18 +9,18 @@ import (
 )
 
 type userSession struct {
-	ApplicationID string        `json:"applicationId"`
-	Config        *oauth.Config `json:"config"`
-	Token         *oauth2.Token `json:"token,omitempty"`
-	User          auth.User     `json:"user,omitempty"`
-	Timestamp     time.Time     `json:"timestamp"`
+	RealmID   string        `json:"realmId"`
+	Config    *oauth.Config `json:"config"`
+	Token     *oauth2.Token `json:"token,omitempty"`
+	User      auth.User     `json:"user,omitempty"`
+	Timestamp time.Time     `json:"timestamp"`
 }
 
-func newUserSession(applicationID string, config *oauth.Config) *userSession {
+func newUserSession(realmID string, config *oauth.Config) *userSession {
 	return &userSession{
-		ApplicationID: applicationID,
-		Config:        config,
-		Timestamp:     time.Now(),
+		RealmID:   realmID,
+		Config:    config,
+		Timestamp: time.Now(),
 	}
 }
 

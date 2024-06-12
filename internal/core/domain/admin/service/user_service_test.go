@@ -14,7 +14,7 @@ import (
 func TestUserService_GetUsers(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -26,15 +26,15 @@ func TestUserService_GetUsers(t *testing.T) {
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -66,7 +66,7 @@ func TestUserService_GetUsers(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.GetUsers(context.Background(), test.actor, appID)
+			res, err := svc.GetUsers(context.Background(), test.actor, realmID)
 
 			if test.wantResult {
 				require.Len(t, res, 1)
@@ -84,7 +84,7 @@ func TestUserService_GetUsers(t *testing.T) {
 func TestUserService_GetUser(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 	userID := admin.ID("u1")
 
 	tests := map[string]struct {
@@ -93,31 +93,31 @@ func TestUserService_GetUser(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:      admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
+			actor:      admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: userID},
 			wantResult: true,
 		},
-		"user-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: "wrongAppID", UserID: userID},
+		"user-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: "wrongRealmID", UserID: userID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"user-wrongUserID": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: "wrongUserID"},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: "wrongUserID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"user-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: userID},
 			wantError: domain.StoreError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -149,7 +149,7 @@ func TestUserService_GetUser(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			res, err := svc.GetUser(context.Background(), test.actor, appID, userID)
+			res, err := svc.GetUser(context.Background(), test.actor, realmID, userID)
 
 			if test.wantError != nil {
 				require.ErrorAs(t, err, &test.wantError)
@@ -167,7 +167,7 @@ func TestUserService_GetUser(t *testing.T) {
 func TestUserService_CreateUser(t *testing.T) {
 	t.Parallel()
 
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -176,23 +176,23 @@ func TestUserService_CreateUser(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"manager-duplicateUser": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			userExists: true,
 			wantError:  domain.ConflictError{},
 		},
@@ -228,9 +228,9 @@ func TestUserService_CreateUser(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			user := admin.User{
-				ApplicationID: appID,
-				Username:      "testUser",
-				Email:         "email@domain.com",
+				RealmID:  realmID,
+				Username: "testUser",
+				Email:    "email@domain.com",
 			}
 
 			res, err := svc.CreateUser(context.Background(), test.actor, user)
@@ -253,7 +253,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 	t.Parallel()
 
 	userID := admin.ID("u1")
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -261,31 +261,31 @@ func TestUserService_UpdateUser(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:      admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
+			actor:      admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: userID},
 			wantResult: true,
 		},
-		"user-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: "wrongAppID", UserID: userID},
+		"user-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: "wrongRealmID", UserID: userID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"user-wrongUserID": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: "wrongUserID"},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: "wrongUserID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"user-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: userID},
 			wantError: domain.StoreError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -318,10 +318,10 @@ func TestUserService_UpdateUser(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			user := admin.User{
-				ID:            userID,
-				ApplicationID: appID,
-				Username:      "newUsername",
-				Email:         "newMail@domain.com",
+				ID:       userID,
+				RealmID:  realmID,
+				Username: "newUsername",
+				Email:    "newMail@domain.com",
 			}
 
 			res, err := svc.UpdateUser(context.Background(), test.actor, user)
@@ -343,7 +343,7 @@ func TestUserService_DeleteUser(t *testing.T) {
 	t.Parallel()
 
 	userID := admin.ID("u1")
-	appID := admin.ID("a1")
+	realmID := admin.ID("a1")
 
 	tests := map[string]struct {
 		actor      admin.Actor
@@ -351,19 +351,19 @@ func TestUserService_DeleteUser(t *testing.T) {
 		wantError  error
 	}{
 		"user": {
-			actor:     admin.Actor{Role: admin.SystemRoleUser, ApplicationID: appID, UserID: userID},
+			actor:     admin.Actor{Role: admin.SystemRoleUser, RealmID: realmID, UserID: userID},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager": {
-			actor:      admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:      admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantResult: true,
 		},
-		"manager-wrongAppID": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: "wrongAppID"},
+		"manager-wrongRealmID": {
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: "wrongRealmID"},
 			wantError: domain.AccessDeniedError{},
 		},
 		"manager-repoError": {
-			actor:     admin.Actor{Role: admin.SystemRoleManager, ApplicationID: appID},
+			actor:     admin.Actor{Role: admin.SystemRoleManager, RealmID: realmID},
 			wantError: domain.StoreError{},
 		},
 		"admin": {
@@ -395,7 +395,7 @@ func TestUserService_DeleteUser(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			err := svc.DeleteUser(context.Background(), test.actor, appID, userID)
+			err := svc.DeleteUser(context.Background(), test.actor, realmID, userID)
 
 			if test.wantError != nil {
 				require.ErrorAs(t, err, &test.wantError)
@@ -422,17 +422,17 @@ func newMockUserRepository() *mockUserRepository {
 	return &mockUserRepository{}
 }
 
-func (r *mockUserRepository) GetUsers(_ context.Context, appID admin.ID) ([]admin.User, error) {
-	if appID == "" {
-		return nil, errors.New("test-precondition: empty appID")
+func (r *mockUserRepository) GetUsers(_ context.Context, realmID admin.ID) ([]admin.User, error) {
+	if realmID == "" {
+		return nil, errors.New("test-precondition: empty realmID")
 	}
 
 	return []admin.User{r.mockUser()}, r.forcedError
 }
 
-func (r *mockUserRepository) GetUser(_ context.Context, appID, id admin.ID) (admin.User, error) {
-	if appID == "" {
-		return admin.User{}, errors.New("test-precondition: empty appID")
+func (r *mockUserRepository) GetUser(_ context.Context, realmID, id admin.ID) (admin.User, error) {
+	if realmID == "" {
+		return admin.User{}, errors.New("test-precondition: empty realmID")
 	}
 
 	if id == "" {
@@ -458,9 +458,9 @@ func (r *mockUserRepository) UpdateUser(_ context.Context, user admin.User) erro
 	return r.forcedError
 }
 
-func (r *mockUserRepository) DeleteUser(_ context.Context, appID, id admin.ID) error {
-	if appID == "" {
-		return errors.New("test-precondition: empty appID")
+func (r *mockUserRepository) DeleteUser(_ context.Context, realmID, id admin.ID) error {
+	if realmID == "" {
+		return errors.New("test-precondition: empty realmID")
 	}
 
 	if id == "" {
@@ -470,9 +470,9 @@ func (r *mockUserRepository) DeleteUser(_ context.Context, appID, id admin.ID) e
 	return r.forcedError
 }
 
-func (r *mockUserRepository) GetUserByEmail(_ context.Context, appID admin.ID, email string) (admin.User, error) {
-	if appID == "" {
-		return admin.User{}, errors.New("test-precondition: empty appID")
+func (r *mockUserRepository) GetUserByEmail(_ context.Context, realmID admin.ID, email string) (admin.User, error) {
+	if realmID == "" {
+		return admin.User{}, errors.New("test-precondition: empty realmID")
 	}
 
 	if email == "" {
@@ -486,9 +486,9 @@ func (r *mockUserRepository) GetUserByEmail(_ context.Context, appID admin.ID, e
 	return r.mockUser(), r.forcedError
 }
 
-func (r *mockUserRepository) GetAPIKey(_ context.Context, appID admin.ID, key string) (admin.APIKey, error) {
-	if appID == "" {
-		return admin.APIKey{}, errors.New("test-precondition: empty appID")
+func (r *mockUserRepository) GetAPIKey(_ context.Context, realmID admin.ID, key string) (admin.APIKey, error) {
+	if realmID == "" {
+		return admin.APIKey{}, errors.New("test-precondition: empty realmID")
 	}
 
 	if key == "" {
@@ -500,8 +500,8 @@ func (r *mockUserRepository) GetAPIKey(_ context.Context, appID admin.ID, key st
 
 func (r *mockUserRepository) mockUser() admin.User {
 	return admin.User{
-		ID:            "u1",
-		ApplicationID: "a1",
-		Username:      "mockUser",
+		ID:       "u1",
+		RealmID:  "a1",
+		Username: "mockUser",
 	}
 }

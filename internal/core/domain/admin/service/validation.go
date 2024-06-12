@@ -6,19 +6,19 @@ import (
 	"github.com/energimind/identity-server/internal/core/domain/admin"
 )
 
-func validateApplication(app admin.Application) (admin.Application, error) {
-	app.Name = strings.TrimSpace(app.Name)
-	app.Code = strings.TrimSpace(app.Code)
+func validateRealm(realm admin.Realm) (admin.Realm, error) {
+	realm.Name = strings.TrimSpace(realm.Name)
+	realm.Code = strings.TrimSpace(realm.Code)
 
-	if err := checkName(app.Name); err != nil {
-		return app, err
+	if err := checkName(realm.Name); err != nil {
+		return realm, err
 	}
 
-	if err := checkCode(app.Code); err != nil {
-		return app, err
+	if err := checkCode(realm.Code); err != nil {
+		return realm, err
 	}
 
-	return app, nil
+	return realm, nil
 }
 
 func validateDaemon(daemon admin.Daemon) (admin.Daemon, error) {

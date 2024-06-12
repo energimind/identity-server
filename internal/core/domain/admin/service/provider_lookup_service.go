@@ -8,7 +8,7 @@ import (
 )
 
 // ProviderLookupService provides a service to look up a provider
-// from an application.
+// from a realm.
 //
 // It implements the service.ProviderLookupService interface.
 //
