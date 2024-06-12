@@ -53,7 +53,6 @@ func setupServer(cfg *config.Config) (*httpd.Server, *closer, error) { //nolint:
 			idGen:             idGen,
 			shortIDGen:        shortIDGen,
 			keyGen:            keyGen,
-			authEndpoint:      cfg.Auth.Endpoint,
 			localAdminEnabled: cfg.Auth.LocalAdminEnabled,
 			cookieOperator:    cookieOperator,
 			cache:             redisCache,

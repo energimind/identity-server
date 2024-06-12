@@ -5,12 +5,11 @@ import (
 	"strings"
 	"time"
 
-	isclient "github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/api"
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
+	"github.com/energimind/identity-server/internal/core/domain/auth"
 	"github.com/energimind/identity-server/internal/core/domain/local"
-	"github.com/energimind/identity-server/internal/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 )
@@ -28,7 +27,7 @@ var adminActor = admin.Actor{Role: admin.SystemRoleAdmin}
 
 // AuthHandler handles admin auth requests.
 type AuthHandler struct {
-	identityClient    *isclient.Client
+	authService       auth.Service
 	userFinder        admin.UserFinder
 	userCreator       admin.UserCreator
 	cookieOperator    admin.CookieOperator
@@ -38,7 +37,7 @@ type AuthHandler struct {
 
 // NewAuthHandler returns a new instance of AuthHandler.
 func NewAuthHandler(
-	identityClient *isclient.Client,
+	authService auth.Service,
 	userFinder admin.UserFinder,
 	userCreator admin.UserCreator,
 	cookieOperator admin.CookieOperator,
@@ -47,7 +46,7 @@ func NewAuthHandler(
 	const clientTimeout = 10 * time.Second
 
 	return &AuthHandler{
-		identityClient:    identityClient,
+		authService:       authService,
 		userFinder:        userFinder,
 		userCreator:       userCreator,
 		cookieOperator:    cookieOperator,
@@ -79,9 +78,8 @@ func (h *AuthHandler) providerLink(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	ic := h.identityClient.WithRequestID(reqctx.RequestID(ctx))
 
-	link, err := ic.ProviderLink(ctx, appCode, providerCode, action)
+	link, err := h.authService.ProviderLink(ctx, appCode, providerCode, action)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -112,16 +110,15 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 	}
 
 	ctx := c.Request.Context()
-	ic := h.identityClient.WithRequestID(reqctx.RequestID(ctx))
 
-	sessionID, err := ic.Login(ctx, code, state)
+	sessionID, err := h.authService.Login(ctx, code, state)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	cs, err := ic.Session(ctx, sessionID)
+	cs, err := h.authService.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -144,7 +141,7 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 }
 
 func (h *AuthHandler) loginLocal(c *gin.Context) {
-	header := isclient.Header{
+	header := auth.Header{
 		SessionID:     local.AdminSessionID,
 		ApplicationID: local.AdminApplicationID,
 	}
@@ -169,16 +166,15 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 	}
 
 	ctx := c.Request.Context()
-	ic := h.identityClient.WithRequestID(reqctx.RequestID(ctx))
 
-	sessionID, err := ic.Login(ctx, code, state)
+	sessionID, err := h.authService.Login(ctx, code, state)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	cs, err := ic.Session(ctx, sessionID)
+	cs, err := h.authService.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -206,7 +202,7 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 	h.serveSessionCookie(c, cs.Header, user)
 }
 
-func (h *AuthHandler) serveSessionCookie(c *gin.Context, header isclient.Header, user admin.User) {
+func (h *AuthHandler) serveSessionCookie(c *gin.Context, header auth.Header, user admin.User) {
 	us := domain.NewUserSession(
 		header.SessionID,
 		header.ApplicationID,
@@ -240,9 +236,8 @@ func (h *AuthHandler) logout(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	ic := h.identityClient.WithRequestID(reqctx.RequestID(ctx))
 
-	if err := ic.Logout(ctx, sessionID); err != nil {
+	if err := h.authService.Logout(ctx, sessionID); err != nil {
 		_ = c.Error(err)
 
 		return

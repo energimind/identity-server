@@ -1,7 +1,6 @@
 package server
 
 import (
-	isclient "github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/api"
 	adminapi "github.com/energimind/identity-server/internal/core/api/handler/admin"
 	authapi "github.com/energimind/identity-server/internal/core/api/handler/auth"
@@ -21,7 +20,6 @@ type dependencies struct {
 	idGen             domain.IDGenerator
 	shortIDGen        domain.IDGenerator
 	keyGen            domain.IDGenerator
-	authEndpoint      string
 	localAdminEnabled bool
 	cookieOperator    *sessioncookie.Provider
 	cache             domain.Cache
@@ -32,7 +30,6 @@ func setupHandlersAndMiddlewares(deps dependencies) (api.Handlers, api.Middlewar
 	idGen := deps.idGen
 	shortIDGen := deps.shortIDGen
 	keyGen := deps.keyGen
-	authEndpoint := deps.authEndpoint
 	localAdminEnabled := deps.localAdminEnabled
 	cookieOperator := deps.cookieOperator
 	cache := deps.cache
@@ -51,21 +48,19 @@ func setupHandlersAndMiddlewares(deps dependencies) (api.Handlers, api.Middlewar
 	apiKeyLookupService := adminsvc.NewAPIKeyLookupService(userRepo, daemonRepo)
 	authService := authsvc.NewService(appLookupService, providerLookupService, apiKeyLookupService, shortIDGen, cache)
 
-	identityClient := isclient.New(authEndpoint)
-
 	handlers := api.Handlers{
 		Application: adminapi.NewApplicationHandler(applicationService),
 		Provider:    adminapi.NewProviderHandler(providerService),
 		User:        adminapi.NewUserHandler(userService),
 		Daemon:      adminapi.NewDaemonHandler(daemonService),
-		AdminAuth:   adminapi.NewAuthHandler(identityClient, userService, userService, cookieOperator, localAdminEnabled),
+		AdminAuth:   adminapi.NewAuthHandler(authService, userService, userService, cookieOperator, localAdminEnabled),
 		Auth:        authapi.NewHandler(authService),
 		Util:        utilapi.NewHandler(keyGen),
 		Health:      healthapi.NewHandler(),
 	}
 
 	middlewares := api.Middlewares{
-		RequireActor: middleware.RequireActor(cookieOperator, identityClient, localAdminEnabled),
+		RequireActor: middleware.RequireActor(cookieOperator, authService, localAdminEnabled),
 	}
 
 	return handlers, middlewares
