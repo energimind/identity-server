@@ -229,6 +229,7 @@ func TestUserService_CreateUser(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			user := admin.User{
 				RealmID:  realmID,
+				BindID:   "bindID",
 				Username: "testUser",
 				Email:    "email@domain.com",
 			}
@@ -320,6 +321,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 			user := admin.User{
 				ID:       userID,
 				RealmID:  realmID,
+				BindID:   "bindID",
 				Username: "newUsername",
 				Email:    "newMail@domain.com",
 			}
@@ -470,13 +472,13 @@ func (r *mockUserRepository) DeleteUser(_ context.Context, realmID, id admin.ID)
 	return r.forcedError
 }
 
-func (r *mockUserRepository) GetUserByEmail(_ context.Context, realmID admin.ID, email string) (admin.User, error) {
+func (r *mockUserRepository) GetUserByBindID(_ context.Context, realmID admin.ID, bindID string) (admin.User, error) {
 	if realmID == "" {
 		return admin.User{}, errors.New("test-precondition: empty realmID")
 	}
 
-	if email == "" {
-		return admin.User{}, errors.New("test-precondition: empty email")
+	if bindID == "" {
+		return admin.User{}, errors.New("test-precondition: empty bindID")
 	}
 
 	if !r.userExists {

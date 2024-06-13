@@ -79,9 +79,9 @@ func (h *Handler) getSession(c *gin.Context) {
 	}
 
 	realmID := session.Header.RealmID
-	userEmail := session.User.Email
+	userBindID := session.User.BindID
 
-	user, err := h.userFinder.GetUserByEmailSys(ctx, admin.ID(realmID), userEmail)
+	user, err := h.userFinder.GetUserByBindIDSys(ctx, admin.ID(realmID), userBindID)
 	if err != nil {
 		_ = c.Error(err)
 

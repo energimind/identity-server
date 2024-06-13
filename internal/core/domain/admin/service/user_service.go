@@ -143,7 +143,7 @@ func (s *UserService) CreateUser(
 	}
 
 	create := func() (admin.User, error) {
-		if err := s.checkUserExists(ctx, user.RealmID, user.Email); err != nil {
+		if err := s.checkUserExists(ctx, user.RealmID, user.BindID); err != nil {
 			return admin.User{}, err
 		}
 
@@ -188,7 +188,7 @@ func (s *UserService) UpdateUser(
 	}
 
 	update := func() (admin.User, error) {
-		if err := s.checkAnotherUserExists(ctx, user.RealmID, user.Email, user.ID); err != nil {
+		if err := s.checkAnotherUserExists(ctx, user.RealmID, user.BindID, user.ID); err != nil {
 			return admin.User{}, err
 		}
 
@@ -386,52 +386,52 @@ func (s *UserService) DeleteAPIKey(
 	return domain.NewNotFoundError("API key %s not found", id)
 }
 
-// GetUserByEmail implements the admin.UserFinder interface.
+// GetUserByBindID implements the admin.UserFinder interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *UserService) GetUserByEmail(
+func (s *UserService) GetUserByBindID(
 	ctx context.Context,
 	actor admin.Actor,
 	realmID admin.ID,
-	email string,
+	bindID string,
 ) (admin.User, error) {
 	switch actor.Role {
 	case admin.SystemRoleUser:
-		return admin.User{}, domain.NewAccessDeniedError("user %s cannot get user by email", actor.UserID)
+		return admin.User{}, domain.NewAccessDeniedError("user %s cannot get user by bindID", actor.UserID)
 	case admin.SystemRoleManager:
 		if actor.RealmID != realmID {
-			return admin.User{}, domain.NewAccessDeniedError("manager %s cannot get user by email", actor.UserID)
+			return admin.User{}, domain.NewAccessDeniedError("manager %s cannot get user by bindID", actor.UserID)
 		}
 
-		user, err := s.repo.GetUserByEmail(ctx, realmID, email)
+		user, err := s.repo.GetUserByBindID(ctx, realmID, bindID)
 		if err != nil {
 			return admin.User{}, err
 		}
 
 		return user, nil
 	case admin.SystemRoleAdmin:
-		user, err := s.repo.GetUserByEmail(ctx, realmID, email)
+		user, err := s.repo.GetUserByBindID(ctx, realmID, bindID)
 		if err != nil {
 			return admin.User{}, err
 		}
 
 		return user, nil
 	case admin.SystemRoleNone:
-		return admin.User{}, domain.NewAccessDeniedError("anonymous user cannot get user by email")
+		return admin.User{}, domain.NewAccessDeniedError("anonymous user cannot get user by bindID")
 	default:
 		return admin.User{}, domain.NewAccessDeniedError("unknown actor role %s", actor.Role)
 	}
 }
 
-// checkUserExists checks if a user with the given email already exists.
+// checkUserExists checks if a user with the given bindID already exists.
 //
 // It returns a domain.ConflictError if the user already exists.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *UserService) checkUserExists(ctx context.Context, realmID admin.ID, email string) error {
-	_, err := s.repo.GetUserByEmail(ctx, realmID, email)
+func (s *UserService) checkUserExists(ctx context.Context, realmID admin.ID, bindID string) error {
+	_, err := s.repo.GetUserByBindID(ctx, realmID, bindID)
 	if err == nil {
-		return domain.NewConflictError("user with email %s already exists", email)
+		return domain.NewConflictError("user with bindID %s already exists", bindID)
 	}
 
 	if domain.IsNotFoundError(err) {
@@ -441,13 +441,13 @@ func (s *UserService) checkUserExists(ctx context.Context, realmID admin.ID, ema
 	return err
 }
 
-// checkAnotherUserExists checks if a user with the given email already exists, but not the user with the given ID.
+// checkAnotherUserExists checks if a user with the given bindID already exists, but not the user with the given ID.
 //
 // It returns a domain.ConflictError if the user already exists.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *UserService) checkAnotherUserExists(ctx context.Context, realmID admin.ID, email string, id admin.ID) error {
-	user, err := s.repo.GetUserByEmail(ctx, realmID, email)
+func (s *UserService) checkAnotherUserExists(ctx context.Context, realmID admin.ID, bindID string, id admin.ID) error {
+	user, err := s.repo.GetUserByBindID(ctx, realmID, bindID)
 	if err != nil {
 		if domain.IsNotFoundError(err) {
 			return nil
@@ -457,7 +457,7 @@ func (s *UserService) checkAnotherUserExists(ctx context.Context, realmID admin.
 	}
 
 	if user.ID != id {
-		return domain.NewConflictError("user with email %s already exists", email)
+		return domain.NewConflictError("user with bindID %s already exists", bindID)
 	}
 
 	return nil
@@ -472,12 +472,12 @@ func (s *UserService) CreateUserSys(
 	return s.CreateUser(ctx, adminActor, user)
 }
 
-// GetUserByEmailSys gets a user by email in the system.
+// GetUserByBindIDSys gets a user by bind ID in the system.
 // This method is not exposed in the API. It does not include acting user checks.
-func (s *UserService) GetUserByEmailSys(
+func (s *UserService) GetUserByBindIDSys(
 	ctx context.Context,
 	realmID admin.ID,
-	email string,
+	bindID string,
 ) (admin.User, error) {
-	return s.GetUserByEmail(ctx, adminActor, realmID, email)
+	return s.GetUserByBindID(ctx, adminActor, realmID, bindID)
 }

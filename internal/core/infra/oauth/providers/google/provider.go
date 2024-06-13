@@ -99,6 +99,7 @@ func (p *Provider) GetUserInfo(ctx context.Context, token *oauth2.Token) (oauth.
 
 	return oauth.UserInfo{
 		ID:         str("sub"),
+		BindID:     str("email"),
 		Name:       str("name"),
 		GivenName:  str("given_name"),
 		FamilyName: str("family_name"),

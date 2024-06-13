@@ -15,6 +15,7 @@ type Header struct {
 // User is a struct that contains user information.
 type User struct {
 	ID         string
+	BindID     string
 	Name       string
 	GivenName  string
 	FamilyName string

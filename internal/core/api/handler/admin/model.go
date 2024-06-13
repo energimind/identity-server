@@ -25,6 +25,7 @@ type Provider struct {
 // User represents an organic sessionUser in the system.
 type User struct {
 	ID          string   `json:"id"`
+	BindID      string   `json:"bindId"`
 	Username    string   `json:"username"`
 	Email       string   `json:"email"`
 	DisplayName string   `json:"displayName"`

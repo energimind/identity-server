@@ -37,7 +37,7 @@ type UserService interface {
 // UserFinder defines the user finder interface.
 // This is a system operation and should not be used in the API.
 type UserFinder interface {
-	GetUserByEmailSys(ctx context.Context, realmID ID, email string) (User, error)
+	GetUserByBindIDSys(ctx context.Context, realmID ID, bindID string) (User, error)
 }
 
 // UserCreator defines the user creator interface.

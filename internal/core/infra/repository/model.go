@@ -28,6 +28,7 @@ type dbProvider struct {
 type dbUser struct {
 	ID          string       `bson:"id"`
 	RealmID     string       `bson:"realmId"`
+	BindID      string       `bson:"bindId"`
 	Username    string       `bson:"username"`
 	Email       string       `bson:"email"`
 	DisplayName string       `bson:"displayName"`

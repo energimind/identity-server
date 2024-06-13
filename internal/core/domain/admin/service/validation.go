@@ -52,9 +52,14 @@ func validateProvider(provider admin.Provider) (admin.Provider, error) {
 }
 
 func validateUser(user admin.User) (admin.User, error) {
+	user.BindID = strings.TrimSpace(user.BindID)
 	user.Username = strings.TrimSpace(user.Username)
 	user.Email = strings.TrimSpace(user.Email)
 	user.DisplayName = strings.TrimSpace(user.DisplayName)
+
+	if err := checkEmpty("bindID", user.BindID); err != nil {
+		return user, err
+	}
 
 	if err := checkEmpty("username", user.Username); err != nil {
 		return user, err

@@ -75,7 +75,7 @@ func TestUserRepository_CRUD(t *testing.T) {
 	})
 }
 
-func TestUserRepository_GetUserByEmail(t *testing.T) {
+func TestUserRepository_GetUserByBindID(t *testing.T) {
 	t.Parallel()
 
 	db, closer := mongoEnv.NewInstance()
@@ -88,7 +88,7 @@ func TestUserRepository_GetUserByEmail(t *testing.T) {
 	user := admin.User{
 		ID:      "1",
 		RealmID: realmID,
-		Email:   "user@somedomain.com",
+		BindID:  "user@somedomain.com",
 		APIKeys: []admin.APIKey{},
 	}
 
@@ -96,9 +96,9 @@ func TestUserRepository_GetUserByEmail(t *testing.T) {
 		t.Fatalf("failed to create user: %v", err)
 	}
 
-	got, err := repo.GetUserByEmail(ctx, realmID, user.Email)
+	got, err := repo.GetUserByBindID(ctx, realmID, user.BindID)
 	if err != nil {
-		t.Fatalf("failed to get user by email: %v", err)
+		t.Fatalf("failed to get user by bindID: %v", err)
 	}
 
 	require.Equal(t, user, got)

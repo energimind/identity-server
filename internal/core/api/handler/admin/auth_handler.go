@@ -120,7 +120,7 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 		return
 	}
 
-	user, err := h.userFinder.GetUserByEmailSys(ctx, admin.ID(cs.Header.RealmID), cs.User.Email)
+	user, err := h.userFinder.GetUserByBindIDSys(ctx, admin.ID(cs.Header.RealmID), cs.User.BindID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -171,13 +171,14 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 		return
 	}
 
-	oaUser := cs.User
+	csUser := cs.User
 
 	newUser := admin.User{
 		RealmID:     admin.ID(cs.Header.RealmID),
-		Username:    strings.Split(oaUser.Email, "@")[0],
-		Email:       oaUser.Email,
-		DisplayName: oaUser.Name,
+		BindID:      cs.User.BindID,
+		Username:    strings.Split(csUser.Email, "@")[0],
+		Email:       csUser.Email,
+		DisplayName: csUser.Name,
 		Enabled:     true,
 		Role:        admin.SystemRoleUser,
 	}

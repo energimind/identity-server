@@ -65,6 +65,7 @@ func (r SystemRole) String() string {
 type User struct {
 	ID          ID
 	RealmID     ID
+	BindID      string
 	Username    string
 	Email       string
 	DisplayName string

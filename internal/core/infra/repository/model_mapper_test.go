@@ -89,6 +89,7 @@ func Test_mapUser(t *testing.T) {
 	from := admin.User{
 		ID:          "user1",
 		RealmID:     "realm1",
+		BindID:      "bind1",
 		Username:    "user1",
 		Email:       "user@somedomain.com",
 		Description: "User 1",
@@ -100,6 +101,7 @@ func Test_mapUser(t *testing.T) {
 	expected := dbUser{
 		ID:          "user1",
 		RealmID:     "realm1",
+		BindID:      "bind1",
 		Username:    "user1",
 		Email:       "user@somedomain.com",
 		Description: "User 1",

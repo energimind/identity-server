@@ -27,7 +27,7 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user User) error
 	UpdateUser(ctx context.Context, user User) error
 	DeleteUser(ctx context.Context, realmID, id ID) error
-	GetUserByEmail(ctx context.Context, realmID ID, email string) (User, error)
+	GetUserByBindID(ctx context.Context, realmID ID, bindID string) (User, error)
 	GetAPIKey(ctx context.Context, realmID ID, key string) (APIKey, error)
 }
 

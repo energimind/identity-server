@@ -8,6 +8,7 @@ import (
 func toIdentityUser(ui oauth.UserInfo) auth.User {
 	return auth.User{
 		ID:         ui.ID,
+		BindID:     ui.BindID,
 		Name:       ui.Name,
 		GivenName:  ui.GivenName,
 		FamilyName: ui.FamilyName,

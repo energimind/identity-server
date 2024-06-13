@@ -62,6 +62,7 @@ func toUser(user admin.User) dbUser {
 	return dbUser{
 		ID:          toID(user.ID),
 		RealmID:     toID(user.RealmID),
+		BindID:      user.BindID,
 		Username:    user.Username,
 		Email:       user.Email,
 		DisplayName: user.DisplayName,
@@ -76,6 +77,7 @@ func fromUser(user dbUser) admin.User {
 	return admin.User{
 		ID:          fromID(user.ID),
 		RealmID:     fromID(user.RealmID),
+		BindID:      user.BindID,
 		Username:    user.Username,
 		Email:       user.Email,
 		DisplayName: user.DisplayName,

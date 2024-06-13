@@ -84,6 +84,7 @@ func toProvider(provider Provider) admin.Provider {
 func fromUser(user admin.User) User {
 	return User{
 		ID:          string(user.ID),
+		BindID:      user.BindID,
 		Username:    user.Username,
 		Email:       user.Email,
 		DisplayName: user.DisplayName,
@@ -108,6 +109,7 @@ func fromUsers(users []admin.User) []User {
 func toUser(user User) admin.User {
 	return admin.User{
 		ID:          admin.ID(user.ID),
+		BindID:      user.BindID,
 		Username:    user.Username,
 		Email:       user.Email,
 		DisplayName: user.DisplayName,

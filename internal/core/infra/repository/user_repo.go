@@ -119,22 +119,22 @@ func (r *UserRepository) DeleteUser(
 	return nil
 }
 
-// GetUserByEmail implements the admin.UserRepository interface.
-func (r *UserRepository) GetUserByEmail(
+// GetUserByBindID implements the admin.UserRepository interface.
+func (r *UserRepository) GetUserByBindID(
 	ctx context.Context,
 	realmID admin.ID,
-	email string,
+	bindID string,
 ) (admin.User, error) {
 	coll := r.db.Collection("users")
-	qFilter := bson.M{"email": email, "realmId": realmID}
+	qFilter := bson.M{"bindId": bindID, "realmId": realmID}
 	user := dbUser{}
 
 	if err := coll.FindOne(ctx, qFilter).Decode(&user); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return admin.User{}, domain.NewNotFoundError("user with email %s and realm %s not found", email, realmID)
+			return admin.User{}, domain.NewNotFoundError("user with bindID %s and realm %s not found", bindID, realmID)
 		}
 
-		return admin.User{}, domain.NewStoreError("failed to get user by email: %v", err)
+		return admin.User{}, domain.NewStoreError("failed to get user by bindID: %v", err)
 	}
 
 	return fromUser(user), nil
