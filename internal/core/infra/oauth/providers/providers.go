@@ -8,7 +8,9 @@ import (
 )
 
 // NewProvider returns a new OAuth provider based on the provider type.
-func NewProvider(config *oauth.Config) (oauth.Provider, error) { //nolint:ireturn
+//
+//nolint:ireturn
+func NewProvider(config *oauth.Config) (oauth.Provider, error) {
 	switch config.ProviderType {
 	case oauth.ProviderTypeGoogle:
 		return google.NewProvider(config), nil

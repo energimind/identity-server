@@ -8,96 +8,28 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-const (
-	sessionIDHeader = "X-IS-SessionID"
-	requestIDHeader = "X-Request-ID"
-)
-
 // Client is a client to interact with the identity service.
 type Client struct {
-	authEndpoint string
-	rest         *resty.Client
-	requestID    string
+	baseURL string
+	rest    *resty.Client
 }
 
 // New returns a new instance of Client.
-func New(authEndpoint string) *Client {
+// The baseURL is the base URL of the identity service.
+func New(baseURL string) *Client {
 	const clientTimeout = 10 * time.Second
 
 	return &Client{
-		authEndpoint: authEndpoint + "/api/v1/auth",
-		rest:         resty.New().SetTimeout(clientTimeout),
+		baseURL: baseURL + "/api/v1/sessions/",
+		rest:    resty.New().SetTimeout(clientTimeout),
 	}
-}
-
-// WithRequestID sets the request ID for the client.
-// It returns a new client with the request ID set.
-func (c *Client) WithRequestID(requestID string) *Client {
-	return &Client{
-		authEndpoint: c.authEndpoint,
-		rest:         c.rest,
-		requestID:    requestID,
-	}
-}
-
-// ProviderLink returns the link to the provider's login page.
-func (c *Client) ProviderLink(ctx context.Context, realmCode, providerCode, action string) (string, error) {
-	var result struct {
-		Link string `json:"link"`
-	}
-
-	rsp, err := c.rest.R().
-		SetContext(ctx).
-		SetQueryParams(map[string]string{
-			"realmCode":    realmCode,
-			"providerCode": providerCode,
-			"action":       action,
-		}).
-		SetResult(&result).
-		Get(c.authEndpoint + "/link")
-	if err != nil {
-		return "", newIdentityServerError("failed to get provider link: %v", err)
-	}
-
-	if err := processErrorResponse(rsp); err != nil {
-		return "", err
-	}
-
-	return result.Link, nil
-}
-
-// Login completes the login process and returns the session ID.
-func (c *Client) Login(ctx context.Context, code, state string) (string, error) {
-	var result struct {
-		SessionID string `json:"sessionId"`
-	}
-
-	rsp, err := c.newRequest(ctx).
-		SetQueryParams(map[string]string{
-			"code":  code,
-			"state": state,
-		}).
-		SetResult(&result).
-		Post(c.authEndpoint + "/login")
-	if err != nil {
-		return "", newIdentityServerError("failed to complete login: %v", err)
-	}
-
-	if err := processErrorResponse(rsp); err != nil {
-		return "", err
-	}
-
-	return result.SessionID, nil
 }
 
 // Session returns the session information.
 func (c *Client) Session(ctx context.Context, sessionID string) (Session, error) {
 	var result Session
 
-	rsp, err := c.newRequest(ctx).
-		SetHeader(sessionIDHeader, sessionID).
-		SetResult(&result).
-		Get(c.authEndpoint + "/session")
+	rsp, err := c.newRequest(ctx).SetResult(&result).Get(c.baseURL + sessionID)
 	if err != nil {
 		return Session{}, newIdentityServerError("failed to get session info: %v", err)
 	}
@@ -115,10 +47,7 @@ func (c *Client) Refresh(ctx context.Context, sessionID string) (bool, error) {
 		Refreshed bool `json:"refreshed"`
 	}
 
-	rsp, err := c.newRequest(ctx).
-		SetHeader(sessionIDHeader, sessionID).
-		SetResult(&result).
-		Put(c.authEndpoint + "/refresh")
+	rsp, err := c.newRequest(ctx).SetResult(&result).Put(c.baseURL + sessionID + "/refresh")
 	if err != nil {
 		return false, newIdentityServerError("failed to refresh session: %v", err)
 	}
@@ -132,9 +61,7 @@ func (c *Client) Refresh(ctx context.Context, sessionID string) (bool, error) {
 
 // Logout logs out the session.
 func (c *Client) Logout(ctx context.Context, sessionID string) error {
-	rsp, err := c.newRequest(ctx).
-		SetHeader(sessionIDHeader, sessionID).
-		Delete(c.authEndpoint + "/session")
+	rsp, err := c.newRequest(ctx).Delete(c.baseURL + sessionID)
 	if err != nil {
 		return newIdentityServerError("failed to logout: %v", err)
 	}
@@ -143,13 +70,7 @@ func (c *Client) Logout(ctx context.Context, sessionID string) error {
 }
 
 func (c *Client) newRequest(ctx context.Context) *resty.Request {
-	req := c.rest.R().SetContext(ctx)
-
-	if c.requestID != "" {
-		req.SetHeader(requestIDHeader, c.requestID)
-	}
-
-	return req
+	return c.rest.R().SetContext(ctx)
 }
 
 func processErrorResponse(rsp *resty.Response) error {
