@@ -249,7 +249,7 @@ func (s *Service) findUserSession(ctx context.Context, sessionID string) (userSe
 	}
 
 	if !found {
-		return userSession{}, domain.NewAccessDeniedError("invalid userSession ID: %s", sessionID)
+		return userSession{}, domain.NewNotFoundError("invalid session ID: %s", sessionID)
 	}
 
 	return us, nil
@@ -266,6 +266,6 @@ func (s *Service) sessionProvider(session userSession) (oauth.Provider, error) {
 
 func (s *Service) silentlyDeleteSession(ctx context.Context, sessionID string) {
 	if err := s.sessionCache.Delete(ctx, sessionID); err != nil {
-		slog.FromContext(ctx).Info().Err(err).Msg("failed to delete userSession")
+		slog.FromContext(ctx).Info().Err(err).Msg("failed to delete session")
 	}
 }

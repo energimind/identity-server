@@ -11,16 +11,18 @@ import (
 // Client is a client to interact with the identity service.
 type Client struct {
 	baseURL string
+	apiKey  string
 	rest    *resty.Client
 }
 
 // New returns a new instance of Client.
 // The baseURL is the base URL of the identity service.
-func New(baseURL string) *Client {
+func New(baseURL, apiKey string) *Client {
 	const clientTimeout = 10 * time.Second
 
 	return &Client{
 		baseURL: baseURL + "/api/v1/sessions/",
+		apiKey:  apiKey,
 		rest:    resty.New().SetTimeout(clientTimeout),
 	}
 }
@@ -70,7 +72,7 @@ func (c *Client) Logout(ctx context.Context, sessionID string) error {
 }
 
 func (c *Client) newRequest(ctx context.Context) *resty.Request {
-	return c.rest.R().SetContext(ctx)
+	return c.rest.R().SetContext(ctx).SetHeader("Authorization", "Bearer "+c.apiKey)
 }
 
 func processErrorResponse(rsp *resty.Response) error {

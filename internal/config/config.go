@@ -31,7 +31,8 @@ type MongoConfig struct {
 
 // AuthenticatorConfig contains authenticator setup.
 type AuthenticatorConfig struct {
-	LocalAdminEnabled bool `env:"AUTH_LOCAL_ADMIN_ENABLED"`
+	APIKey            string `env:"AUTH_API_KEY"`
+	LocalAdminEnabled bool   `env:"AUTH_LOCAL_ADMIN_ENABLED"`
 }
 
 // CookieConfig contains cookie setup.

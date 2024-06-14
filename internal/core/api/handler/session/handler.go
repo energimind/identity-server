@@ -27,7 +27,7 @@ func NewHandler(service session.Service, userFinder admin.UserFinder) *Handler {
 }
 
 // Bind binds the Handler to a root provided by a router.
-func (h *Handler) Bind(root gin.IRoutes) {
+func (h *Handler) Bind(root gin.IRouter) {
 	root.GET("/:sid", h.getSession)
 	root.PUT("/:sid/refresh", h.refreshSession)
 	root.DELETE("/:sid", h.deleteSession)

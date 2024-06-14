@@ -20,6 +20,7 @@ type dependencies struct {
 	idGen             domain.IDGenerator
 	shortIDGen        domain.IDGenerator
 	keyGen            domain.IDGenerator
+	sessionsAPIKey    string
 	localAdminEnabled bool
 	cookieOperator    *sessioncookie.Provider
 	cache             domain.Cache
@@ -30,6 +31,7 @@ func setupHandlersAndMiddlewares(deps dependencies) (api.Handlers, api.Middlewar
 	idGen := deps.idGen
 	shortIDGen := deps.shortIDGen
 	keyGen := deps.keyGen
+	sessionAPIKey := deps.sessionsAPIKey
 	localAdminEnabled := deps.localAdminEnabled
 	cookieOperator := deps.cookieOperator
 	cache := deps.cache
@@ -66,7 +68,8 @@ func setupHandlersAndMiddlewares(deps dependencies) (api.Handlers, api.Middlewar
 	}
 
 	middlewares := api.Middlewares{
-		RequireActor: middleware.RequireActor(cookieOperator, sessionService, localAdminEnabled),
+		RequireActor:  middleware.RequireActor(cookieOperator, sessionService, localAdminEnabled),
+		RequireAPIKey: middleware.RequireAPIKey(sessionAPIKey),
 	}
 
 	return handlers, middlewares

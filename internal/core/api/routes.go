@@ -53,6 +53,8 @@ func (r *Routes) RegisterRoutes(root gin.IRouter) {
 
 	sessionsEndpoint := api.Group("/sessions")
 	{
+		sessionsEndpoint.Use(r.middlewares.RequireAPIKey)
+
 		r.bind(sessionsEndpoint, r.handlers.Session)
 	}
 
@@ -62,7 +64,7 @@ func (r *Routes) RegisterRoutes(root gin.IRouter) {
 	}
 }
 
-func (r *Routes) bind(root gin.IRoutes, hndlr anyHandler) {
+func (r *Routes) bind(root gin.IRouter, hndlr anyHandler) {
 	if mw, ok := hndlr.(handlerWithMiddleware); ok {
 		mw.BindWithMiddlewares(root, r.middlewares)
 

@@ -17,7 +17,7 @@ func NewHandler() *Handler {
 }
 
 // Bind binds the Handler to a root provided by a router.
-func (h *Handler) Bind(root gin.IRoutes) {
+func (h *Handler) Bind(root gin.IRouter) {
 	root.GET("/readiness", h.readiness)
 	root.GET("/liveness", h.liveness)
 }
