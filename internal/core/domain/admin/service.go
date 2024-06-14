@@ -46,6 +46,12 @@ type UserCreator interface {
 	CreateUserSys(ctx context.Context, user User) (User, error)
 }
 
+// UserProvisioner defines the user provisioner interface.
+type UserProvisioner interface {
+	UserFinder
+	UserCreator
+}
+
 // DaemonService defines the daemon service interface.
 type DaemonService interface {
 	GetDaemons(ctx context.Context, actor Actor, realmID ID) ([]Daemon, error)

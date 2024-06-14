@@ -55,7 +55,7 @@ func setupHandlersAndMiddlewares(deps dependencies) (api.Handlers, api.Middlewar
 	)
 
 	handlers := api.Handlers{
-		Auth:     adminapi.NewAuthHandler(sessionService, userService, userService, cookieOperator, localAdminEnabled),
+		Auth:     adminapi.NewAuthHandler(sessionService, userService, cookieOperator, localAdminEnabled),
 		Realm:    adminapi.NewRealmHandler(realmService),
 		Provider: adminapi.NewProviderHandler(providerService),
 		User:     adminapi.NewUserHandler(userService),

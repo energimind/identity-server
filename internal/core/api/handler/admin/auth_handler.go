@@ -24,8 +24,7 @@ const (
 // AuthHandler handles admin auth requests.
 type AuthHandler struct {
 	sessionService    session.Service
-	userFinder        admin.UserFinder
-	userCreator       admin.UserCreator
+	userProvisioner   admin.UserProvisioner
 	cookieOperator    admin.CookieOperator
 	localAdminEnabled bool
 	client            *resty.Client
@@ -34,8 +33,7 @@ type AuthHandler struct {
 // NewAuthHandler returns a new instance of AuthHandler.
 func NewAuthHandler(
 	sessionService session.Service,
-	userFinder admin.UserFinder,
-	userCreator admin.UserCreator,
+	userProvisioner admin.UserProvisioner,
 	cookieOperator admin.CookieOperator,
 	localAdminEnabled bool,
 ) *AuthHandler {
@@ -43,8 +41,7 @@ func NewAuthHandler(
 
 	return &AuthHandler{
 		sessionService:    sessionService,
-		userFinder:        userFinder,
-		userCreator:       userCreator,
+		userProvisioner:   userProvisioner,
 		cookieOperator:    cookieOperator,
 		localAdminEnabled: localAdminEnabled,
 		client:            resty.New().SetTimeout(clientTimeout),
@@ -151,7 +148,7 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 		return
 	}
 
-	user, err := h.userFinder.GetUserByBindIDSys(ctx, admin.ID(cs.Header.RealmID), cs.User.BindID)
+	user, err := h.userProvisioner.GetUserByBindIDSys(ctx, admin.ID(cs.Header.RealmID), cs.User.BindID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -214,7 +211,7 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 		Role:        admin.SystemRoleUser,
 	}
 
-	user, err := h.userCreator.CreateUserSys(ctx, newUser)
+	user, err := h.userProvisioner.CreateUserSys(ctx, newUser)
 	if err != nil {
 		_ = c.Error(err)
 
