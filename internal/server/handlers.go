@@ -3,12 +3,12 @@ package server
 import (
 	"github.com/energimind/identity-server/internal/core/api"
 	adminapi "github.com/energimind/identity-server/internal/core/api/handler/admin"
-	authapi "github.com/energimind/identity-server/internal/core/api/handler/auth"
 	healthapi "github.com/energimind/identity-server/internal/core/api/handler/health"
+	sessionapi "github.com/energimind/identity-server/internal/core/api/handler/session"
 	utilapi "github.com/energimind/identity-server/internal/core/api/handler/util"
 	"github.com/energimind/identity-server/internal/core/domain"
 	adminsvc "github.com/energimind/identity-server/internal/core/domain/admin/service"
-	authsvc "github.com/energimind/identity-server/internal/core/domain/auth/service"
+	authsvc "github.com/energimind/identity-server/internal/core/domain/session/service"
 	"github.com/energimind/identity-server/internal/core/infra/repository"
 	"github.com/energimind/identity-server/internal/core/infra/rest/middleware"
 	"github.com/energimind/identity-server/internal/core/infra/rest/sessioncookie"
@@ -46,21 +46,27 @@ func setupHandlersAndMiddlewares(deps dependencies) (api.Handlers, api.Middlewar
 	realmLookupService := adminsvc.NewRealmLookupService(realmService)
 	providerLookupService := adminsvc.NewProviderLookupService(providerService)
 	apiKeyLookupService := adminsvc.NewAPIKeyLookupService(userRepo, daemonRepo)
-	authService := authsvc.NewService(realmLookupService, providerLookupService, apiKeyLookupService, shortIDGen, cache)
+	sessionService := authsvc.NewService(
+		realmLookupService,
+		providerLookupService,
+		apiKeyLookupService,
+		shortIDGen,
+		cache,
+	)
 
 	handlers := api.Handlers{
-		Realm:     adminapi.NewRealmHandler(realmService),
-		Provider:  adminapi.NewProviderHandler(providerService),
-		User:      adminapi.NewUserHandler(userService),
-		Daemon:    adminapi.NewDaemonHandler(daemonService),
-		AdminAuth: adminapi.NewAuthHandler(authService, userService, userService, cookieOperator, localAdminEnabled),
-		Auth:      authapi.NewHandler(authService, userService),
-		Util:      utilapi.NewHandler(keyGen),
-		Health:    healthapi.NewHandler(),
+		Auth:     adminapi.NewAuthHandler(sessionService, userService, userService, cookieOperator, localAdminEnabled),
+		Realm:    adminapi.NewRealmHandler(realmService),
+		Provider: adminapi.NewProviderHandler(providerService),
+		User:     adminapi.NewUserHandler(userService),
+		Daemon:   adminapi.NewDaemonHandler(daemonService),
+		Session:  sessionapi.NewHandler(sessionService, userService),
+		Util:     utilapi.NewHandler(keyGen),
+		Health:   healthapi.NewHandler(),
 	}
 
 	middlewares := api.Middlewares{
-		RequireActor: middleware.RequireActor(cookieOperator, authService, localAdminEnabled),
+		RequireActor: middleware.RequireActor(cookieOperator, sessionService, localAdminEnabled),
 	}
 
 	return handlers, middlewares

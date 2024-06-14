@@ -9,7 +9,7 @@ import (
 	"github.com/energimind/go-kit/slog"
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
-	"github.com/energimind/identity-server/internal/core/domain/auth"
+	"github.com/energimind/identity-server/internal/core/domain/session"
 	"github.com/energimind/identity-server/internal/core/infra/oauth"
 	"github.com/energimind/identity-server/internal/core/infra/oauth/providers"
 	"github.com/energimind/identity-server/internal/core/infra/rest/reqctx"
@@ -19,7 +19,7 @@ const sessionTTL = 24 * time.Hour
 
 // Service manages user sessions.
 //
-// It implements the auth.Service interface.
+// It implements the session.Service interface.
 //
 // We do not wrap the errors returned by the repository because they are already
 // packed as domain errors. Therefore, we disable the wrapcheck linter for these calls.
@@ -48,10 +48,10 @@ func NewService(
 	}
 }
 
-// Ensure service implements the auth.Service interface.
-var _ auth.Service = (*Service)(nil)
+// Ensure service implements the session.Service interface.
+var _ session.Service = (*Service)(nil)
 
-// ProviderLink implements the auth.Service interface.
+// Link implements the session.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *Service) Link(ctx context.Context, realmCode, providerCode, action string) (string, error) {
@@ -92,7 +92,7 @@ func (s *Service) Link(ctx context.Context, realmCode, providerCode, action stri
 	return oauthProvider.GetAuthURL(ctx, state), nil
 }
 
-// Login implements the auth.Service interface.
+// Login implements the session.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *Service) Login(ctx context.Context, code, state string) (string, error) {
@@ -148,15 +148,15 @@ func (s *Service) Login(ctx context.Context, code, state string) (string, error)
 	return sessionID, nil
 }
 
-// Session implements the auth.Service interface.
-func (s *Service) Session(ctx context.Context, sessionID string) (auth.Session, error) {
+// Session implements the session.Service interface.
+func (s *Service) Session(ctx context.Context, sessionID string) (session.Session, error) {
 	us, err := s.findUserSession(ctx, sessionID)
 	if err != nil {
-		return auth.Session{}, err
+		return session.Session{}, err
 	}
 
-	return auth.Session{
-		Header: auth.Header{
+	return session.Session{
+		Header: session.Header{
 			SessionID: sessionID,
 			RealmID:   us.RealmID,
 		},
@@ -164,7 +164,7 @@ func (s *Service) Session(ctx context.Context, sessionID string) (auth.Session, 
 	}, nil
 }
 
-// Refresh implements the auth.Service interface.
+// Refresh implements the session.Service interface.
 // It returns true if the token was refreshed, false otherwise.
 //
 //nolint:wrapcheck // see comment in the header
@@ -205,7 +205,7 @@ func (s *Service) Refresh(ctx context.Context, sessionID string) (bool, error) {
 	return true, nil
 }
 
-// Logout implements the auth.Service interface.
+// Logout implements the session.Service interface.
 func (s *Service) Logout(ctx context.Context, sessionID string) error {
 	us, err := s.findUserSession(ctx, sessionID)
 	if err != nil {
@@ -230,7 +230,7 @@ func (s *Service) Logout(ctx context.Context, sessionID string) error {
 	return nil
 }
 
-// VerifyAPIKey implements the auth.Service interface.
+// VerifyAPIKey implements the session.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
 func (s *Service) VerifyAPIKey(ctx context.Context, realmID admin.ID, apiKey string) error {
@@ -255,8 +255,7 @@ func (s *Service) findUserSession(ctx context.Context, sessionID string) (userSe
 	return us, nil
 }
 
-//nolint:ireturn
-func (s *Service) sessionProvider(session userSession) (oauth.Provider, error) {
+func (s *Service) sessionProvider(session userSession) (oauth.Provider, error) { //nolint:ireturn
 	provider, err := providers.NewProvider(session.Config)
 	if err != nil {
 		return nil, domain.NewAccessDeniedError("failed to create oauth provider: %v", err)

@@ -1,12 +1,12 @@
-package auth
+package session
 
 import (
 	isclient "github.com/energimind/identity-server/client"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
-	"github.com/energimind/identity-server/internal/core/domain/auth"
+	"github.com/energimind/identity-server/internal/core/domain/session"
 )
 
-func toClientSession(session auth.Session, user admin.User) isclient.Session {
+func toClientSession(session session.Session, user admin.User) isclient.Session {
 	return isclient.Session{
 		Header: isclient.Header{
 			SessionID: session.Header.SessionID,

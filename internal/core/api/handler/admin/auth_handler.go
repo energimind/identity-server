@@ -8,8 +8,8 @@ import (
 	"github.com/energimind/identity-server/internal/core/api"
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
-	"github.com/energimind/identity-server/internal/core/domain/auth"
 	"github.com/energimind/identity-server/internal/core/domain/local"
+	"github.com/energimind/identity-server/internal/core/domain/session"
 	"github.com/energimind/identity-server/internal/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
@@ -23,7 +23,7 @@ const (
 
 // AuthHandler handles admin auth requests.
 type AuthHandler struct {
-	authService       auth.Service
+	sessionService    session.Service
 	userFinder        admin.UserFinder
 	userCreator       admin.UserCreator
 	cookieOperator    admin.CookieOperator
@@ -33,7 +33,7 @@ type AuthHandler struct {
 
 // NewAuthHandler returns a new instance of AuthHandler.
 func NewAuthHandler(
-	authService auth.Service,
+	sessionService session.Service,
 	userFinder admin.UserFinder,
 	userCreator admin.UserCreator,
 	cookieOperator admin.CookieOperator,
@@ -42,7 +42,7 @@ func NewAuthHandler(
 	const clientTimeout = 10 * time.Second
 
 	return &AuthHandler{
-		authService:       authService,
+		sessionService:    sessionService,
 		userFinder:        userFinder,
 		userCreator:       userCreator,
 		cookieOperator:    cookieOperator,
@@ -76,7 +76,7 @@ func (h *AuthHandler) link(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	link, err := h.authService.Link(ctx, realmCode, providerCode, action)
+	link, err := h.sessionService.Link(ctx, realmCode, providerCode, action)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -118,7 +118,7 @@ func (h *AuthHandler) logout(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	if err := h.authService.Logout(ctx, sessionID); err != nil {
+	if err := h.sessionService.Logout(ctx, sessionID); err != nil {
 		reqctx.Logger(ctx).Info().
 			Str("sessionId", sessionID).
 			Err(err).
@@ -137,14 +137,14 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 
 	ctx := c.Request.Context()
 
-	sessionID, err := h.authService.Login(ctx, code, state)
+	sessionID, err := h.sessionService.Login(ctx, code, state)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	cs, err := h.authService.Session(ctx, sessionID)
+	cs, err := h.sessionService.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -162,7 +162,7 @@ func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
 }
 
 func (h *AuthHandler) loginLocal(c *gin.Context) {
-	header := auth.Header{
+	header := session.Header{
 		SessionID: local.AdminSessionID,
 		RealmID:   local.AdminRealmID,
 	}
@@ -188,14 +188,14 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 
 	ctx := c.Request.Context()
 
-	sessionID, err := h.authService.Login(ctx, code, state)
+	sessionID, err := h.sessionService.Login(ctx, code, state)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	cs, err := h.authService.Session(ctx, sessionID)
+	cs, err := h.sessionService.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -224,7 +224,7 @@ func (h *AuthHandler) doSignup(c *gin.Context, code, state string) {
 	h.serveSessionCookie(c, cs.Header, user)
 }
 
-func (h *AuthHandler) serveSessionCookie(c *gin.Context, header auth.Header, user admin.User) {
+func (h *AuthHandler) serveSessionCookie(c *gin.Context, header session.Header, user admin.User) {
 	us := domain.NewUserSession(
 		header.SessionID,
 		header.RealmID,
@@ -238,5 +238,5 @@ func (h *AuthHandler) serveSessionCookie(c *gin.Context, header auth.Header, use
 		return
 	}
 
-	c.JSON(http.StatusOK, toSession(header, user))
+	c.JSON(http.StatusOK, toSessionInfo(header, user))
 }

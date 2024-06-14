@@ -17,12 +17,12 @@ type handlerWithMiddleware interface {
 
 // Handlers is a collection of handler that will be bound to the router.
 type Handlers struct {
-	Realm     anyHandler
-	Provider  anyHandler
-	User      anyHandler
-	Daemon    anyHandler
-	AdminAuth anyHandler
-	Auth      anyHandler
-	Util      anyHandler
-	Health    anyHandler
+	Auth     anyHandler
+	Realm    anyHandler
+	Provider anyHandler
+	User     anyHandler
+	Daemon   anyHandler
+	Session  anyHandler
+	Util     anyHandler
+	Health   anyHandler
 }

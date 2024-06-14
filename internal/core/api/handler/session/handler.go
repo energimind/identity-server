@@ -1,4 +1,4 @@
-package auth
+package session
 
 import (
 	"encoding/base64"
@@ -8,78 +8,46 @@ import (
 
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
-	"github.com/energimind/identity-server/internal/core/domain/auth"
+	"github.com/energimind/identity-server/internal/core/domain/session"
 	"github.com/gin-gonic/gin"
 )
 
-const sessionIDHeader = "X-IS-SessionID"
-
 // Handler is a handler that handles auth requests and sessions.
 type Handler struct {
-	authService auth.Service
-	userFinder  admin.UserFinder
+	service    session.Service
+	userFinder admin.UserFinder
 }
 
 // NewHandler returns a new Handler.
-func NewHandler(service auth.Service, userFinder admin.UserFinder) *Handler {
+func NewHandler(service session.Service, userFinder admin.UserFinder) *Handler {
 	return &Handler{
-		authService: service,
-		userFinder:  userFinder,
+		service:    service,
+		userFinder: userFinder,
 	}
 }
 
 // Bind binds the Handler to a root provided by a router.
 func (h *Handler) Bind(root gin.IRoutes) {
-	root.GET("/link", h.providerLink)
-	root.POST("/login", h.login)
-	root.GET("/session", h.getSession)
-	root.PUT("/refresh", h.refreshSession)
-	root.DELETE("/session", h.logout)
+	root.GET("/:sid", h.getSession)
+	root.PUT("/:sid/refresh", h.refreshSession)
+	root.DELETE("/:sid", h.deleteSession)
 	root.GET("/verify", h.verifyAPIKey)
 }
 
-func (h *Handler) providerLink(c *gin.Context) {
-	ctx := c.Request.Context()
-	realmCode := c.Query("realmCode")
-	providerCode := c.Query("providerCode")
-	action := c.Query("action")
-
-	link, err := h.authService.Link(ctx, realmCode, providerCode, action)
-	if err != nil {
-		_ = c.Error(err)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"link": link})
-}
-
-func (h *Handler) login(c *gin.Context) {
-	ctx := c.Request.Context()
-
-	sessionID, err := h.authService.Login(ctx, c.Query("code"), c.Query("state"))
-	if err != nil {
-		_ = c.Error(err)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"sessionID": sessionID})
-}
-
+// getSession returns the session associated with the session ID.
 func (h *Handler) getSession(c *gin.Context) {
 	ctx := c.Request.Context()
-	sessionID := c.GetHeader(sessionIDHeader)
+	sessionID := c.Param("sid")
 
-	session, err := h.authService.Session(ctx, sessionID)
+	sess, err := h.service.Session(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
 		return
 	}
 
-	realmID := session.Header.RealmID
-	userBindID := session.User.BindID
+	realmID := sess.Header.RealmID
+	userBindID := sess.User.BindID
 
 	user, err := h.userFinder.GetUserByBindIDSys(ctx, admin.ID(realmID), userBindID)
 	if err != nil {
@@ -88,14 +56,15 @@ func (h *Handler) getSession(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, toClientSession(session, user))
+	c.JSON(http.StatusOK, toClientSession(sess, user))
 }
 
+// refreshSession refreshes the session associated with the session ID.
 func (h *Handler) refreshSession(c *gin.Context) {
 	ctx := c.Request.Context()
-	sessionID := c.GetHeader(sessionIDHeader)
+	sessionID := c.Param("sid")
 
-	refreshed, err := h.authService.Refresh(ctx, sessionID)
+	refreshed, err := h.service.Refresh(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -105,11 +74,13 @@ func (h *Handler) refreshSession(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"refreshed": refreshed})
 }
 
-func (h *Handler) logout(c *gin.Context) {
+// deleteSession logs out the session associated with the session ID,
+// and deletes the session from the cache.
+func (h *Handler) deleteSession(c *gin.Context) {
 	ctx := c.Request.Context()
-	sessionID := c.GetHeader(sessionIDHeader)
+	sessionID := c.Param("sid")
 
-	err := h.authService.Logout(ctx, sessionID)
+	err := h.service.Logout(ctx, sessionID)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -119,6 +90,7 @@ func (h *Handler) logout(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// verifyAPIKey verifies the API key.
 func (h *Handler) verifyAPIKey(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -129,7 +101,7 @@ func (h *Handler) verifyAPIKey(c *gin.Context) {
 		return
 	}
 
-	err = h.authService.VerifyAPIKey(ctx, admin.ID(realmID), apiKey)
+	err = h.service.VerifyAPIKey(ctx, admin.ID(realmID), apiKey)
 	if err != nil {
 		_ = c.Error(domain.NewUnauthorizedError("invalid API key: %v", err))
 

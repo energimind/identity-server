@@ -1,4 +1,4 @@
-package auth
+package session
 
 // Session is a struct that contains session and user information.
 type Session struct {

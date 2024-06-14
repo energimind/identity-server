@@ -1,7 +1,7 @@
 package admin
 
 // session is a struct that contains session information.
-type session struct {
+type sessionInfo struct {
 	ID      string      `json:"id"`
 	RealmID string      `json:"realmId"`
 	User    sessionUser `json:"user"`

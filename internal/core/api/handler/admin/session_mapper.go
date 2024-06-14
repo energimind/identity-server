@@ -2,11 +2,11 @@ package admin
 
 import (
 	"github.com/energimind/identity-server/internal/core/domain/admin"
-	"github.com/energimind/identity-server/internal/core/domain/auth"
+	"github.com/energimind/identity-server/internal/core/domain/session"
 )
 
-func toSession(header auth.Header, user admin.User) session {
-	return session{
+func toSessionInfo(header session.Header, user admin.User) sessionInfo {
+	return sessionInfo{
 		ID:      header.SessionID,
 		RealmID: header.RealmID,
 		User:    toSessionUser(user),
