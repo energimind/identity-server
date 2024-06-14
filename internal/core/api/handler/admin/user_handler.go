@@ -20,7 +20,7 @@ func NewUserHandler(service admin.UserService) *UserHandler {
 }
 
 // Bind binds the UserHandler to a root provided by a router.
-func (h *UserHandler) Bind(root gin.IRoutes) {
+func (h *UserHandler) Bind(root gin.IRouter) {
 	root.GET("", h.findAll)
 	root.GET("/:id", h.findByID)
 	root.POST("", h.create)

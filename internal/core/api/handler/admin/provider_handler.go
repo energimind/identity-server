@@ -20,7 +20,7 @@ func NewProviderHandler(service admin.ProviderService) *ProviderHandler {
 }
 
 // Bind binds the ProviderHandler to a root provided by a router.
-func (h *ProviderHandler) Bind(root gin.IRoutes) {
+func (h *ProviderHandler) Bind(root gin.IRouter) {
 	root.GET("", h.findAll)
 	root.GET("/:id", h.findByID)
 	root.POST("", h.create)

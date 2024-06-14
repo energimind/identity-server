@@ -20,7 +20,7 @@ func NewDaemonHandler(service admin.DaemonService) *DaemonHandler {
 }
 
 // Bind binds the DaemonHandler to a root provided by a router.
-func (h *DaemonHandler) Bind(root gin.IRoutes) {
+func (h *DaemonHandler) Bind(root gin.IRouter) {
 	root.GET("", h.findAll)
 	root.GET("/:id", h.findByID)
 	root.POST("", h.create)

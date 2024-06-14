@@ -20,7 +20,7 @@ func NewRealmHandler(service admin.RealmService) *RealmHandler {
 }
 
 // Bind binds the RealmHandler to a root provided by a router.
-func (h *RealmHandler) Bind(root gin.IRoutes) {
+func (h *RealmHandler) Bind(root gin.IRouter) {
 	root.GET("", h.findAll)
 	root.GET("/:aid", h.findByID)
 	root.POST("", h.create)
