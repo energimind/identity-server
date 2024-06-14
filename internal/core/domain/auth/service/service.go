@@ -54,7 +54,7 @@ var _ auth.Service = (*Service)(nil)
 // ProviderLink implements the auth.Service interface.
 //
 //nolint:wrapcheck // see comment in the header
-func (s *Service) ProviderLink(ctx context.Context, realmCode, providerCode, action string) (string, error) {
+func (s *Service) Link(ctx context.Context, realmCode, providerCode, action string) (string, error) {
 	const defaultAction = "login"
 
 	realm, err := s.realmFinder.LookupRealm(ctx, realmCode)

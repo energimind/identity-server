@@ -44,7 +44,7 @@ func (h *Handler) providerLink(c *gin.Context) {
 	providerCode := c.Query("providerCode")
 	action := c.Query("action")
 
-	link, err := h.authService.ProviderLink(ctx, realmCode, providerCode, action)
+	link, err := h.authService.Link(ctx, realmCode, providerCode, action)
 	if err != nil {
 		_ = c.Error(err)
 

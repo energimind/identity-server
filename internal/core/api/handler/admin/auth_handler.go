@@ -10,6 +10,7 @@ import (
 	"github.com/energimind/identity-server/internal/core/domain/admin"
 	"github.com/energimind/identity-server/internal/core/domain/auth"
 	"github.com/energimind/identity-server/internal/core/domain/local"
+	"github.com/energimind/identity-server/internal/core/infra/rest/reqctx"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 )
@@ -52,12 +53,13 @@ func NewAuthHandler(
 
 // BindWithMiddlewares binds the LoginHandler to a root provided by a router.
 func (h *AuthHandler) BindWithMiddlewares(root gin.IRoutes, mws api.Middlewares) {
-	root.GET("/link", h.providerLink)
+	root.GET("/link", h.link)
 	root.POST("/login", h.login)
 	root.DELETE("/session", mws.RequireActor, h.logout)
 }
 
-func (h *AuthHandler) providerLink(c *gin.Context) {
+// link returns the link to the provider's login page.
+func (h *AuthHandler) link(c *gin.Context) {
 	realmCode := c.Query("realmCode")
 	providerCode := c.Query("providerCode")
 	action := c.Query("action")
@@ -74,7 +76,7 @@ func (h *AuthHandler) providerLink(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	link, err := h.authService.ProviderLink(ctx, realmCode, providerCode, action)
+	link, err := h.authService.Link(ctx, realmCode, providerCode, action)
 	if err != nil {
 		_ = c.Error(err)
 
@@ -84,6 +86,7 @@ func (h *AuthHandler) providerLink(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"link": link})
 }
 
+// login completes the login/signup process and returns the session ID.
 func (h *AuthHandler) login(c *gin.Context) {
 	code := c.Query("code")
 	state := c.Query("state")
@@ -95,6 +98,34 @@ func (h *AuthHandler) login(c *gin.Context) {
 	}
 
 	h.doLogin(c, code, state)
+}
+
+// logout logs out the user, deletes the session, and resets the cookie.
+func (h *AuthHandler) logout(c *gin.Context) {
+	if err := h.cookieOperator.ResetCookie(c); err != nil {
+		_ = c.Error(err)
+
+		return
+	}
+
+	sessionID := c.GetString("sessionId")
+
+	if h.localAdminEnabled && sessionID == local.AdminSessionID {
+		c.Status(http.StatusOK)
+
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	if err := h.authService.Logout(ctx, sessionID); err != nil {
+		reqctx.Logger(ctx).Info().
+			Str("sessionId", sessionID).
+			Err(err).
+			Msg("Ignoring failed logout request")
+	}
+
+	c.Status(http.StatusOK)
 }
 
 func (h *AuthHandler) doLogin(c *gin.Context, code, state string) {
@@ -208,31 +239,4 @@ func (h *AuthHandler) serveSessionCookie(c *gin.Context, header auth.Header, use
 	}
 
 	c.JSON(http.StatusOK, toSession(header, user))
-}
-
-func (h *AuthHandler) logout(c *gin.Context) {
-	// reset the cookie even if the logout fails
-	if err := h.cookieOperator.ResetCookie(c); err != nil {
-		_ = c.Error(err)
-
-		return
-	}
-
-	sessionID := c.GetString("sessionId")
-
-	if h.localAdminEnabled && sessionID == local.AdminSessionID {
-		c.Status(http.StatusOK)
-
-		return
-	}
-
-	ctx := c.Request.Context()
-
-	if err := h.authService.Logout(ctx, sessionID); err != nil {
-		_ = c.Error(err)
-
-		return
-	}
-
-	c.Status(http.StatusOK)
 }
