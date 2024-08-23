@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/energimind/identity-server/internal/core/domain"
 	"github.com/energimind/identity-server/internal/core/domain/admin"
@@ -32,7 +31,7 @@ func RequireActor(
 	return func(c *gin.Context) {
 		us, err := cookieOperator.ParseCookie(c)
 		if err != nil {
-			_ = c.Error(domain.NewSessionError(fmt.Sprintf("invalid sessionKey cookie: %s", err)))
+			_ = c.Error(domain.NewSessionError("invalid sessionKey cookie: %s", err))
 
 			c.Abort()
 
